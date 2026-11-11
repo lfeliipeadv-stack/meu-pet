@@ -61,7 +61,33 @@ namespace DesktopPet
 			var first = f.WebPets.pets.FirstOrDefault(p => p.folder == "esheep64") ?? f.WebPets.pets.FirstOrDefault();
 			if (first != null) { f.petsView.SelectForSnapshot(first); await f.LoadDetailsAsync(first); await Task.Delay(300); save("pets-detail"); }
 			foreach (Page p in new[] { Page.Behaviour, Page.Application, Page.About }) { f.SelectPage(p); await Task.Delay(200); save(p.ToString().ToLowerInvariant()); }
+			// narrow window: the page subtitle must wrap instead of being cut
+			f.SelectPage(Page.Pets); f.Width = 760; await Task.Delay(300); save("pets-narrow");
 			f.Close();
+
+			// animation picker (middle-click on the pet), built from the current pet
+			try
+			{
+				var xml = new Xml(1);
+				if (xml.ReadXML())
+				{
+					var anims = new Animations(xml);
+					xml.LoadAnimations(anims);
+					var picker = new FormAnimPicker(anims, xml.AnimationXML.Header.Petname,
+						xml.sprites != null && xml.sprites.Count > 0 ? xml.sprites[0] : null, id => { })
+					{ Location = new Point(-5000, -5000) };
+					picker.Show();
+					await Task.Delay(300);
+					picker.Refresh();
+					using (var bmp = new Bitmap(picker.ClientSize.Width, picker.ClientSize.Height))
+					{
+						picker.DrawToBitmap(bmp, new Rectangle(Point.Empty, picker.ClientSize));
+						bmp.Save(System.IO.Path.Combine(folder, "anim-picker.png"), System.Drawing.Imaging.ImageFormat.Png);
+					}
+					picker.Close();
+				}
+			}
+			catch (Exception ex) { StartUp.AddDebugInfo(StartUp.DEBUG_TYPE.warning, "picker snapshot: " + ex.Message); }
 		}
 
 		// ------------------------------------------------------------------ state
@@ -133,7 +159,9 @@ namespace DesktopPet
 
 			header = new Panel { Dock = DockStyle.Top, Height = 84, BackColor = Theme.Background, Padding = new Padding(28, 18, 24, 6) };
 			headerTitle = new Label { AutoSize = true, Font = fontTitle, ForeColor = Theme.Text, Location = new Point(26, 16) };
-			headerSubtitle = new Label { AutoSize = true, Font = fontSubtitle, ForeColor = Theme.TextMuted, Location = new Point(28, 52) };
+			// not AutoSize: the subtitle wraps to the window width (see LayoutHeader)
+			headerSubtitle = new Label { AutoSize = false, Font = fontSubtitle, ForeColor = Theme.TextMuted, Location = new Point(28, 52) };
+			headerSubtitle.TextChanged += (s, e) => LayoutHeader();
 			searchBox = new TextBox
 			{
 				Font = fontText,
@@ -147,7 +175,11 @@ namespace DesktopPet
 			header.Controls.Add(headerTitle);
 			header.Controls.Add(headerSubtitle);
 			header.Controls.Add(searchBox);
-			header.Resize += (s, e) => searchBox.Location = new Point(header.ClientSize.Width - searchBox.Width - 26, 26);
+			header.Resize += (s, e) =>
+			{
+				searchBox.Location = new Point(header.ClientSize.Width - searchBox.Width - 26, 26);
+				LayoutHeader();
+			};
 
 			content = new Panel { Dock = DockStyle.Fill, BackColor = Theme.Background, Padding = new Padding(20, 4, 20, 8) };
 
@@ -171,6 +203,27 @@ namespace DesktopPet
 			Lang.Changed += OnLanguageChanged;
 			SelectPage(startPage);
 			_ = LoadPetsAsync();
+		}
+
+		/// <summary>
+		/// Wrap the page subtitle to the header width and grow the header to fit it,
+		/// so long texts (or translations) are never cut when the window is narrow.
+		/// </summary>
+		private bool layingOutHeader;
+		private void LayoutHeader()
+		{
+			if (layingOutHeader || header == null || headerSubtitle == null) return;
+			layingOutHeader = true;
+			try
+			{
+				int width = Math.Max(120, header.ClientSize.Width - headerSubtitle.Left - 24);
+				var size = TextRenderer.MeasureText(headerSubtitle.Text ?? "", headerSubtitle.Font, new Size(width, int.MaxValue),
+					TextFormatFlags.WordBreak | TextFormatFlags.NoPadding);
+				headerSubtitle.Size = new Size(width, size.Height + 4);
+				int height = Math.Max(84, headerSubtitle.Bottom + 10);
+				if (header.Height != height) header.Height = height;
+			}
+			finally { layingOutHeader = false; }
 		}
 
 		/// <summary>The language was switched: rewrite fixed texts and repaint everything.</summary>

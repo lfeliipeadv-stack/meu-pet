@@ -308,5 +308,27 @@ namespace DesktopPet.Properties {
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
+
+        internal static string animations_mago {
+            get { return ResourceManager.GetString("animations_mago", resourceCulture); }
+        }
+
+        internal static System.Drawing.Bitmap icon_mago {
+            get {
+                object obj = ResourceManager.GetObject("icon_mago", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+
+        internal static string animations_nuvi {
+            get { return ResourceManager.GetString("animations_nuvi", resourceCulture); }
+        }
+
+        internal static System.Drawing.Bitmap icon_nuvi {
+            get {
+                object obj = ResourceManager.GetObject("icon_nuvi", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
     }
 }

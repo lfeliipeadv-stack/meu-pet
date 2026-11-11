@@ -193,4 +193,16 @@
   <data name="icon_capi" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\icon_capi.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="animations_mago" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\animations_mago.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="icon_mago" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\icon_mago.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="animations_nuvi" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\animations_nuvi.xml;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="icon_nuvi" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\icon_nuvi.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
 </root>

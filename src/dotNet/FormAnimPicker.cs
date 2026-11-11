@@ -1,212 +1,325 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Windows.Forms;
 
 namespace DesktopPet
 {
     /// <summary>
-    /// Easter egg dialog: shows all animations of the current pet as clickable buttons.
-    /// Triggered by right-clicking the pet sprite.
+    /// Easter egg window: every animation of the current pet as a tile; click a tile to play it.
+    /// Opened by middle-clicking the pet. It stays open so several animations can be tried in a row;
+    /// Esc, the close button or clicking elsewhere closes it.
     /// </summary>
     sealed class FormAnimPicker : Form
     {
         // ---------------------------------------------------------------- data
-        readonly Animations anims;
         readonly Action<int> play;
-        readonly Action<int> spawn;
+        readonly Image petIcon;
+        readonly string petName;
+        readonly List<Tile> allTiles = new List<Tile>();
+        List<Tile> tiles = new List<Tile>();
+        int playingId = -1;
 
-        // ---------------------------------------------------------------- layout constants
-        const int PAD   = 16;
-        const int BTN_W = 148;
-        const int BTN_H = 36;
-        const int COLS  = 3;
-        const int GAP   = 8;
-        const int TITLE_H = 48;
-        const int CLOSE_W = 32;
-        const int FOOTER_H = 52;
+        sealed class Tile
+        {
+            public int Id;
+            public string Name;
+            public string Emoji;
+            public Rectangle Rect;      // in content coordinates (before scrolling)
+        }
 
-        // ---------------------------------------------------------------- state
-        int hoverBtn = -1;
-        int hoverClose = 0; // 0=none 1=hover
-        readonly List<(Rectangle rect, int id, string label)> buttons = new();
-        Rectangle closeRect;
-        string petName;
+        // ---------------------------------------------------------------- layout (96 dpi units, scaled by S)
+        const int WIDTH = 468, PAD = 16, HEADER_H = 68, SEARCH_H = 34, FOOTER_H = 34;
+        const int COLS = 3, TILE_H = 44, GAP = 8, MAX_ROWS = 7;
 
-        // fonts
-        Font fontTitle;
-        Font fontBtn;
-        Font fontSmall;
+        readonly float scale;
+        int S(int v) => (int)Math.Round(v * scale);
+
+        Rectangle closeRect, searchRect, listRect;
+        int contentHeight, scrollY;
+        int hoverTile = -1;
+        bool hoverClose;
+
+        readonly TextBox search;
+        readonly Font fontTitle, fontSub, fontTile, fontSmall, fontEmoji, fontSearch;
+
+        static readonly Dictionary<string, string> Emojis = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["walk"] = "🚶", ["run"] = "🏃", ["turn"] = "↩", ["jump"] = "⤴", ["leap"] = "🦘",
+            ["fall"] = "⬇", ["fall soft"] = "🪶", ["fall hard"] = "💥", ["fall fast"] = "💨",
+            ["climb"] = "🧗", ["drag"] = "✋", ["toss"] = "🤾", ["blink"] = "😑", ["sleep"] = "💤",
+            ["wake up"] = "☀", ["sit"] = "🪑", ["wave"] = "👋", ["dance"] = "💃", ["spin"] = "🌀",
+            ["eat"] = "🍪", ["flower"] = "🌸", ["think"] = "💭", ["surprise"] = "😲", ["scared"] = "😱",
+            ["angry"] = "😡", ["sneak"] = "🤫", ["stretch"] = "🤸", ["point"] = "☝", ["look around"] = "👀",
+            ["look down"] = "🔽", ["lean look"] = "🫣", ["sync"] = "🎉", ["kill"] = "💀", ["flag"] = "🚩",
+            ["confetti"] = "🎊", ["gym"] = "🏋", ["laptop"] = "💻", ["top hat"] = "🎩", ["coffee"] = "☕",
+            ["music"] = "🎵", ["chef"] = "🍳", ["skate"] = "🛹", ["builder"] = "🔨", ["detective"] = "🔍",
+            ["idea"] = "💡", ["spell"] = "🪄", ["magic"] = "🪄", ["teleport"] = "✨", ["book"] = "📖",
+            ["read"] = "📖", ["crystal ball"] = "🔮", ["type"] = "⌨", ["typing"] = "⌨", ["code"] = "⌨",
+            ["loading"] = "⏳", ["error"] = "⚠", ["talk"] = "💬", ["rain"] = "🌧", ["nap"] = "💤",
+        };
 
         // ---------------------------------------------------------------- construction
-        public FormAnimPicker(Animations animations, string currentPetName, Action<int> onPlay, Action<int> onSpawn)
+        public FormAnimPicker(Animations animations, string currentPetName, Image icon, Action<int> onPlay)
         {
-            anims  = animations;
-            play   = onPlay;
-            spawn  = onSpawn;
-            petName = currentPetName ?? "Pet";
+            play = onPlay;
+            petIcon = icon;
+            petName = string.IsNullOrWhiteSpace(currentPetName) ? "Pet" : currentPetName;
 
-            fontTitle = new Font(Theme.FontFamilyName, 13f, FontStyle.Bold,  GraphicsUnit.Pixel);
-            fontBtn   = new Font(Theme.FontFamilyName, 11f, FontStyle.Regular, GraphicsUnit.Pixel);
-            fontSmall = new Font(Theme.FontFamilyName,  9f, FontStyle.Regular, GraphicsUnit.Pixel);
-
-            SetStyle(ControlStyles.AllPaintingInWmPaint |
-                     ControlStyles.OptimizedDoubleBuffer |
-                     ControlStyles.UserPaint |
-                     ControlStyles.ResizeRedraw, true);
-
+            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer |
+                     ControlStyles.UserPaint | ControlStyles.ResizeRedraw, true);
             FormBorderStyle = FormBorderStyle.None;
-            StartPosition   = FormStartPosition.Manual;
-            TopMost         = true;
-            BackColor       = Theme.Background;
+            StartPosition = FormStartPosition.Manual;
+            ShowInTaskbar = false;
+            TopMost = true;
+            KeyPreview = true;
+            BackColor = Theme.Background;
+            AutoScaleMode = AutoScaleMode.None;
+            Text = Lang.T("picker.title", petName);
+
+            using (var g = CreateGraphics()) scale = g.DpiX / 96f;
+            fontTitle = Theme.CreateFont(16 * scale, FontStyle.Bold);
+            fontSub = Theme.CreateFont(12 * scale);
+            fontTile = Theme.CreateFont(13 * scale);
+            fontSmall = Theme.CreateFont(11 * scale);
+            fontSearch = Theme.CreateFont(13 * scale);
+            fontEmoji = new Font("Segoe UI Emoji", 15 * scale, FontStyle.Regular, GraphicsUnit.Pixel);
+
+            if (animations?.SheepAnimations != null)
+                foreach (var kv in animations.SheepAnimations.OrderBy(kv => kv.Key))
+                {
+                    string name = string.IsNullOrWhiteSpace(kv.Value.Name) ? "#" + kv.Key : kv.Value.Name;
+                    Emojis.TryGetValue(name, out string emoji);
+                    allTiles.Add(new Tile { Id = kv.Key, Name = name, Emoji = emoji ?? "✨" });
+                }
+
+            search = new TextBox
+            {
+                BorderStyle = BorderStyle.None,
+                Font = fontSearch,
+                BackColor = Theme.Surface,
+                ForeColor = Theme.Text,
+                PlaceholderText = Lang.T("picker.search"),
+            };
+            search.TextChanged += (s, e) => { scrollY = 0; Filter(); };
+            search.KeyDown += (s, e) =>
+            {
+                if (e.KeyCode == Keys.Enter && tiles.Count > 0) { Play(tiles[0]); e.SuppressKeyPress = true; }
+                else if (e.KeyCode == Keys.Down) { ScrollBy(S(TILE_H + GAP)); e.SuppressKeyPress = true; }
+                else if (e.KeyCode == Keys.Up) { ScrollBy(-S(TILE_H + GAP)); e.SuppressKeyPress = true; }
+            };
+            search.GotFocus += (s, e) => Invalidate();
+            search.LostFocus += (s, e) => Invalidate();
+            Controls.Add(search);
 
             Theme.ApplyWindowChrome(this);
-            BuildLayout();
+            Filter();
 
-            MouseMove  += OnMouseMove;
-            MouseDown  += OnMouseDown;
-            MouseLeave += (s, e) => { hoverBtn = -1; hoverClose = 0; Invalidate(); };
-            KeyDown    += (s, e) => { if (e.KeyCode == Keys.Escape) Close(); };
+            MouseMove += OnMouseMove;
+            MouseDown += OnMouseDown;
+            MouseWheel += (s, e) => ScrollBy(-e.Delta / 120 * S(TILE_H + GAP));
+            MouseLeave += (s, e) => { hoverTile = -1; hoverClose = false; Invalidate(); };
+            KeyDown += (s, e) => { if (e.KeyCode == Keys.Escape) Close(); };
+            Deactivate += (s, e) => { if (!IsDisposed) BeginInvoke(new Action(Close)); };
+            // The search box is not focused at first, so its placeholder stays visible;
+            // typing anywhere in the window starts the search.
+            Shown += (s, e) => ActiveControl = null;
+            KeyPress += (s, e) =>
+            {
+                if (search.Focused || char.IsControl(e.KeyChar)) return;
+                search.Focus();
+                search.AppendText(e.KeyChar.ToString());
+                e.Handled = true;
+            };
         }
 
         // ---------------------------------------------------------------- layout
-        void BuildLayout()
+        void Filter()
         {
-            buttons.Clear();
-            if (anims?.SheepAnimations == null) return;
+            string q = search.Text.Trim();
+            tiles = q.Length == 0 ? allTiles.ToList()
+                : allTiles.Where(t => t.Name.IndexOf(q, StringComparison.OrdinalIgnoreCase) >= 0 || t.Id.ToString() == q).ToList();
+            Layout_();
+            Invalidate();
+        }
 
-            // Emoji quick-labels for well-known animation names
-            var emojis = new Dictionary<string, string>
+        void Layout_()
+        {
+            int w = S(WIDTH);
+            int tileW = (w - S(PAD) * 2 - S(GAP) * (COLS - 1)) / COLS;
+            for (int i = 0; i < tiles.Count; i++)
             {
-                ["walk"]   = "🚶", ["run"]    = "🏃", ["turn"]   = "↩️",
-                ["jump"]   = "⬆️", ["fall"]   = "⬇️", ["climb"]  = "🧗",
-                ["drag"]   = "✋", ["toss"]   = "🤾", ["blink"]  = "😑",
-                ["sleep"]  = "💤", ["wake up"]= "☀️", ["sit"]    = "🪑",
-                ["wave"]   = "👋", ["dance"]  = "💃", ["spin"]   = "🌀",
-                ["eat"]    = "🍪", ["flower"] = "🌸", ["think"]  = "💭",
-                ["surprise"]="😲", ["scared"] = "😱", ["angry"]  = "😡",
-                ["sneak"]  = "🤫", ["stretch"]= "🤸", ["point"]  = "☝️",
-                ["look around"]="👀",["look down"]="🔽",
-                ["fall soft"]="🫸",["fall hard"]="💥",["fall fast"]="💨",
-                ["sync"]   = "🎉", ["kill"]   = "💀",
-            };
-
-            var ordered = anims.SheepAnimations.OrderBy(kv => kv.Key).ToList();
-
-            int col = 0, row = 0;
-            foreach (var kv in ordered)
-            {
-                int id = kv.Key;
-                string name = kv.Value.Name ?? ("ID " + id);
-                emojis.TryGetValue(name, out string em);
-                string label = (em != null ? em + "  " : "") + name;
-
-                int x = PAD + col * (BTN_W + GAP);
-                int y = TITLE_H + PAD + row * (BTN_H + GAP);
-                buttons.Add((new Rectangle(x, y, BTN_W, BTN_H), id, label));
-
-                col++;
-                if (col >= COLS) { col = 0; row++; }
+                int col = i % COLS, row = i / COLS;
+                tiles[i].Rect = new Rectangle(col * (tileW + S(GAP)), row * (S(TILE_H) + S(GAP)), tileW, S(TILE_H));
             }
 
-            int rows   = (buttons.Count + COLS - 1) / COLS;
-            int clientW = PAD * 2 + COLS * BTN_W + (COLS - 1) * GAP;
-            int clientH = TITLE_H + PAD + rows * (BTN_H + GAP) - GAP + PAD + FOOTER_H;
+            // the window keeps the height of the full list so it does not jump while searching
+            int rowsAll = Math.Max(1, Math.Min(MAX_ROWS, (allTiles.Count + COLS - 1) / COLS));
+            int rows = (tiles.Count + COLS - 1) / COLS;
+            contentHeight = Math.Max(0, rows * (S(TILE_H) + S(GAP)) - S(GAP));
+            int listH = rowsAll * (S(TILE_H) + S(GAP)) - S(GAP);
 
-            ClientSize = new Size(clientW, clientH);
-            closeRect  = new Rectangle(clientW - CLOSE_W - 8, (TITLE_H - 24) / 2, 24, 24);
+            closeRect = new Rectangle(w - S(PAD) - S(28), S(18), S(28), S(28));
+            searchRect = new Rectangle(S(PAD), S(HEADER_H), w - S(PAD) * 2, S(SEARCH_H));
+            listRect = new Rectangle(S(PAD), searchRect.Bottom + S(12), w - S(PAD) * 2, listH);
+            ClientSize = new Size(w, listRect.Bottom + S(10) + S(FOOTER_H));
+
+            int textH = search.PreferredHeight;
+            search.SetBounds(searchRect.X + S(34), searchRect.Y + (searchRect.Height - textH) / 2, searchRect.Width - S(44), textH);
+            scrollY = Math.Max(0, Math.Min(scrollY, MaxScroll));
         }
+
+        int MaxScroll => Math.Max(0, contentHeight - listRect.Height);
+
+        void ScrollBy(int delta)
+        {
+            int old = scrollY;
+            scrollY = Math.Max(0, Math.Min(MaxScroll, scrollY + delta));
+            if (old != scrollY) { UpdateHover(PointToClient(Cursor.Position)); Invalidate(); }
+        }
+
+        Rectangle ScreenRect(Tile t) => new Rectangle(listRect.X + t.Rect.X, listRect.Y + t.Rect.Y - scrollY, t.Rect.Width, t.Rect.Height);
 
         // ---------------------------------------------------------------- paint
         protected override void OnPaint(PaintEventArgs e)
         {
             var g = e.Graphics;
-            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
-            g.SmoothingMode     = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-
-            // Background
+            Theme.Prepare(g);
             g.Clear(Theme.Background);
 
-            // Title bar area
-            Theme.FillRounded(g, Theme.Surface, new RectangleF(0, 0, Width, TITLE_H), 10);
-            g.FillRectangle(new SolidBrush(Theme.Surface), 0, TITLE_H / 2, Width, TITLE_H / 2);
-            Theme.DrawText(g, "🎬  " + petName + " — Animations", fontTitle,
-                new Rectangle(PAD, 0, Width - CLOSE_W - PAD * 2, TITLE_H),
-                Theme.Text, TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine);
+            // header: pet icon, title, counter, close button
+            var iconBox = new Rectangle(S(PAD), S(14), S(40), S(40));
+            Theme.FillRounded(g, Theme.AccentSoft, iconBox, S(10));
+            if (petIcon != null)
+            {
+                var inner = Rectangle.Inflate(iconBox, -S(5), -S(5));
+                Theme.DrawPixelImage(g, petIcon, inner);
+            }
+            else
+            {
+                Theme.DrawText(g, "🎬", fontEmoji, iconBox, Theme.Accent, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+            }
+            int tx = iconBox.Right + S(12);
+            Theme.DrawText(g, Lang.T("picker.title", petName), fontTitle, new Rectangle(tx, S(13), closeRect.Left - tx - S(8), S(24)),
+                Theme.Text, TextFormatFlags.SingleLine | TextFormatFlags.EndEllipsis | TextFormatFlags.VerticalCenter);
+            Theme.DrawText(g, Lang.T("picker.count", allTiles.Count), fontSub, new Rectangle(tx, S(37), closeRect.Left - tx - S(8), S(18)),
+                Theme.TextMuted, TextFormatFlags.SingleLine | TextFormatFlags.EndEllipsis | TextFormatFlags.VerticalCenter);
 
-            // Close button
-            var closeBack = hoverClose == 1 ? Theme.Danger : Theme.SurfaceAlt;
-            Theme.FillRounded(g, closeBack, closeRect, 6);
-            Theme.DrawText(g, "✕", fontBtn, closeRect, hoverClose == 1 ? Color.White : Theme.TextMuted,
+            if (hoverClose) Theme.FillRounded(g, Theme.Danger, closeRect, S(8));
+            Theme.DrawText(g, "✕", fontTile, closeRect, hoverClose ? Color.White : Theme.TextMuted,
                 TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine);
 
-            // Thin separator below title
-            g.DrawLine(new Pen(Theme.Border), 0, TITLE_H, Width, TITLE_H);
+            // search field
+            Theme.FillRounded(g, Theme.Surface, searchRect, S(8));
+            Theme.DrawRounded(g, search.Focused ? Theme.Accent : Theme.Border, searchRect, S(8));
+            Theme.DrawText(g, "🔍", fontSmall, new Rectangle(searchRect.X + S(10), searchRect.Y, S(20), searchRect.Height), Theme.TextMuted,
+                TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine);
 
-            // Animation buttons
-            for (int i = 0; i < buttons.Count; i++)
+            // tiles
+            var oldClip = g.Clip;
+            g.SetClip(Rectangle.Inflate(listRect, 2, 2));
+            for (int i = 0; i < tiles.Count; i++)
             {
-                var (rect, id, label) = buttons[i];
-                bool hover = hoverBtn == i;
-                Theme.DrawButton(g, rect, label, fontBtn, false, hover);
-                // ID badge, small muted
-                var badge = new Rectangle(rect.Right - 28, rect.Y + 2, 26, 14);
-                Theme.DrawText(g, id.ToString(), fontSmall, badge, Theme.TextMuted,
-                    TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine);
+                var t = tiles[i];
+                var r = ScreenRect(t);
+                if (r.Bottom < listRect.Top || r.Top > listRect.Bottom) continue;
+                bool hover = i == hoverTile, active = t.Id == playingId;
+
+                Theme.FillRounded(g, active ? Theme.AccentSoft : hover ? Theme.Hover : Theme.Surface, r, S(10));
+                Theme.DrawRounded(g, active || hover ? Theme.Accent : Theme.Border, r, S(10), active ? 1.6f : 1f);
+
+                var em = new Rectangle(r.X + S(6), r.Y + S(6), r.Height - S(12), r.Height - S(12));
+                Theme.FillRounded(g, active ? Theme.Accent : Theme.SurfaceAlt, em, S(8));
+                Theme.DrawText(g, t.Emoji, fontEmoji, em, active ? Theme.AccentText : Theme.Text,
+                    TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine | TextFormatFlags.NoPadding);
+
+                var nameRect = new Rectangle(em.Right + S(8), r.Y, r.Right - em.Right - S(12), r.Height);
+                Theme.DrawText(g, t.Name, fontTile, new Rectangle(nameRect.X, r.Y + S(5), nameRect.Width, S(20)),
+                    Theme.Text, TextFormatFlags.SingleLine | TextFormatFlags.EndEllipsis | TextFormatFlags.VerticalCenter);
+                Theme.DrawText(g, active ? "▶ " + Lang.T("picker.playing") : "#" + t.Id, fontSmall,
+                    new Rectangle(nameRect.X, r.Y + S(23), nameRect.Width, S(16)),
+                    active ? Theme.Accent : Theme.TextMuted, TextFormatFlags.SingleLine | TextFormatFlags.EndEllipsis | TextFormatFlags.VerticalCenter);
+            }
+            g.Clip = oldClip;
+
+            if (tiles.Count == 0)
+                Theme.DrawText(g, Lang.T("picker.empty"), fontSub, listRect, Theme.TextMuted,
+                    TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine);
+
+            // thin scrollbar
+            if (MaxScroll > 0)
+            {
+                int trackH = listRect.Height;
+                int thumbH = Math.Max(S(24), trackH * listRect.Height / contentHeight);
+                int thumbY = listRect.Y + (trackH - thumbH) * scrollY / MaxScroll;
+                Theme.FillRounded(g, Theme.Border, new Rectangle(listRect.Right + S(5), thumbY, S(4), thumbH), S(2));
             }
 
-            // Footer hint
-            var footerY = Height - FOOTER_H;
-            g.DrawLine(new Pen(Theme.Border), 0, footerY, Width, footerY);
-            Theme.DrawText(g, "Right-click the pet to open this window  ·  Esc to close",
-                fontSmall, new Rectangle(PAD, footerY, Width - PAD * 2, FOOTER_H),
-                Theme.TextMuted,
-                TextFormatFlags.VerticalCenter | TextFormatFlags.HorizontalCenter | TextFormatFlags.SingleLine);
+            // fade at the bottom when more tiles are below
+            if (scrollY < MaxScroll)
+            {
+                var fade = new Rectangle(listRect.X, listRect.Bottom - S(18), listRect.Width, S(18) + 1);
+                using (var b = new LinearGradientBrush(fade, Color.FromArgb(0, Theme.Background), Theme.Background, LinearGradientMode.Vertical))
+                    g.FillRectangle(b, fade);
+            }
+
+            // footer hint
+            int fy = ClientSize.Height - S(FOOTER_H);
+            using (var pen = new Pen(Theme.Border)) g.DrawLine(pen, 0, fy, ClientSize.Width, fy);
+            Theme.DrawText(g, Lang.T("picker.hint"), fontSmall, new Rectangle(S(PAD), fy, ClientSize.Width - S(PAD) * 2, S(FOOTER_H)),
+                Theme.TextMuted, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine | TextFormatFlags.EndEllipsis);
         }
 
         // ---------------------------------------------------------------- interaction
-        void OnMouseMove(object sender, MouseEventArgs e)
+        void UpdateHover(Point p)
         {
-            int prev = hoverBtn, prevC = hoverClose;
-            hoverBtn = -1;
-            hoverClose = closeRect.Contains(e.Location) ? 1 : 0;
-            for (int i = 0; i < buttons.Count; i++)
-                if (buttons[i].rect.Contains(e.Location)) { hoverBtn = i; break; }
-            if (hoverBtn != prev || hoverClose != prevC) Invalidate();
+            int prev = hoverTile; bool prevC = hoverClose;
+            hoverClose = closeRect.Contains(p);
+            hoverTile = -1;
+            if (listRect.Contains(p))
+                for (int i = 0; i < tiles.Count; i++)
+                    if (ScreenRect(tiles[i]).Contains(p)) { hoverTile = i; break; }
+            Cursor = hoverTile >= 0 || hoverClose ? Cursors.Hand : Cursors.Default;
+            if (prev != hoverTile || prevC != hoverClose) Invalidate();
         }
+
+        void OnMouseMove(object sender, MouseEventArgs e) => UpdateHover(e.Location);
 
         void OnMouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button != MouseButtons.Left) return;
             if (closeRect.Contains(e.Location)) { Close(); return; }
-            for (int i = 0; i < buttons.Count; i++)
-            {
-                if (!buttons[i].rect.Contains(e.Location)) continue;
-                play(buttons[i].id);
-                // Flash: brief visual feedback then close
-                hoverBtn = i; Invalidate(); Refresh();
-                System.Threading.Thread.Sleep(80);
-                Close();
-                return;
-            }
+            if (hoverTile >= 0 && hoverTile < tiles.Count) Play(tiles[hoverTile]);
         }
 
-        // Allow dragging the dialog by its title bar
+        void Play(Tile t)
+        {
+            playingId = t.Id;
+            Invalidate();
+            play(t.Id);
+        }
+
+        // drag the window by its header
         protected override void WndProc(ref Message m)
         {
-            const int WM_NCHITTEST = 0x84, HTCAPTION = 2;
+            const int WM_NCHITTEST = 0x84, HTCLIENT = 1, HTCAPTION = 2;
             base.WndProc(ref m);
-            if (m.Msg == WM_NCHITTEST && (int)m.Result == 1)
+            if (m.Msg == WM_NCHITTEST && (int)m.Result == HTCLIENT)
             {
-                var pt = PointToClient(new Point(m.LParam.ToInt32()));
-                if (pt.Y < TITLE_H && !closeRect.Contains(pt)) m.Result = (IntPtr)HTCAPTION;
+                var pt = PointToClient(new Point(unchecked((short)(long)m.LParam), unchecked((short)((long)m.LParam >> 16))));
+                if (pt.Y < S(HEADER_H) - S(8) && !closeRect.Contains(pt)) m.Result = (IntPtr)HTCAPTION;
             }
         }
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing) { fontTitle?.Dispose(); fontBtn?.Dispose(); fontSmall?.Dispose(); }
+            if (disposing)
+            {
+                fontTitle?.Dispose(); fontSub?.Dispose(); fontTile?.Dispose();
+                fontSmall?.Dispose(); fontEmoji?.Dispose(); fontSearch?.Dispose();
+            }
             base.Dispose(disposing);
         }
     }

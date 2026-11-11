@@ -1612,9 +1612,9 @@ namespace DesktopPet
                 cm.Show(pictureBox1, new Point(0, this.Top > 500 ? 0 : this.Height));
             }
 #if NETCORE
-            else if (e.Button == MouseButtons.Right && Name.IndexOf("child") < 0)
+            else if (e.Button == MouseButtons.Middle && Name.IndexOf("child") < 0)
             {
-                // Easter egg: right-click opens the animation picker dialog.
+                // Easter egg: middle-click (wheel button) opens the animation picker.
                 ShowAnimationPicker();
             }
 #endif
@@ -1623,22 +1623,31 @@ namespace DesktopPet
 #if NETCORE
 
         /// <summary>
-        /// Easter egg: opens the FormAnimPicker dialog so the user can play any animation on demand.
-        /// Triggered by right-clicking the pet sprite.
+        /// Easter egg: opens the FormAnimPicker window so the user can play any animation on demand.
+        /// Triggered by middle-clicking (wheel button) the pet sprite.
         /// </summary>
+        private FormAnimPicker animPicker;
         private void ShowAnimationPicker()
         {
             if (Animations?.SheepAnimations == null || Animations.SheepAnimations.Count == 0) return;
+            if (animPicker != null && !animPicker.IsDisposed) { animPicker.Activate(); return; }
 
-            timer1.Enabled = false;
+            timer1.Enabled = false;     // the pet waits while the user chooses
 
             string petName = Program.Mainthread?.CurrentHeader?.Petname ?? "Pet";
             var dlg = new FormAnimPicker(
                 Animations,
                 petName,
-                id => SetNewAnimation(id),
-                spawnIdx => Play(false, spawnIdx)
+                spriteFrames.Count > 0 ? spriteFrames[0] : null,   // first frame: the pet itself
+                id =>
+                {
+                    // play now and keep the window open, so more animations can be tried
+                    SetNewAnimation(id);
+                    timer1.Interval = 1;
+                    timer1.Enabled = true;
+                }
             );
+            animPicker = dlg;
 
             // Position near the pet but keep it on screen
             var screen = Screen.FromControl(this).WorkingArea;
@@ -1651,6 +1660,7 @@ namespace DesktopPet
 
             dlg.FormClosed += (s, e) =>
             {
+                animPicker = null;
                 timer1.Interval = 1;
                 timer1.Enabled = true;
                 dlg.Dispose();

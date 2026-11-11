@@ -136,5 +136,12 @@
   "inst.updated": "O programa foi atualizado.",
   "inst.incompleteRelease": "a versão {0} foi publicada sem o DesktopPet.exe ou o SHA256SUMS",
   "inst.hashMissing": "{0} não tem SHA-256 no release, o download foi recusado",
-  "inst.hashMismatch": "{0} não confere com o SHA-256, o download foi recusado"
+  "inst.hashMismatch": "{0} não confere com o SHA-256, o download foi recusado",
+
+  "picker.title": "Animações de {0}",
+  "picker.count": "{0} animações · clique em uma para ver",
+  "picker.search": "Buscar animação…",
+  "picker.playing": "tocando",
+  "picker.empty": "Nenhuma animação encontrada",
+  "picker.hint": "Botão do meio no pet abre esta janela  ·  Esc fecha"
 }

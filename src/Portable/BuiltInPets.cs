@@ -13,7 +13,7 @@ namespace DesktopPet
     public static class BuiltInPets
     {
         /// <summary>Folder names of every built-in pet.</summary>
-        public static readonly string[] Folders = { "claude", "capi" };
+        public static readonly string[] Folders = { "claude", "capi", "mago", "nuvi" };
 
         /// <summary>True if a folder is a built-in (offline) pet.</summary>
         public static bool IsBuiltIn(string folder) =>
@@ -26,6 +26,8 @@ namespace DesktopPet
             {
                 "claude" => Properties.Resources.animations_claude,
                 "capi" => Properties.Resources.animations_capi,
+                "mago" => Properties.Resources.animations_mago,
+                "nuvi" => Properties.Resources.animations_nuvi,
                 _ => throw new KeyNotFoundException("Unknown built-in pet: " + folder)
             };
         }
@@ -37,6 +39,8 @@ namespace DesktopPet
             {
                 "claude" => Properties.Resources.icon_claude,
                 "capi" => Properties.Resources.icon_capi,
+                "mago" => Properties.Resources.icon_mago,
+                "nuvi" => Properties.Resources.icon_nuvi,
                 _ => throw new KeyNotFoundException("Unknown built-in pet: " + folder)
             };
         }
@@ -48,6 +52,8 @@ namespace DesktopPet
             {
                 "claude" => ClaudeReadme,
                 "capi" => CapiReadme,
+                "mago" => MagoReadme,
+                "nuvi" => NuviReadme,
                 _ => ""
             };
             return text.Split(new[] { "<br>", "<br />", "<br/>", "\r\n", "\n" },
@@ -74,6 +80,22 @@ Unofficial tribute, not affiliated with Anthropic.
 # Capi the Capybara
 A calm, chubby pixel-art capybara who wanders your desktop,
 sits on the taskbar and naps in the sun.
+Original pixel art by Luan Felipe.
+";
+
+        const string MagoReadme = @"
+# Mago the Wizard
+A kindly old pixel wizard with a long white beard and a blue,
+star-spangled robe and hat. He casts spells, reads his spellbook,
+gazes into a crystal ball and teleports around your desktop.
+Original pixel art by Luan Felipe.
+";
+
+        const string NuviReadme = @"
+# Nuvi the Cloud Terminal
+A little blue cloud robot with a terminal screen for a face.
+It talks with a blinking >_ prompt, types code, shows a loading bar,
+throws the odd error and naps on your taskbar.
 Original pixel art by Luan Felipe.
 ";
     }

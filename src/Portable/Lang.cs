@@ -294,6 +294,14 @@ namespace DesktopPet
 				["about.link.gallery"] = "Pet gallery (web)",
 				["about.link.original"] = "Original project by Adriano Petrucci",
 
+				// ---- animation picker (middle-click on the pet)
+				["picker.title"] = "{0} – animations",
+				["picker.count"] = "{0} animations · click one to play it",
+				["picker.search"] = "Search animation…",
+				["picker.playing"] = "playing",
+				["picker.empty"] = "No animation found",
+				["picker.hint"] = "Middle-click the pet to open this window  ·  Esc to close",
+
 				// ---- messages
 				["msg.alreadyRunning"] = "Application is already running! Only 2 instances are allowed.",
 				["msg.information"] = "Information",

@@ -14,7 +14,7 @@ Precisa do [.NET 10 Desktop Runtime](https://dotnet.microsoft.com/download/dotne
 
 - Janela de configurações nova, com tema claro/escuro e suporte a vários monitores
 - Interface em português (arquivos de tradução em `src/lang`, fáceis de editar)
-- Pets embutidos que funcionam sem internet: **Capi** (capivara) e **Claude** (homenagem não oficial ao mascote do Claude Code, sem vínculo com a Anthropic)
+- Pets embutidos que funcionam sem internet: **Capi** (capivara), **Mago** (mago de barba branca), **Nuvi** (nuvem-terminal) e **Claude** (homenagem não oficial ao mascote do Claude Code, sem vínculo com a Anthropic)
 - Galeria com dezenas de outros pets, baixados deste repositório
 - Atualização automática com verificação SHA-256
 - Executável de cerca de 1 MB
