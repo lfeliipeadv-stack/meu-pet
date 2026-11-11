@@ -916,68 +916,49 @@ namespace DesktopPet
 		/// <returns>List of OptionsPets pets</returns>
 		public static async Task GetPetList(IProgress<OptionsPet> progress)
 		{
-			bool updateList = true;
-			bool downloadList = false;
-
-			string jsonString = "";
+			string jsonString = null;
 			string jsonFile = Path.Combine(BaseLocalPath, "pets.json");
+			Directory.CreateDirectory(BaseLocalPath);
+			string cached = File.Exists(jsonFile) ? File.ReadAllText(jsonFile) : null;
 
-			if (Directory.Exists(BaseLocalPath))
+			// The list is small (a few KB) and is the source of new pets, names and updates:
+			// always ask the repository; without internet, use the copy saved last time.
+			try
 			{
-				if (File.Exists(jsonFile))
+				using (var client = new HttpClient { Timeout = TimeSpan.FromSeconds(15) })
 				{
-					FileInfo fi = new FileInfo(jsonFile);
-					if (fi.LastWriteTime > DateTime.Now.AddDays(-1)) updateList = false;
-				}
-				else
-				{
-					downloadList = true;
+					client.DefaultRequestHeaders.Add("User-Agent", "DesktopPet");
+					jsonString = await client.GetStringAsync(BaseGitUrl + "pets.json");
 				}
 			}
-			else
+			catch (Exception)
 			{
-				downloadList = true;
-				Directory.CreateDirectory(BaseLocalPath);
+				if (cached == null) throw;   // first run without internet: nothing to show
 			}
 
-			if (updateList)
+			if (jsonString == null)
 			{
-				var client = new HttpClient();
-				client.DefaultRequestHeaders.Add("User-Agent", "DesktopPet");
-
-
-				jsonString = await client.GetStringAsync(BaseGitUrl + "pets.json");
-				if (downloadList)
+				jsonString = cached;
+			}
+			else if (jsonString != cached)
+			{
+				// a pet whose date changed is downloaded again (icon, animations, readme)
+				if (cached != null)
 				{
-					File.WriteAllText(jsonFile, jsonString);
-				}
-				else
-				{
-					var onlinePets = JsonText.Deserialize<OptionsPets>(jsonString);
-					var localPets = JsonText.Deserialize<OptionsPets>(File.ReadAllText(jsonFile));
-					var isDifferent = false;
-					localPets.pets.ForEach(lp =>
+					try
 					{
-						onlinePets.pets.ForEach(op =>
+						var online = JsonText.Deserialize<OptionsPets>(jsonString).pets;
+						var local = JsonText.Deserialize<OptionsPets>(cached).pets;
+						foreach (var lp in local)
 						{
-							if (op.folder == lp.folder && op.lastupdate != lp.lastupdate)
-							{
-								File.Delete(Path.Combine(BaseLocalPath, lp.folder + ".png"));
-								File.Delete(Path.Combine(BaseLocalPath, lp.folder + ".xml"));
-								File.Delete(Path.Combine(BaseLocalPath, lp.folder + ".md"));
-								isDifferent = true;
-							}
-						});
-					});
-					if (isDifferent)
-					{
-						File.WriteAllText(jsonFile, jsonString);
+							if (!online.Any(op => op.folder == lp.folder && op.lastupdate != lp.lastupdate)) continue;
+							foreach (var ext in new[] { ".png", ".xml", ".md" })
+								File.Delete(Path.Combine(BaseLocalPath, lp.folder + ext));
+						}
 					}
+					catch (Exception) { }   // a broken saved copy is simply replaced
 				}
-			}
-			else
-			{
-				jsonString = File.ReadAllText(jsonFile);
+				File.WriteAllText(jsonFile, jsonString);
 			}
 
 			var pets = JsonText.Deserialize<OptionsPets>(jsonString);
