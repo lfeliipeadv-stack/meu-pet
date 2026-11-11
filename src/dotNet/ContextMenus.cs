@@ -71,24 +71,24 @@ namespace DesktopPet
             ToolStripMenuItem item;
             ToolStripSeparator sep;
 
-			// Item: New Sheep.
+			// Item: Open the pet panel (first, the main action).
+			optionsMenuItem = item = new ToolStripMenuItem
+			{
+				Text = Lang.T("tray.panel")
+			};
+			item.Click += new EventHandler(Options_Click);
+            item.Image = Resources.icon.ToBitmap();
+            item.Font = new Font(item.Font, item.Font.Style | FontStyle.Bold);
+            menu.Items.Add(item);
+
+			// Item: Add another pet (shows the current pet's name and icon).
 			newSheepMenuItem = new ToolStripMenuItem
 			{
 				Text = Lang.T("tray.addDefault")
 			};
 			newSheepMenuItem.Click += new EventHandler(AddNewSheep_Click);
             newSheepMenuItem.Image = Resources.icon.ToBitmap();
-            newSheepMenuItem.Font = new Font(newSheepMenuItem.Font, newSheepMenuItem.Font.Style | FontStyle.Bold);
             menu.Items.Add(newSheepMenuItem);
-
-			// Item: Options.
-			optionsMenuItem = item = new ToolStripMenuItem
-			{
-				Text = Lang.T("tray.options")
-			};
-			item.Click += new EventHandler(Options_Click);
-            item.Image = Resources.option;
-            menu.Items.Add(item);
 
                 // Item: Separator.
             sep = new ToolStripSeparator();
@@ -174,7 +174,7 @@ namespace DesktopPet
             bool hasName = !string.IsNullOrEmpty(currentPetName);
             newSheepMenuItem.Text = hasName ? Lang.T("tray.add", currentPetName) : Lang.T("tray.addDefault");
             closeSheepMenuItem.Text = hasName ? Lang.T("tray.exit", currentPetName) : Lang.T("tray.exitDefault");
-            optionsMenuItem.Text = Lang.T("tray.options");
+            optionsMenuItem.Text = Lang.T("tray.panel");
             soundMenuItem.Text = Lang.T("tray.sound");
             aboutMenuItem.Text = Lang.T("tray.about");
             helpMenuItem.Text = Lang.T("tray.help");

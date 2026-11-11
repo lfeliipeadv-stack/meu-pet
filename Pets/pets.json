@@ -1,14 +1,20 @@
 {
   "pets" : [
     {
-      "folder" : "boo",
-      "name" : "Boo",
+      "folder" : "rex",
+      "name" : "Rex",
       "author" : "Luan Felipe",
       "lastupdate" : "2026-11-11"
     },
     {
-      "folder" : "tico",
-      "name" : "Tico",
+      "folder" : "pingo",
+      "name" : "Pingo",
+      "author" : "Luan Felipe",
+      "lastupdate" : "2026-11-11"
+    },
+    {
+      "folder" : "boo",
+      "name" : "Boo",
       "author" : "Luan Felipe",
       "lastupdate" : "2026-11-11"
     },

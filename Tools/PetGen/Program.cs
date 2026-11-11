@@ -9,7 +9,7 @@ using PetGen;
 string outDir = args.Length > 0 ? args[0] : "pets";
 string previewDir = args.Length > 1 ? args[1] : null;
 
-foreach (var pet in new[] { ClaudePet.Build(), CapiPet.Build(), MagoPet.Build(), NuviPet.Build(), TicoPet.Build(), BooPet.Build() })
+foreach (var pet in new[] { ClaudePet.Build(), CapiPet.Build(), MagoPet.Build(), NuviPet.Build(), BooPet.Build(), PingoPet.Build(), RexPet.Build() })
 {
 	string dir = Path.Combine(outDir, pet.Folder);
 	Directory.CreateDirectory(dir);

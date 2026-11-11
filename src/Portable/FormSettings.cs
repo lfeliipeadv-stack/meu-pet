@@ -60,6 +60,9 @@ namespace DesktopPet
 			save("pets");
 			var first = f.WebPets.pets.FirstOrDefault(p => p.folder == "esheep64") ?? f.WebPets.pets.FirstOrDefault();
 			if (first != null) { f.petsView.SelectForSnapshot(first); await f.LoadDetailsAsync(first); await Task.Delay(300); save("pets-detail"); }
+			// a gallery pet that is not downloaded yet: the button must offer the download
+			var notDownloaded = f.WebPets.pets.FirstOrDefault(p => p.Variants == null && !f.IsDownloaded(p));
+			if (notDownloaded != null) { f.petsView.SelectForSnapshot(notDownloaded); await f.LoadDetailsAsync(notDownloaded); await Task.Delay(300); save("pets-detail-download"); }
 			foreach (Page p in new[] { Page.Behaviour, Page.Application, Page.About }) { f.SelectPage(p); await Task.Delay(200); save(p.ToString().ToLowerInvariant()); }
 			// color group card (gSheep) with the pink color selected
 			var group = f.WebPets.pets.FirstOrDefault(p => p.Variants != null);
@@ -508,6 +511,12 @@ namespace DesktopPet
 				};
 				WebPets.pets.Add(builtIn);
 			}
+			// The pet in use was adopted before downloads were kept on disk: keep a copy, so it stays "downloaded".
+			string current = Program.MyData.GetCurrentPetFolder();
+			if (!string.IsNullOrEmpty(current) && !BuiltInPets.IsBuiltIn(current) && !PetStore.Has(current))
+			{
+				try { PetStore.Save(current, Program.MyData.GetXml(), ""); } catch (Exception) { }
+			}
 			petsView.PetsChanged();
 
 			// --- online gallery (GitHub) -------------------------------------------
@@ -534,11 +543,53 @@ namespace DesktopPet
 			petsView.PetsChanged();
 		}
 
-		/// <summary>Download a pet and set it as the current one.</summary>
+		/// <summary>The eSheep comes with the program; any other pet is available once downloaded.</summary>
+		public bool IsDownloaded(OptionsPet pet) => pet != null && (BuiltInPets.IsBuiltIn(pet.folder) || PetStore.Has(pet.folder));
+
+		/// <summary>Downloaded, but the gallery has a newer version.</summary>
+		public bool IsOutdated(OptionsPet pet)
+		{
+			if (pet == null || BuiltInPets.IsBuiltIn(pet.folder) || !PetStore.Has(pet.folder)) return false;
+			string saved = PetStore.SavedVersion(pet.folder);
+			return saved.Length > 0 && !string.IsNullOrEmpty(pet.lastupdate) && saved != pet.lastupdate;
+		}
+
+		/// <summary>What the main button of a pet does: add another, download (or update), or adopt.</summary>
+		public void PrimaryAction(OptionsPet pet)
+		{
+			if (pet == null) return;
+			if (pet.folder == petsView.CurrentPet && !IsOutdated(pet)) Program.Mainthread.AddSheep();
+			else if (!IsDownloaded(pet) || IsOutdated(pet)) DownloadPet(pet);
+			else AdoptPet(pet);
+		}
+
+		/// <summary>Download a pet from the gallery and keep it on disk (it is not adopted yet).</summary>
+		public async void DownloadPet(OptionsPet pet)
+		{
+			if (pet == null || BuiltInPets.IsBuiltIn(pet.folder)) return;
+			StatusText = Lang.T("status.downloading", pet.DisplayName);
+			try
+			{
+				string content = await Task.Run(() => OptionsGit.GetPetXml(pet.folder));
+				var xml = new XmlDocument();
+				xml.LoadXml(content);                       // refuse a broken file before saving it
+				PetStore.Save(pet.folder, xml.OuterXml, pet.lastupdate ?? "");
+				MarkSeen(pet);
+				StatusText = Lang.T("status.downloaded", pet.DisplayName);
+				// the pet in use was updated: reload it right away
+				if (pet.folder == petsView.CurrentPet) AdoptPet(pet);
+			}
+			catch (Exception ex)
+			{
+				StatusText = Lang.T("status.downloadError", pet.DisplayName, ex.Message);
+			}
+			petsView.PetsChanged();
+		}
+
+		/// <summary>Set a pet (built in or already downloaded) as the current one.</summary>
 		public async void AdoptPet(OptionsPet pet)
 		{
 			if (pet == null) return;
-			StatusText = Lang.T("status.downloading", pet.DisplayName);
 			try
 			{
 				string content;
@@ -546,9 +597,15 @@ namespace DesktopPet
 				{
 					content = BuiltInPets.GetXml(pet.folder);
 				}
+				else if (PetStore.Has(pet.folder))
+				{
+					content = PetStore.Load(pet.folder);
+				}
 				else
 				{
+					StatusText = Lang.T("status.downloading", pet.DisplayName);
 					content = await Task.Run(() => OptionsGit.GetPetXml(pet.folder));
+					PetStore.Save(pet.folder, content, pet.lastupdate ?? "");
 				}
 				var xml = new XmlDocument();
 				xml.LoadXml(content);
@@ -652,7 +709,7 @@ namespace DesktopPet
 				using (var p = new Pen(Theme.Border)) g.DrawLine(p, Width - 1, 0, Width - 1, Height);
 
 				// app logo + name
-				Theme.DrawPixelImage(g, Resources.esheep, new Rectangle(20, 22, 40, 40));
+				Theme.DrawPixelImage(g, Resources.logo, new Rectangle(24, 26, 32, 32));   // 64 px art at exactly 1/2: crisp pixels
 				Theme.DrawText(g, "desktopPet", form.fontBold, new Rectangle(68, 24, Width - 70, 20), Theme.Text, TextFormatFlags.Left | TextFormatFlags.SingleLine);
 				Theme.DrawText(g, Lang.T("nav.subtitle"), form.fontSmall, new Rectangle(68, 44, Width - 70, 18), Theme.TextMuted, TextFormatFlags.Left | TextFormatFlags.SingleLine);
 
@@ -809,29 +866,21 @@ namespace DesktopPet
 					Theme.DrawText(g, msg, form.fontText, new Rectangle(8, y + 32, area.Width - 16, 40), Theme.TextMuted, TextFormatFlags.HorizontalCenter);
 				}
 
-				// --- sections: pets inside the program, then the online gallery
-				var sections = new[]
+				// --- one list: the eSheep (comes with the program) first, then every pet of the gallery
+				var ordered = list.Where(p => p.Variants == null && BuiltInPets.IsBuiltIn(p.folder))
+					.Concat(Sorted(list.Where(p => p.Variants != null || !BuiltInPets.IsBuiltIn(p.folder))))
+					.ToList();
+				int col = 0;
+				foreach (var pet in ordered)
 				{
-					("pets.section.builtIn", Sorted(list.Where(p => p.Variants == null && BuiltInPets.IsBuiltIn(p.folder))).ToList()),
-					("pets.section.gallery", Sorted(list.Where(p => p.Variants != null || !BuiltInPets.IsBuiltIn(p.folder))).ToList()),
-				};
-				foreach (var (titleKey, pets) in sections)
-				{
-					if (pets.Count == 0) continue;
-					Theme.DrawText(g, Lang.T(titleKey, pets.Count), form.fontBold, new Rectangle(x0, y, usable, 22), Theme.Text, TextFormatFlags.SingleLine | TextFormatFlags.EndEllipsis);
-					y += 30;
-					int col = 0;
-					foreach (var pet in pets)
-					{
-						var r = new Rectangle(x0 + col * (cardW + Gap), y, cardW, CardH);
-						cards.Add((r, pet));
-						if (r.Bottom >= 0 && r.Top <= Height) DrawCard(g, r, pet);
-						col++;
-						if (col >= cols) { col = 0; y += CardH + Gap; }
-					}
-					if (col != 0) y += CardH + Gap;
-					y += 10;
+					var r = new Rectangle(x0 + col * (cardW + Gap), y, cardW, CardH);
+					cards.Add((r, pet));
+					if (r.Bottom >= 0 && r.Top <= Height) DrawCard(g, r, pet);
+					col++;
+					if (col >= cols) { col = 0; y += CardH + Gap; }
 				}
+				if (col != 0) y += CardH + Gap;
+				y += 10;
 				int contentHeight = y + scrollY + 8;
 
 				if (selected != null) DrawDetail(g);
@@ -871,17 +920,19 @@ namespace DesktopPet
 						TextFormatFlags.HorizontalCenter | TextFormatFlags.SingleLine | TextFormatFlags.EndEllipsis);
 				}
 
-				if (pet.Contains(CurrentPet))
+				// badge: in use > new (or updated) > downloaded
+				string badgeKey = pet.Contains(CurrentPet) ? "pets.badgeInUse"
+					: form.IsNewPet(pet) ? "pets.badgeNew"
+					: (form.IsDownloaded(pet) && !BuiltInPets.IsBuiltIn(pet.folder)) ? "pets.badgeDownloaded"
+					: null;
+				if (badgeKey != null)
 				{
-					var badge = new Rectangle(r.Right - 58, r.Y + 8, 50, 20);
-					Theme.FillRounded(g, Theme.AccentSoft, badge, 10);
-					Theme.DrawText(g, Lang.T("pets.badgeInUse"), form.fontSmall, badge, Theme.Accent, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine);
-				}
-				else if (form.IsNewPet(pet))
-				{
-					var badge = new Rectangle(r.Right - 48, r.Y + 8, 40, 20);
-					Theme.FillRounded(g, Theme.AccentSoft, badge, 10);
-					Theme.DrawText(g, Lang.T("pets.badgeNew"), form.fontSmall, badge, Theme.Accent, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine);
+					string text = Lang.T(badgeKey);
+					int bw = Theme.MeasureText(g, text, form.fontSmall, int.MaxValue, TextFormatFlags.SingleLine).Width + 18;
+					var badge = new Rectangle(r.Right - bw - 8, r.Y + 8, bw, 20);
+					bool muted = badgeKey == "pets.badgeDownloaded";
+					Theme.FillRounded(g, muted ? Theme.SurfaceAlt : Theme.AccentSoft, badge, 10);
+					Theme.DrawText(g, text, form.fontSmall, badge, muted ? Theme.TextMuted : Theme.Accent, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine);
 				}
 			}
 
@@ -934,7 +985,11 @@ namespace DesktopPet
 
 				adoptRect = new Rectangle(x, y, w, 38);
 				bool inUse = pet.folder == CurrentPet;
-				Theme.DrawButton(g, adoptRect, inUse ? Lang.T("pets.adoptAnother") : Lang.T("pets.adopt"), form.fontBold, true, hoverAdopt);
+				string action = form.IsOutdated(pet) ? Lang.T("pets.downloadUpdate")
+					: inUse ? Lang.T("pets.adoptAnother")
+					: !form.IsDownloaded(pet) ? Lang.T("pets.download")
+					: Lang.T("pets.adopt");
+				Theme.DrawButton(g, adoptRect, action, form.fontBold, true, hoverAdopt);
 				y += 52;
 
 				// stats from the XML
@@ -1057,8 +1112,7 @@ namespace DesktopPet
 					if (closeRect.Contains(e.Location)) { CloseDetail(); return; }
 					if (adoptRect.Contains(e.Location))
 					{
-						if (selected.folder == CurrentPet) Program.Mainthread.AddSheep();
-						else form.AdoptPet(selected);
+						form.PrimaryAction(selected);
 						return;
 					}
 					foreach (var l in links) if (l.rect.Contains(e.Location)) { Program.OpenLink(l.url); return; }
@@ -1086,7 +1140,7 @@ namespace DesktopPet
 			{
 				base.OnMouseDoubleClick(e);
 				var pet = PetAt(e.Location);
-				if (pet != null) form.AdoptPet(pet);
+				if (pet != null) form.PrimaryAction(pet);
 			}
 		}
 
@@ -1606,6 +1660,48 @@ namespace DesktopPet
 					case Keys.End: ScrollY = int.MaxValue; break;
 				}
 			}
+		}
+	}
+	/// <summary>
+	/// Pets downloaded from the gallery, kept on disk so they can be adopted later (also offline):
+	/// %LocalAppData%\DesktopPet\pets\<folder>\animations.xml (+ version.txt with the gallery's lastupdate).
+	/// </summary>
+	internal static class PetStore
+	{
+		static string Root => System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DesktopPet", "pets");
+
+		static string Dir(string folder)
+		{
+			// a folder name from the gallery is a plain name; never let it point outside the store
+			string safe = string.Concat((folder ?? "").Where(c => char.IsLetterOrDigit(c) || c == '_' || c == '-'));
+			if (safe.Length == 0) throw new ArgumentException("Invalid pet folder");
+			return System.IO.Path.Combine(Root, safe);
+		}
+
+		public static bool Has(string folder)
+		{
+			try { return System.IO.File.Exists(System.IO.Path.Combine(Dir(folder), "animations.xml")); }
+			catch (Exception) { return false; }
+		}
+
+		public static string Load(string folder) => System.IO.File.ReadAllText(System.IO.Path.Combine(Dir(folder), "animations.xml"), System.Text.Encoding.UTF8);
+
+		public static string SavedVersion(string folder)
+		{
+			try
+			{
+				string p = System.IO.Path.Combine(Dir(folder), "version.txt");
+				return System.IO.File.Exists(p) ? System.IO.File.ReadAllText(p).Trim() : "";
+			}
+			catch (Exception) { return ""; }
+		}
+
+		public static void Save(string folder, string xml, string version)
+		{
+			string dir = Dir(folder);
+			System.IO.Directory.CreateDirectory(dir);
+			System.IO.File.WriteAllText(System.IO.Path.Combine(dir, "animations.xml"), xml, new System.Text.UTF8Encoding(false));
+			System.IO.File.WriteAllText(System.IO.Path.Combine(dir, "version.txt"), version ?? "");
 		}
 	}
 }

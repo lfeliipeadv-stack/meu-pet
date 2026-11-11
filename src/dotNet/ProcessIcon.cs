@@ -34,6 +34,7 @@ namespace DesktopPet
             ni.MouseDoubleClick += new MouseEventHandler(Ni_MouseDoubleClick);
 
             ni.Text = Lang.T("tray.tooltip", "desktopPet");
+            ni.Icon = AppIcon();   // always the program's own icon, whatever pet is on screen
             ni.Visible = true;
 
             // Attach a context menu.
@@ -51,28 +52,32 @@ namespace DesktopPet
             /// </summary>
         public void SetIcon(System.IO.MemoryStream icon, string petName, string aboutAuthor, string aboutTitle, string aboutVersion, string aboutInfo)
         {
-            bool success = true;
+            // The tray icon stays the program's icon; the pet's icon only appears next to
+            // "Add another <pet>" in the menu, and its name in the tooltip.
             petNameShown = string.IsNullOrEmpty(petName) ? "desktopPet" : petName;
-			try
-			{
-				ni.Icon = new Icon(icon, 32, 32);
-				ContextMenus.UpdateIcon(ni.Icon, petName, aboutAuthor, aboutTitle, aboutVersion, aboutInfo);
-				ni.Text = Truncate(Lang.T("tray.tooltip", petNameShown));
-			}
-			catch(Exception)
-			{
-                success = false;
-			}
-            if(!success)
+            Icon petIcon;
+            try
             {
-                try
-                {
-                    StartUp.AddDebugInfo(StartUp.DEBUG_TYPE.error, "Animation ICON is invalid (icon converter is on the webpage)");
-                    ni.Icon = new Icon(Icon.ExtractAssociatedIcon(Application.ExecutablePath), 32, 32);
-                    ContextMenus.UpdateIcon(ni.Icon, petName, aboutAuthor, aboutTitle, aboutVersion, aboutInfo);
-                }
-                catch (Exception) { } // probably thread error.
+                petIcon = new Icon(icon, 32, 32);
             }
+            catch (Exception)
+            {
+                StartUp.AddDebugInfo(StartUp.DEBUG_TYPE.error, "Animation ICON is invalid (icon converter is on the webpage)");
+                petIcon = AppIcon();
+            }
+            try
+            {
+                ContextMenus.UpdateIcon(petIcon, petName, aboutAuthor, aboutTitle, aboutVersion, aboutInfo);
+                ni.Text = Truncate(Lang.T("tray.tooltip", petNameShown));
+            }
+            catch (Exception) { } // probably thread error.
+        }
+
+        /// <summary>The program's own icon, at tray size.</summary>
+        static Icon AppIcon()
+        {
+            try { return new Icon(Properties.Resources.icon, 32, 32); }
+            catch (Exception) { return Icon.ExtractAssociatedIcon(Application.ExecutablePath); }
         }
 
             /// <summary>

@@ -54,6 +54,7 @@ namespace DesktopPet
         public Install()
         {
             InitializeComponent();
+            Icon = Properties.Resources.icon;   // program logo instead of the sheep stored in the form's resources
 
             appPath = Application.StartupPath;
             installPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), appName);

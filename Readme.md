@@ -16,8 +16,8 @@ Precisa do [.NET 10 Desktop Runtime](https://dotnet.microsoft.com/download/dotne
 - Interface em português (arquivos de tradução em `src/lang`, fáceis de editar)
 - O **eSheep** vem dentro do programa e funciona sem internet
 - Galeria com dezenas de pets, baixados deste repositório (pasta `Pets`), incluindo os novos
-  **Capi** (capivara), **Mago** (mago de barba branca), **Nuvi** (nuvem-terminal), **Boo** (fantasminha),
-  **Tico** (dinossauro) e **Claude** (homenagem não oficial ao mascote do Claude Code, sem vínculo com a Anthropic)
+  **Capi** (capivara), **Mago** (mago de barba branca), **Nuvi** (nuvem-terminal), **Boo** (fantasminha), **Pingo** (pinguim), **Rex** (dinossauro)
+  e **Claude** (homenagem não oficial ao mascote do Claude Code, sem vínculo com a Anthropic)
 - Os pets da galeria são atualizados direto pelo repositório, sem precisar de um exe novo
 - Atualização automática do programa com verificação SHA-256
 - Executável de menos de 1 MB
