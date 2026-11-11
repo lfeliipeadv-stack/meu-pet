@@ -87,9 +87,11 @@ namespace DesktopPet
             fontSearch = Theme.CreateFont(13 * scale);
             fontEmoji = new Font("Segoe UI Emoji", 15 * scale, FontStyle.Regular, GraphicsUnit.Pixel);
 
+            var childOnly = ChildOnlyAnimations(animations);
             if (animations?.SheepAnimations != null)
                 foreach (var kv in animations.SheepAnimations.OrderBy(kv => kv.Key))
                 {
+                    if (childOnly.Contains(kv.Key)) continue;   // played by a child window, not by the pet itself
                     string name = string.IsNullOrWhiteSpace(kv.Value.Name) ? "#" + kv.Key : kv.Value.Name;
                     Emojis.TryGetValue(name, out string emoji);
                     allTiles.Add(new Tile { Id = kv.Key, Name = name, Emoji = emoji ?? "✨" });
@@ -133,6 +135,37 @@ namespace DesktopPet
                 search.AppendText(e.KeyChar.ToString());
                 e.Handled = true;
             };
+        }
+
+        /// <summary>
+        /// Animations that only a child window plays (a released balloon, a thrown boomerang...):
+        /// the "next" of each child and everything those animations chain to, unless a normal
+        /// animation of the pet also leads there. Playing one of them on the pet itself would turn
+        /// the pet into the object, so they are left out of the picker.
+        /// </summary>
+        static HashSet<int> ChildOnlyAnimations(Animations animations)
+        {
+            var result = new HashSet<int>();
+            if (animations?.SheepChild == null || animations.SheepAnimations == null) return result;
+
+            IEnumerable<int> NextIds(TAnimation a) =>
+                (a.EndAnimation ?? new List<TNextAnimation>())
+                .Concat(a.EndBorder ?? new List<TNextAnimation>())
+                .Concat(a.EndGravity ?? new List<TNextAnimation>())
+                .Select(n => n.ID);
+
+            var stack = new Stack<int>(animations.SheepChild.Values.SelectMany(l => l).Select(c => c.Next));
+            while (stack.Count > 0)
+            {
+                int id = stack.Pop();
+                if (!animations.SheepAnimations.TryGetValue(id, out var anim) || !result.Add(id)) continue;
+                foreach (int next in NextIds(anim)) stack.Push(next);
+            }
+            // keep anything a normal (non child) animation can also reach
+            foreach (var kv in animations.SheepAnimations)
+                if (!result.Contains(kv.Key))
+                    foreach (int next in NextIds(kv.Value)) result.Remove(next);
+            return result;
         }
 
         // ---------------------------------------------------------------- layout

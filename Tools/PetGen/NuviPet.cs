@@ -11,6 +11,7 @@ namespace PetGen;
 static class NuviPet
 {
 	const char Out = 'O', Blue = 'B', Light = 'L', Shade = 'D', Screen = 'S', Cyan = 'C', Badge = 'W', Red = 'R', Zz = 'Z';
+	const char Yellow = 'Y', Green = 'G', DarkGreen = 'g', Pink = 'P', Drop = 'd', Coffee = 'b';
 	const int Head = 2;   // headroom: art row r is frame y = r - Head
 
 	// Front view. Art rows 0..17 (row 17 = feet). Screen interior: x 3..12, rows 3..7.
@@ -60,6 +61,12 @@ static class NuviPet
 				[Badge] = Color.FromArgb(222, 232, 255),
 				[Red] = Color.FromArgb(246, 96, 96),
 				[Zz] = Color.FromArgb(206, 220, 255),
+				[Yellow] = Color.FromArgb(252, 214, 72),
+				[Green] = Color.FromArgb(96, 226, 124),
+				[DarkGreen] = Color.FromArgb(36, 116, 66),
+				[Pink] = Color.FromArgb(250, 108, 150),
+				[Drop] = Color.FromArgb(150, 204, 255),
+				[Coffee] = Color.FromArgb(126, 78, 46),
 			},
 			Scale = 3,
 			TilesX = 8,
@@ -239,6 +246,172 @@ static class NuviPet
 		var k1 = Base(); Error(k1); Squash(k1, 2); int fDie1 = p.Add(k1);
 		var k2 = Base(); ClearScreen(k2); R(k2, 7, 5, 2, 1, Cyan); Squash(k2, 4); int fDie2 = p.Add(k2);
 
+		// ============================================================ extra frames (animations 25..44)
+		// A glyph on the screen: '#' cells get colour c; clipped to the screen (x 3..12, rows 3..7).
+		void Glyph(Frame f, int x, int r, char c, params string[] rows)
+		{
+			for (int j = 0; j < rows.Length; j++)
+				for (int i = 0; i < rows[j].Length; i++)
+				{
+					int gx = x + i, gr = r + j;
+					if (rows[j][i] == '#' && gx >= 3 && gx <= 12 && gr >= 3 && gr <= 7) D(f, gx, gr, c);
+				}
+		}
+		Frame Blank() { var f = Base(); ClearScreen(f); return f; }
+
+		// 25 rain: calm face, drops fall beside the body
+		int[] rain = new int[3];
+		var drops = new[] { (0, 11), (15, 12), (1, 14), (14, 16), (0, 17) };
+		for (int k = 0; k < 3; k++)
+		{
+			var f = Base(); Closed(f);
+			foreach (var (x, r0) in drops)
+			{
+				int r = 11 + (r0 - 11 + k * 2) % 7;
+				D(f, x, r, Drop); if (r + 1 <= 17) D(f, x, r + 1, Drop);
+			}
+			rain[k] = p.Add(f);
+		}
+
+		// 26 thunder: a bolt on the screen, then an inverted flash
+		string[] bolt = { "  ##", " ## ", "####", " ## ", "##  " };
+		var tb = Blank(); Glyph(tb, 5, 3, Yellow, bolt); int fBolt = p.Add(tb);
+		var tf = Base(); R(tf, 3, 3, 10, 5, Yellow); Glyph(tf, 5, 3, Screen, bolt); Arms(tf, 1, 1); int fFlash = p.Add(tf);
+
+		// 27 love: heart eyes, then a beating heart
+		var hEyes = Blank(); Glyph(hEyes, 4, 4, Pink, "#.#", "###", ".#."); Glyph(hEyes, 9, 4, Pink, "#.#", "###", ".#."); int fHeartEyes = p.Add(hEyes);
+		var hBig = Blank(); Glyph(hBig, 5, 3, Pink, ".##.##.", "#######", "#######", ".#####.", "..###.."); int fHeartBig = p.Add(hBig);
+		var hSmall = Blank(); Glyph(hSmall, 6, 4, Pink, "##.##", "#####", ".###.", "..#.."); int fHeartSmall = p.Add(hSmall);
+
+		// 28 dance: arms swap, a music note hops from side to side
+		var dn1 = Base(); Happy(dn1); Arms(dn1, 0, 1); D(dn1, 15, 10, Cyan); D(dn1, 15, 11, Cyan); D(dn1, 15, 12, Cyan); D(dn1, 14, 12, Cyan); D(dn1, 14, 13, Cyan); int fDance1 = p.Add(dn1);
+		var dn2 = Base(); Happy(dn2); Arms(dn2, 1, 0); Squash(dn2, 1); D(dn2, 1, 10, Cyan); D(dn2, 1, 11, Cyan); D(dn2, 1, 12, Cyan); D(dn2, 0, 12, Cyan); D(dn2, 0, 13, Cyan); int fDance2 = p.Add(dn2);
+
+		// 29 coffee: holds a little cup, sips, steam rises
+		Frame Cup(Action<Frame> face, int steam)
+		{
+			var f = Base(); face(f); Arms(f, 2);
+			D(f, 14, 10, Badge); D(f, 15, 10, Coffee); D(f, 14, 11, Badge); D(f, 15, 11, Badge);
+			if (steam == 1) D(f, 15, 9, Zz);
+			if (steam == 2) D(f, 14, 9, Zz);
+			return f;
+		}
+		int fCup1 = p.Add(Cup(f => Prompt(f), 1));
+		int fCup2 = p.Add(Cup(Closed, 2));
+		int fCup3 = p.Add(Cup(Happy, 1));
+
+		// 30 download / 31 upload: an arrow slides through the screen
+		string[] down = { "  ##  ", "  ##  ", "######", " #### ", "  ##  " };
+		string[] up = { "  ##  ", " #### ", "######", "  ##  ", "  ##  " };
+		int[] dl = new int[3], ul = new int[3];
+		for (int k = 0; k < 3; k++)
+		{
+			var a = Blank(); Glyph(a, 5, 1 + k * 2, Cyan, down); dl[k] = p.Add(a);
+			var b = Blank(); Glyph(b, 5, 5 - k * 2, Cyan, up); ul[k] = p.Add(b);
+		}
+		var ok = Blank(); Glyph(ok, 4, 3, Green, ".......#", "......#.", "#....#..", ".#..#...", "..##...."); int fCheck = p.Add(ok);
+
+		// 32 wifi: signal arcs light up one by one
+		int[] wifi = new int[3];
+		for (int k = 0; k < 3; k++)
+		{
+			var f = Blank(); R(f, 7, 7, 2, 1, Cyan);
+			if (k >= 1) { R(f, 6, 5, 4, 1, Cyan); D(f, 5, 6, Cyan); D(f, 10, 6, Cyan); }
+			if (k >= 2) { R(f, 5, 3, 6, 1, Cyan); D(f, 4, 4, Cyan); D(f, 11, 4, Cyan); }
+			wifi[k] = p.Add(f);
+		}
+
+		// 33 matrix: green code rain on the screen
+		int[] matrix = new int[3];
+		for (int k = 0; k < 3; k++)
+		{
+			var f = Blank();
+			for (int i = 0; i < 5; i++)
+			{
+				int x = 4 + i * 2, r = 3 + (i * 3 + k * 2) % 6;
+				if (r <= 7) D(f, x, r, Green);
+				if (r - 1 >= 3 && r - 1 <= 7) D(f, x, r - 1, DarkGreen);
+				if (r - 2 >= 3 && r - 2 <= 7) D(f, x, r - 2, DarkGreen);
+			}
+			matrix[k] = p.Add(f);
+		}
+
+		// 34 hello: "HI" on the screen while waving
+		string[] hi = { "#.#.###", "#.#..#.", "###..#.", "#.#..#.", "#.#.###" };
+		var hi1 = Blank(); Glyph(hi1, 5, 3, Cyan, hi); Arms(hi1, 1); int fHi1 = p.Add(hi1);
+		var hi2 = Blank(); Glyph(hi2, 5, 3, Cyan, hi); Arms(hi2, 2); int fHi2 = p.Add(hi2);
+
+		// 35 static: TV noise
+		int[] noise = new int[2];
+		for (int k = 0; k < 2; k++)
+		{
+			var f = Blank();
+			char[] cols = { Badge, Shade, Screen, Cyan, Shade };
+			for (int r = 3; r <= 7; r++) for (int x = 3; x <= 12; x++) {
+				uint h = (uint)(x * 73856093 ^ r * 19349663 ^ (k + 1) * 83492791);
+				h ^= h >> 13; h *= 0x5bd1e995; h ^= h >> 15;
+				D(f, x, r, cols[h % 5]);
+			}
+			noise[k] = p.Add(f);
+		}
+
+		// 36 stretch and yawn
+		var str = Base(); Closed(str); Arms(str, 1, 1); int fStretch = p.Add(str);
+		var yawn = Base(); Closed(yawn); R(yawn, 7, 6, 2, 2, Cyan); Arms(yawn, 1, 1); int fYawn = p.Add(yawn);
+
+		// 37 dizzy: spiral eyes
+		var dz = Blank(); Glyph(dz, 4, 4, Cyan, "###", "#.#", "##."); Glyph(dz, 9, 4, Cyan, "###", "#.#", "##."); int fDizzy = p.Add(dz);
+		var dzL = p.Frames[fDizzy].Clone().Shift(-1, 0); int fDizzyL = p.Add(dzL);
+		var dzR = p.Frames[fDizzy].Clone().Shift(1, 0); int fDizzyR = p.Add(dzR);
+
+		// 38 battery low: the charge drops, then it naps
+		Frame Battery(int level, char c)
+		{
+			var f = Blank();
+			Glyph(f, 4, 4, Badge, "#######", "#.....##", "#######");
+			if (level > 0) R(f, 5, 5, level, 1, c);
+			return f;
+		}
+		int fBat5 = p.Add(Battery(5, Green)), fBat3 = p.Add(Battery(3, Yellow)), fBat1 = p.Add(Battery(1, Red)), fBat0 = p.Add(Battery(0, Red));
+
+		// 39 bug hunt: a little bug crawls across the screen, gets squashed
+		int[] bug = new int[4];
+		for (int k = 0; k < 4; k++)
+		{
+			var f = Blank(); int x = 10 - k * 2;
+			R(f, x, 5, 2, 2, Red); D(f, x, 5, Badge); D(f, x - 1, 6 + (k % 2), Shade); D(f, x + 2, 6 + ((k + 1) % 2), Shade);
+			bug[k] = p.Add(f);
+		}
+
+		// 40 idea: a yellow "!"
+		var idea = Blank(); R(idea, 7, 3, 2, 3, Yellow); R(idea, 7, 7, 2, 1, Yellow); int fIdea = p.Add(idea);
+
+		// 41 compile: a spinner
+		var ring = new[] { (7, 4), (8, 4), (9, 5), (9, 6), (8, 7), (7, 7), (6, 6), (6, 5) };
+		int[] spin = new int[4];
+		for (int k = 0; k < 4; k++)
+		{
+			var f = Blank();
+			foreach (var (x, r) in ring) D(f, x, r, Shade);
+			D(f, ring[k * 2].Item1, ring[k * 2].Item2, Cyan); D(f, ring[k * 2 + 1].Item1, ring[k * 2 + 1].Item2, Cyan);
+			spin[k] = p.Add(f);
+		}
+
+		// 42 wink
+		var wk = Blank(); D(wk, 4, 5, Cyan); D(wk, 5, 4, Cyan); D(wk, 6, 5, Cyan); R(wk, 9, 5, 3, 1, Cyan); Arms(wk, 2); int fWink = p.Add(wk);
+
+		// 44 hourglass: the sand runs down
+		int[] glass = new int[3];
+		for (int k = 0; k < 3; k++)
+		{
+			var f = Blank();
+			Glyph(f, 6, 3, Badge, "####", "#..#", ".##.", "#..#", "####");
+			if (k == 0) R(f, 7, 4, 2, 1, Yellow);
+			if (k == 1) { D(f, 7, 4, Yellow); D(f, 8, 6, Yellow); }
+			if (k == 2) R(f, 7, 6, 2, 1, Yellow);
+			glass[k] = p.Add(f);
+		}
+
 		p.IconFrame = fStand;
 
 		// ------------------------------------------------------------ spawns
@@ -251,6 +424,9 @@ static class NuviPet
 			.Seq(walk[0], walk[1], walk[2], walk[3])
 			.Then(50, 1).Then(10, 2).Then(8, 10).Then(6, 15).Then(5, 17).Then(6, 18).Then(5, 21).Then(4, 22).Then(4, 23)
 			.Then(6, 16, "taskbar")
+			// extra idle animations (25..44), each a small chance
+			.Then(2, 25).Then(1, 26).Then(2, 27).Then(2, 28).Then(2, 29).Then(2, 30).Then(2, 31).Then(2, 32).Then(2, 33).Then(2, 34)
+			.Then(1, 35).Then(2, 36).Then(1, 37).Then(1, 38).Then(2, 39).Then(2, 40).Then(2, 41).Then(2, 42).Then(2, 43).Then(2, 44)
 			.OnBorder(100, 2).OnBorder(20, 12, "vertical").OnBorder(30, 9, "window").OnBorder(40, 19, "windowSide")
 			.OnGravity(100, 5);
 
@@ -269,7 +445,7 @@ static class NuviPet
 
 		p.A(10, "sync").Move("0", "0").Speed("100", "160").Loop("6").Seq(fHappy, fWave1, fHappy, fJump).Then(100, 1);
 
-		p.A(11, "blink").Move("0", "0").Speed("500").Seq(fStand, fBlink, fStand, fBlink, fStand).Then(80, 1).Then(20, 24);
+		p.A(11, "blink").Move("0", "0").Speed("500").Seq(fStand, fBlink, fStand, fBlink, fStand).Then(70, 1).Then(15, 24).Then(8, 42).Then(7, 40);
 
 		p.A(12, "climb").Move("0", "-3").Speed("160").Loop("5000", 2)
 			.Seq(fJump, fDrag1, fJump, fDrag2).Then(100, 12).OnBorder(100, 2);
@@ -280,7 +456,7 @@ static class NuviPet
 			.Seq(fSl1, load[0], load[1], load[2], load[3], fHappy, fStand).Then(100, 1);
 
 		p.A(15, "look around").Move("0", "0").Speed("350", "260").Seq(fStand, fLookL, fLookR, fBlink, fStand).Then(100, 1);
-		p.A(16, "sit").Move("0", "0").Speed("800", "600").Loop("random/3+5", 2).Seq(fSit, fSit, fClosed, fSit).Then(60, 1).Then(40, 13);
+		p.A(16, "sit").Move("0", "0").Speed("800", "600").Loop("random/3+5", 2).Seq(fSit, fSit, fClosed, fSit).Then(50, 1).Then(30, 13).Then(6, 29).Then(6, 25).Then(4, 38).Then(4, 44);
 		p.A(17, "wave").Move("0", "0").Speed("190").Loop("3", 1).Seq(fHappy, fWave1, fWave2, fWave1).Then(100, 1);
 		p.A(18, "code").Move("0", "0").Speed("220").Loop("2")
 			.Seq(code[0], code[1], code[2], code[3], code[3], fHappy).Then(100, 1);
@@ -294,6 +470,28 @@ static class NuviPet
 		p.A(23, "happy").Move("0", "0").Speed("200").Loop("2").Seq(fHappy, fJump, fHappy, fStand).Then(100, 1);
 
 		p.A(24, "think").Move("0", "0").Speed("380").Loop("3", 1).Seq(fStand, fThink, fBlink, fThink).Then(100, 1);
+
+		// ------------------------------------------------------------ extra animations
+		p.A(25, "rain").Move("0", "0").Speed("160").Loop("6").Seq(rain[0], rain[1], rain[2]).Then(100, 1);
+		p.A(26, "thunder").Move("0", "0").Speed("110", "200").Seq(fFall, fBolt, fFlash, fBolt, fFlash, fFall, fStand).Then(60, 25).Then(40, 1);
+		p.A(27, "love").Move("0", "0").Speed("240").Loop("3", 1).Seq(fHeartEyes, fHeartBig, fHeartSmall, fHeartBig).Then(100, 23);
+		p.A(28, "dance").Move("0", "0").Speed("230").Loop("5").Seq(fDance1, fDance2).Then(80, 1).Then(20, 23);
+		p.A(29, "coffee").Move("0", "0").Speed("500", "350").Loop("2", 1).Seq(fCup1, fCup2, fCup3, fCup2).Then(100, 1);
+		p.A(30, "download").Move("0", "0").Speed("160").Loop("3", 0).Seq(dl[0], dl[1], dl[2]).Then(100, 43);
+		p.A(31, "upload").Move("0", "0").Speed("160").Loop("3", 0).Seq(ul[0], ul[1], ul[2]).Then(100, 43);
+		p.A(32, "wifi").Move("0", "0").Speed("300").Loop("3").Seq(wifi[0], wifi[1], wifi[2], wifi[2]).Then(60, 30).Then(40, 1);
+		p.A(33, "matrix").Move("0", "0").Speed("150").Loop("6").Seq(matrix[0], matrix[1], matrix[2]).Then(100, 1);
+		p.A(34, "hello").Move("0", "0").Speed("260").Loop("3").Seq(fHi1, fHi2).Then(100, 1);
+		p.A(35, "static").Move("0", "0").Speed("80").Loop("8").Seq(noise[0], noise[1]).Then(60, 1).Then(40, 22);
+		p.A(36, "stretch").Move("0", "0").Speed("420", "260").Seq(fClosed, fStretch, fYawn, fYawn, fStretch, fHappy, fStand).Then(100, 1);
+		p.A(37, "dizzy").Move("0", "0").Speed("90", "260").Seq(fLookL, fLookR, fLookL, fLookR, fLookL, fLookR, fDizzy, fDizzyL, fDizzy, fDizzyR, fDizzy, fStand).Then(100, 1);
+		p.A(38, "battery low").Move("0", "0").Speed("500").Seq(fBat5, fBat3, fBat1, fBat0, fBat1, fBat0, fClosed).Then(100, 13);
+		p.A(39, "bug hunt").Move("0", "0").Speed("260").Seq(fStand, bug[0], bug[1], bug[2], bug[3], fFall, fCrouch, fCheck, fHappy).Then(100, 1);
+		p.A(40, "idea").Move("0", "0").Speed("260").Seq(fBlink, fIdea, fJump, fIdea, fHappy).Then(100, 18);
+		p.A(41, "compile").Move("0", "0").Speed("120").Loop("5").Seq(spin[0], spin[1], spin[2], spin[3]).Then(85, 43).Then(15, 22);
+		p.A(42, "wink").Move("0", "0").Speed("380").Seq(fHappy, fWink, fWink, fHappy, fStand).Then(100, 1);
+		p.A(43, "commit").Move("0", "0").Speed("320").Seq(code[3], spin[0], spin[2], fCheck, fCheck, fHappy, fStand).Then(100, 1);
+		p.A(44, "hourglass").Move("0", "0").Speed("420").Loop("3").Seq(glass[0], glass[1], glass[2]).Then(70, 1).Then(30, 16);
 
 		p.A(99, "kill").Move("0", "1").Speed("130", "230").Fade(1, 0).Seq(fErr1, fDie1, fDie1, fDie2, fDie2).Then(100, 99);
 
@@ -323,6 +521,10 @@ static class NuviPet
 			* type code, loading bar, error x x
 			* sit on the taskbar, sleep and boot up
 			* drag and toss with the mouse
+			* rain, thunder, love (heart), dance, coffee break
+			* download, upload, wifi, matrix code rain, "HI" hello, TV static
+			* stretch and yawn, dizzy spin, battery low, bug hunt, idea (!)
+			* compile spinner, wink, commit ✓, hourglass
 			""";
 		p.ReadmePt = """
 			# Nuvi a Nuvem Terminal
@@ -350,6 +552,10 @@ static class NuviPet
 			* digitar código, barra de carregamento, erro x x
 			* sentar na barra de tarefas, dormir e reiniciar
 			* arrastar e jogar com o mouse
+			* chuva, trovão, amor (coração), dança, pausa para o café
+			* download, upload, wi-fi, chuva de código (matrix), "HI" de olá, tela chiando
+			* espreguiçar e bocejar, tontura, bateria fraca, caça ao bug, ideia (!)
+			* compilando (spinner), piscadinha, commit ✓, ampulheta
 			""";
 
 		return p;

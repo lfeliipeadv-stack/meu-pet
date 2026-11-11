@@ -61,6 +61,17 @@ namespace DesktopPet
 			var first = f.WebPets.pets.FirstOrDefault(p => p.folder == "esheep64") ?? f.WebPets.pets.FirstOrDefault();
 			if (first != null) { f.petsView.SelectForSnapshot(first); await f.LoadDetailsAsync(first); await Task.Delay(300); save("pets-detail"); }
 			foreach (Page p in new[] { Page.Behaviour, Page.Application, Page.About }) { f.SelectPage(p); await Task.Delay(200); save(p.ToString().ToLowerInvariant()); }
+			// color group card (gSheep) with the pink color selected
+			var group = f.WebPets.pets.FirstOrDefault(p => p.Variants != null);
+			if (group != null)
+			{
+				f.SelectPage(Page.Pets);
+				f.searchBox.Text = "sheep";   // bring the group card into view
+				group.SelectVariant(group.Variants.FirstOrDefault(v => v?.folder == "pink_sheep") ?? group.Variants.First(v => v != null));
+				f.petsView.SelectForSnapshot(group); await f.LoadDetailsAsync(group); await Task.Delay(300); save("pets-group");
+				f.petsView.CloseDetail();
+				f.searchBox.Text = "";
+			}
 			// narrow window: the page subtitle must wrap instead of being cut
 			f.SelectPage(Page.Pets); f.Width = 760; await Task.Delay(300); save("pets-narrow");
 			f.Close();
@@ -97,6 +108,7 @@ namespace DesktopPet
 		private readonly Panel header;
 		private readonly Label headerTitle;
 		private readonly Label headerSubtitle;
+		private readonly SearchField searchField;
 		private readonly TextBox searchBox;
 		private readonly Panel content;
 		private readonly Label status;
@@ -162,22 +174,15 @@ namespace DesktopPet
 			// not AutoSize: the subtitle wraps to the window width (see LayoutHeader)
 			headerSubtitle = new Label { AutoSize = false, Font = fontSubtitle, ForeColor = Theme.TextMuted, Location = new Point(28, 52) };
 			headerSubtitle.TextChanged += (s, e) => LayoutHeader();
-			searchBox = new TextBox
-			{
-				Font = fontText,
-				BorderStyle = BorderStyle.FixedSingle,
-				BackColor = Theme.Surface,
-				ForeColor = Theme.Text,
-				Width = 240,
-				PlaceholderText = Lang.T("pets.search"),
-				Anchor = AnchorStyles.Top | AnchorStyles.Right
-			};
+			// rounded search field with a magnifier and a clear button (same look as the cards)
+			searchField = new SearchField(fontText) { Size = new Size(260, 36), Anchor = AnchorStyles.Top | AnchorStyles.Right };
+			searchBox = searchField.Box;
+			searchBox.PlaceholderText = Lang.T("pets.search");
 			header.Controls.Add(headerTitle);
 			header.Controls.Add(headerSubtitle);
-			header.Controls.Add(searchBox);
+			header.Controls.Add(searchField);
 			header.Resize += (s, e) =>
 			{
-				searchBox.Location = new Point(header.ClientSize.Width - searchBox.Width - 26, 26);
 				LayoutHeader();
 			};
 
@@ -201,6 +206,7 @@ namespace DesktopPet
 			searchBox.TextChanged += (s, e) => petsView.Filter = searchBox.Text;
 
 			Lang.Changed += OnLanguageChanged;
+			Theme.Changed += OnThemeChanged;
 			SelectPage(startPage);
 			_ = LoadPetsAsync();
 		}
@@ -222,8 +228,37 @@ namespace DesktopPet
 				headerSubtitle.Size = new Size(width, size.Height + 4);
 				int height = Math.Max(84, headerSubtitle.Bottom + 10);
 				if (header.Height != height) header.Height = height;
+
+				// search field: right side of the title row, always above the subtitle (never covered by it),
+				// computed from the real (DPI scaled) sizes
+				if (searchField != null)
+				{
+					int top = Math.Max(4, Math.Min(headerTitle.Top + (headerTitle.Height - searchField.Height) / 2, headerSubtitle.Top - searchField.Height - 6));
+					searchField.Location = new Point(header.ClientSize.Width - searchField.Width - 26, top);
+					searchField.BringToFront();
+				}
 			}
 			finally { layingOutHeader = false; }
+		}
+
+		/// <summary>The color theme changed (setting or Windows): recolor the native controls and repaint.</summary>
+		private void OnThemeChanged()
+		{
+			if (IsDisposed) return;
+			if (InvokeRequired) { BeginInvoke(new Action(OnThemeChanged)); return; }
+			Theme.ApplyWindowChrome(this);
+			BackColor = Theme.Background; ForeColor = Theme.Text;
+			status.BackColor = Theme.Background; status.ForeColor = Theme.TextMuted;
+			header.BackColor = Theme.Background; content.BackColor = Theme.Background;
+			headerTitle.ForeColor = Theme.Text; headerSubtitle.ForeColor = Theme.TextMuted;
+			searchField.Recolor();
+			foreach (Control c in new Control[] { sidebar, petsView, behaviourView, applicationView, aboutView })
+			{
+				c.BackColor = Theme.Background;
+				c.Invalidate();
+			}
+			header.Invalidate(true);
+			Invalidate(true);
 		}
 
 		/// <summary>The language was switched: rewrite fixed texts and repaint everything.</summary>
@@ -253,6 +288,7 @@ namespace DesktopPet
 		{
 			base.OnFormClosed(e);
 			Lang.Changed -= OnLanguageChanged;
+			Theme.Changed -= OnThemeChanged;
 			if (openInstance == this) openInstance = null;
 		}
 
@@ -297,11 +333,11 @@ namespace DesktopPet
 					break;
 				case Page.About:
 					headerTitle.Text = Lang.T("page.about.title");
-					headerSubtitle.Text = Lang.T("page.about.subtitle", Application.ProductVersion.Split('+')[0]);
+					headerSubtitle.Text = Lang.T("page.about.subtitle", Updater.CurrentVersion.ToString(3));
 					content.Controls.Add(aboutView);
 					break;
 			}
-			searchBox.Visible = p == Page.Pets;
+			searchField.Visible = p == Page.Pets;
 			content.ResumeLayout();
 			sidebar.Invalidate();
 		}
@@ -311,11 +347,11 @@ namespace DesktopPet
 		private void BuildBehaviourOptions()
 		{
 			// Titles and descriptions are translation keys, resolved at paint time (instant language switch).
-			behaviourView.AddToggle(Resources.ico_multi, "opt.multiscreen", SettingName.Multiscreen);
-			behaviourView.AddToggle(Resources.ico_smooth, "opt.smooth", SettingName.SmoothMovements);
-			behaviourView.AddToggle(Resources.ico_focus, "opt.taskbar", SettingName.StealTaskbarFocus);
-			behaviourView.AddToggle(Resources.ico_foreground, "opt.foreground", SettingName.WinForeground);
-			behaviourView.AddSlider(Resources.ico_sound, "opt.volume", SettingName.Volume, 0, 100, v => Lang.T("opt.volume.value", v));
+			behaviourView.AddToggle("", /* monitor */ "opt.multiscreen", SettingName.Multiscreen);
+			behaviourView.AddToggle("", /* stopwatch */ "opt.smooth", SettingName.SmoothMovements);
+			behaviourView.AddToggle("", /* taskbar */ "opt.taskbar", SettingName.StealTaskbarFocus);
+			behaviourView.AddToggle("", /* window to front */ "opt.foreground", SettingName.WinForeground);
+			behaviourView.AddSlider("", /* volume */ "opt.volume", SettingName.Volume, 0, 100, v => Lang.T("opt.volume.value", v));
 		}
 
 		private void BuildApplicationOptions()
@@ -324,7 +360,7 @@ namespace DesktopPet
 			var languages = Lang.Available();
 			var codes = new List<string> { "auto" };
 			codes.AddRange(languages.Select(l => l.Code));
-			applicationView.AddDropDown(Resources.option, "opt.language",
+			applicationView.AddDropDown("", /* globe */ "opt.language",
 				() => codes.Select(c => c == "auto" ? Lang.T("opt.language.auto") : languages.First(l => l.Code == c).Name).ToArray(),
 				() => Math.Max(0, codes.FindIndex(c => string.Equals(c, Program.MyData.GetLanguage(), StringComparison.OrdinalIgnoreCase))),
 				i =>
@@ -333,13 +369,24 @@ namespace DesktopPet
 					Lang.Use(codes[i]);
 				});
 
-			applicationView.AddSlider(Resources.ico_quantity, "opt.quantity", SettingName.AutostartPets, 0, StartUp.MAX_SHEEPS,
+			// Theme: automatic (Windows), light or dark — applied at once to every window.
+			var themeModes = new[] { "auto", "light", "dark" };
+			applicationView.AddChoice("", /* color palette */ "opt.theme",
+				() => Math.Max(0, Array.IndexOf(themeModes, Theme.Mode)),
+				i =>
+				{
+					Program.MyData.SetTheme(themeModes[i]);
+					Theme.Mode = themeModes[i];
+				},
+				new[] { 0, 1, 2 }, new[] { "opt.theme.auto", "opt.theme.light", "opt.theme.dark" });
+
+			applicationView.AddSlider("", /* start */ "opt.quantity", SettingName.AutostartPets, 0, StartUp.MAX_SHEEPS,
 				v => v == 1 ? Lang.T("opt.quantity.one") : Lang.T("opt.quantity.many", v));
-			applicationView.AddChoice(Resources.ico_resize, "opt.scale",
+			applicationView.AddChoice("", /* size */ "opt.scale",
 				() => Program.MyData.GetScale(),
 				v => { Program.MyData.SetScale(v); Program.RestartApp(); },
-				new[] { 1, 2, 4 }, new[] { "1×", "2×", "4×" });
-			applicationView.AddAction(Resources.ico_restore, "opt.restore", "opt.restore.button", () =>
+				new[] { 1, 2, 4 }, new[] { "1×", "2×", "4×" }, confirmRestart: true);
+			applicationView.AddAction("", /* undo */ "opt.restore", "opt.restore.button", () =>
 			{
 				if (MessageBox.Show(this, Lang.T("dlg.restore.text"), Lang.T("dlg.restore.title"), MessageBoxButtons.OKCancel, MessageBoxIcon.Question) != DialogResult.OK) return;
 				StartUp.AddDebugInfo(StartUp.DEBUG_TYPE.warning, "restoring default XML");
@@ -354,26 +401,110 @@ namespace DesktopPet
 				petsView.Invalidate();
 			});
 #if PORTABLE
-			applicationView.AddAction(Resources.install, Program.IsApplicationInstalled() ? "opt.install.titleInstalled" : "opt.install", "opt.install.button",
+			applicationView.AddAction("", /* download */ Program.IsApplicationInstalled() ? "opt.install.titleInstalled" : "opt.install", "opt.install.button",
 				() => ContextMenus.OpenInstaller(), "opt.install.desc");
 #endif
 		}
 
 		// ------------------------------------------------------------------ pets (download)
 
+		/// <summary>
+		/// Pets that only differ in color are shown as one card with a color picker.
+		/// (folder, Lang key of the color name, swatch color), in display order.
+		/// </summary>
+		private static readonly (string name, (string folder, string colorKey, Color swatch)[] variants)[] PetGroups =
+		{
+			("gSheep", new[]
+			{
+				("blue_sheep",   "color.blue",   Color.FromArgb(79, 134, 232)),
+				("green_sheep",  "color.green",  Color.FromArgb(93, 187, 99)),
+				("yellow_sheep", "color.yellow", Color.FromArgb(242, 201, 76)),
+				("orange_sheep", "color.orange", Color.FromArgb(240, 146, 58)),
+				("red_sheep",    "color.red",    Color.FromArgb(224, 82, 77)),
+				("pink_sheep",   "color.pink",   Color.FromArgb(242, 122, 181)),
+				("purple_sheep", "color.purple", Color.FromArgb(155, 109, 214)),
+			}),
+		};
+
+		// ------------------------------------------------------------------ "New" badge
+
+		/// <summary>Pets already seen (folder → lastupdate). Null until the gallery was loaded once.</summary>
+		private Dictionary<string, string> seenPets = Program.MyData.GetSeenPets();
+
+		private IEnumerable<OptionsPet> RealPets(OptionsPet pet) =>
+			pet.Variants != null ? pet.Variants.Where(v => v != null) : new[] { pet };
+
+		/// <summary>A pet is new if it was never opened/adopted, or was updated since then.</summary>
+		private bool IsNewPet(OptionsPet pet)
+		{
+			if (seenPets == null) return false;
+			return RealPets(pet).Any(p => !seenPets.TryGetValue(p.folder ?? "", out string d) || d != (p.lastupdate ?? ""));
+		}
+
+		/// <summary>Remember that the user has seen this pet (and all its colors).</summary>
+		private void MarkSeen(OptionsPet pet)
+		{
+			if (seenPets == null || pet == null || !IsNewPet(pet)) return;
+			foreach (var p in RealPets(pet)) seenPets[p.folder ?? ""] = p.lastupdate ?? "";
+			Program.MyData.SetSeenPets(seenPets);
+		}
+
+		/// <summary>First time the gallery is loaded: everything that exists now counts as already seen.</summary>
+		private void InitSeenPets()
+		{
+			if (seenPets != null) return;
+			seenPets = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+			foreach (var pet in WebPets.pets)
+				foreach (var p in RealPets(pet)) seenPets[p.folder ?? ""] = p.lastupdate ?? "";
+			Program.MyData.SetSeenPets(seenPets);
+		}
+
+		/// <summary>Put a downloaded pet into its color group card. Returns false if it belongs to no group.</summary>
+		private bool AddToGroup(OptionsPet pet)
+		{
+			foreach (var group in PetGroups)
+			{
+				int index = Array.FindIndex(group.variants, v => v.folder == pet.folder);
+				if (index < 0) continue;
+
+				var card = WebPets.pets.FirstOrDefault(p => p.GroupName == group.name);
+				if (card == null)
+				{
+					card = new OptionsPet
+					{
+						GroupName = group.name,
+						Variants = new OptionsPet[group.variants.Length],
+						VariantNames = group.variants.Select(v => v.colorKey).ToArray(),
+						VariantColors = group.variants.Select(v => v.swatch).ToArray(),
+					};
+					WebPets.pets.Add(card);
+				}
+				card.Variants[index] = pet;
+				// show the color in use; otherwise the first color of the list that is loaded
+				int shown = card.SelectedVariant;
+				bool inUse = pet.folder == petsView.CurrentPet;
+				bool shownInUse = shown >= 0 && card.Variants[shown].folder == petsView.CurrentPet;
+				if (shown < 0 || inUse || (!shownInUse && index < shown)) card.SelectVariant(pet);
+				return true;
+			}
+			return false;
+		}
+
 		private async Task LoadPetsAsync()
 		{
 			// --- built-in pets (embedded, always available offline) ----------------
 			foreach (var folder in BuiltInPets.Folders)
 			{
+				var detail = BuiltInPets.GetDetail(folder);
 				var builtIn = new OptionsPet
 				{
 					folder = folder,
-					author = "Luan Felipe",
-					lastupdate = "2026-11-10",
+					name = BuiltInPets.GetName(folder),
+					author = detail.DocumentElement?.SelectSingleNode("*[local-name()='header']/*[local-name()='author']")?.InnerText,
+					lastupdate = "2026-11-11",
 					Image = BuiltInPets.GetIcon(folder),
 					Readme = BuiltInPets.GetReadMe(folder),
-					Detail = BuiltInPets.GetDetail(folder),
+					Detail = detail,
 				};
 				WebPets.pets.Add(builtIn);
 			}
@@ -386,13 +517,14 @@ namespace DesktopPet
 				var progress = new Progress<OptionsPet>(pet =>
 				{
 					// skip if the folder was already added as a built-in
-					if (WebPets.pets.Any(p => p.folder == pet.folder)) return;
-					WebPets.pets.Add(pet);
+					if (WebPets.pets.Any(p => p.folder == pet.folder && p.GroupName == null)) return;
+					if (!AddToGroup(pet)) WebPets.pets.Add(pet);
 					petsView.PetsChanged();
 					StatusText = Lang.T("status.loadingListCount", WebPets.pets.Count);
 				});
 				await Task.Run(() => OptionsGit.GetPetList(progress));
 				StatusText = Lang.T("status.available", WebPets.pets.Count);
+				InitSeenPets();
 			}
 			catch (Exception ex)
 			{
@@ -428,6 +560,7 @@ namespace DesktopPet
 				Program.Mainthread.LoadNewXMLFromString(xml.OuterXml);
 				StatusText = Lang.T("status.enjoy", pet.DisplayName);
 				petsView.CurrentPet = pet.folder;
+				MarkSeen(pet);
 				// Persist the adopted pet folder so the gallery badge survives restart.
 				Program.MyData.SetCurrentPetFolder(pet.folder);
 			}
@@ -440,6 +573,16 @@ namespace DesktopPet
 		/// <summary>Load README and XML details for the detail panel.</summary>
 		public async Task LoadDetailsAsync(OptionsPet pet)
 		{
+			// group card: load into the selected variant (its own object), then show it if still selected
+			if (pet.Variants != null)
+			{
+				int i = pet.SelectedVariant;
+				if (i < 0) return;
+				var variant = pet.Variants[i];
+				await LoadDetailsAsync(variant);
+				if (pet.folder == variant.folder) pet.SelectVariant(variant);
+				return;
+			}
 			try
 			{
 				if (pet.Readme.Count == 0)
@@ -510,7 +653,7 @@ namespace DesktopPet
 
 				// app logo + name
 				Theme.DrawPixelImage(g, Resources.esheep, new Rectangle(20, 22, 40, 40));
-				Theme.DrawText(g, "eSheep", form.fontBold, new Rectangle(68, 24, Width - 70, 20), Theme.Text, TextFormatFlags.Left | TextFormatFlags.SingleLine);
+				Theme.DrawText(g, "desktopPet", form.fontBold, new Rectangle(68, 24, Width - 70, 20), Theme.Text, TextFormatFlags.Left | TextFormatFlags.SingleLine);
 				Theme.DrawText(g, Lang.T("nav.subtitle"), form.fontSmall, new Rectangle(68, 44, Width - 70, 18), Theme.TextMuted, TextFormatFlags.Left | TextFormatFlags.SingleLine);
 
 				for (int i = 0; i < items.Length; i++)
@@ -571,6 +714,8 @@ namespace DesktopPet
 			private readonly List<(Rectangle rect, OptionsPet pet)> cards = new List<(Rectangle, OptionsPet)>();
 			private readonly List<(Rectangle rect, string url)> links = new List<(Rectangle, string)>();
 			private Rectangle adoptRect, closeRect;
+			private readonly List<(Rectangle rect, int index)> swatches = new List<(Rectangle, int)>();
+			private int hoverSwatch = -1;
 			public bool Loading = true;
 			public string CurrentPet;
 			private const int CardW = 150, CardH = 150, Gap = 14;
@@ -596,38 +741,97 @@ namespace DesktopPet
 			{
 				var pets = form.WebPets.pets;
 				if (filter.Length == 0) return pets;
+				bool Has(string s) => (s ?? "").IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0;
 				return pets.Where(p =>
-					p.folder.IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0 ||
-					(p.author ?? "").IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0);
+					Has(p.folder) || Has(p.author) || Has(p.DisplayName) ||
+					// group card: any of its colors, by folder ("pink_sheep") or color name ("rosa")
+					(p.Variants != null && p.Variants.Where(v => v != null).Any(v => Has(v.folder))) ||
+					(p.VariantNames != null && p.VariantNames.Any(k => Has(Lang.T(k)))));
 			}
 
 			private Rectangle GridArea => selected == null
 				? new Rectangle(0, 0, Width - ScrollBarWidth, Height)
 				: new Rectangle(0, 0, Width - DetailW - 16 - ScrollBarWidth, Height);
 
+			/// <summary>Order of the gallery cards.</summary>
+			private enum SortMode { Recent, Name, Author }
+			private SortMode sort = SortMode.Recent;
+			private readonly List<(Rectangle rect, SortMode mode)> sortChips = new List<(Rectangle, SortMode)>();
+			private int hoverChip = -1;
+			private const int MaxCardW = 190;
+
+			private IEnumerable<OptionsPet> Sorted(IEnumerable<OptionsPet> pets)
+			{
+				switch (sort)
+				{
+					case SortMode.Name: return pets.OrderBy(p => p.DisplayName, StringComparer.CurrentCultureIgnoreCase);
+					case SortMode.Author: return pets.OrderBy(p => p.author ?? "", StringComparer.CurrentCultureIgnoreCase).ThenBy(p => p.DisplayName, StringComparer.CurrentCultureIgnoreCase);
+					default: return pets.OrderByDescending(p => p.lastupdate ?? "").ThenBy(p => p.DisplayName, StringComparer.CurrentCultureIgnoreCase);
+				}
+			}
+
 			protected override int PaintContent(Graphics g, int scrollY)
 			{
 				cards.Clear();
+				sortChips.Clear();
 				var area = GridArea;
-				int cols = Math.Max(1, (area.Width + Gap) / (CardW + Gap));
-				int x0 = 8, y = 8 - scrollY, col = 0;
+				int y = 4 - scrollY;
+
+				// --- sort chips: "Ordenar: Recentes | Nome | Autor"
+				int cx = 8;
+				Theme.DrawText(g, Lang.T("pets.sortBy"), form.fontSmall, new Rectangle(cx, y, 120, 28), Theme.TextMuted, TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine);
+				cx += Theme.MeasureText(g, Lang.T("pets.sortBy"), form.fontSmall, int.MaxValue, TextFormatFlags.SingleLine).Width + 8;
+				var modes = new[] { (SortMode.Recent, "pets.sort.recent"), (SortMode.Name, "pets.sort.name"), (SortMode.Author, "pets.sort.author") };
+				for (int i = 0; i < modes.Length; i++)
+				{
+					string text = Lang.T(modes[i].Item2);
+					int w = Theme.MeasureText(g, text, form.fontSmall, int.MaxValue, TextFormatFlags.SingleLine).Width + 24;
+					var chip = new Rectangle(cx, y + 2, w, 24);
+					bool on = sort == modes[i].Item1;
+					Theme.FillRounded(g, on ? Theme.AccentSoft : hoverChip == i ? Theme.Hover : Theme.Surface, chip, 12);
+					Theme.DrawRounded(g, on ? Theme.Accent : Theme.Border, chip, 12);
+					Theme.DrawText(g, text, form.fontSmall, chip, on ? Theme.Accent : Theme.Text, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine);
+					sortChips.Add((chip, modes[i].Item1));
+					cx += w + 6;
+				}
+				y += 38;
+
+				// --- cards fill the width: as many columns as fit, cards stretched up to MaxCardW, grid centered
+				int usable = area.Width - 16;
+				int cols = Math.Max(1, (usable + Gap) / (CardW + Gap));
+				int cardW = Math.Min(MaxCardW, (usable - (cols - 1) * Gap) / cols);
+				int x0 = 8 + (usable - (cols * cardW + (cols - 1) * Gap)) / 2;
 
 				var list = FilteredPets().ToList();
 				if (list.Count == 0)
 				{
 					string msg = Loading ? Lang.T("pets.loading") : (filter.Length > 0 ? Lang.T("pets.noMatch", filter) : Lang.T("pets.empty"));
-					Theme.DrawText(g, msg, form.fontText, new Rectangle(8, 40, area.Width - 16, 40), Theme.TextMuted, TextFormatFlags.HorizontalCenter);
+					Theme.DrawText(g, msg, form.fontText, new Rectangle(8, y + 32, area.Width - 16, 40), Theme.TextMuted, TextFormatFlags.HorizontalCenter);
 				}
 
-				foreach (var pet in list)
+				// --- sections: pets inside the program, then the online gallery
+				var sections = new[]
 				{
-					var r = new Rectangle(x0 + col * (CardW + Gap), y, CardW, CardH);
-					cards.Add((r, pet));
-					if (r.Bottom >= 0 && r.Top <= Height) DrawCard(g, r, pet);
-					col++;
-					if (col >= cols) { col = 0; y += CardH + Gap; }
+					("pets.section.builtIn", Sorted(list.Where(p => p.Variants == null && BuiltInPets.IsBuiltIn(p.folder))).ToList()),
+					("pets.section.gallery", Sorted(list.Where(p => p.Variants != null || !BuiltInPets.IsBuiltIn(p.folder))).ToList()),
+				};
+				foreach (var (titleKey, pets) in sections)
+				{
+					if (pets.Count == 0) continue;
+					Theme.DrawText(g, Lang.T(titleKey, pets.Count), form.fontBold, new Rectangle(x0, y, usable, 22), Theme.Text, TextFormatFlags.SingleLine | TextFormatFlags.EndEllipsis);
+					y += 30;
+					int col = 0;
+					foreach (var pet in pets)
+					{
+						var r = new Rectangle(x0 + col * (cardW + Gap), y, cardW, CardH);
+						cards.Add((r, pet));
+						if (r.Bottom >= 0 && r.Top <= Height) DrawCard(g, r, pet);
+						col++;
+						if (col >= cols) { col = 0; y += CardH + Gap; }
+					}
+					if (col != 0) y += CardH + Gap;
+					y += 10;
 				}
-				if (col != 0) y += CardH + Gap;
 				int contentHeight = y + scrollY + 8;
 
 				if (selected != null) DrawDetail(g);
@@ -646,26 +850,39 @@ namespace DesktopPet
 
 				Theme.DrawText(g, pet.DisplayName, form.fontBold, new Rectangle(r.X + 8, r.Y + 94, r.Width - 16, 20), Theme.Text,
 					TextFormatFlags.HorizontalCenter | TextFormatFlags.SingleLine | TextFormatFlags.EndEllipsis);
-				Theme.DrawText(g, pet.author, form.fontSmall, new Rectangle(r.X + 8, r.Y + 116, r.Width - 16, 18), Theme.TextMuted,
-					TextFormatFlags.HorizontalCenter | TextFormatFlags.SingleLine | TextFormatFlags.EndEllipsis);
+				if (pet.Variants != null)
+				{
+					// color group: a row of dots instead of the author, the shown color is bigger
+					int n = pet.Variants.Length, d = 9, gap = 5, sel = pet.SelectedVariant;
+					int total = n * d + (n - 1) * gap, dx = r.X + (r.Width - total) / 2, dy = r.Y + 120;
+					var old = g.SmoothingMode;
+					g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+					for (int i = 0; i < n; i++)
+					{
+						var dot = new Rectangle(dx + i * (d + gap), dy, d, d);
+						if (i == sel) dot.Inflate(2, 2);
+						using (var b = new SolidBrush(pet.Variants[i] == null ? Theme.Hover : pet.VariantColors[i])) g.FillEllipse(b, dot);
+					}
+					g.SmoothingMode = old;
+				}
+				else
+				{
+					Theme.DrawText(g, pet.author, form.fontSmall, new Rectangle(r.X + 8, r.Y + 116, r.Width - 16, 18), Theme.TextMuted,
+						TextFormatFlags.HorizontalCenter | TextFormatFlags.SingleLine | TextFormatFlags.EndEllipsis);
+				}
 
-				if (pet.folder == CurrentPet)
+				if (pet.Contains(CurrentPet))
 				{
 					var badge = new Rectangle(r.Right - 58, r.Y + 8, 50, 20);
 					Theme.FillRounded(g, Theme.AccentSoft, badge, 10);
 					Theme.DrawText(g, Lang.T("pets.badgeInUse"), form.fontSmall, badge, Theme.Accent, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine);
 				}
-				else if (IsNew(pet))
+				else if (form.IsNewPet(pet))
 				{
 					var badge = new Rectangle(r.Right - 48, r.Y + 8, 40, 20);
 					Theme.FillRounded(g, Theme.AccentSoft, badge, 10);
 					Theme.DrawText(g, Lang.T("pets.badgeNew"), form.fontSmall, badge, Theme.Accent, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine);
 				}
-			}
-
-			private static bool IsNew(OptionsPet pet)
-			{
-				return DateTime.TryParse(pet.lastupdate, out DateTime d) && d > DateTime.Now.AddDays(-30);
 			}
 
 			private void DrawDetail(Graphics g)
@@ -690,6 +907,31 @@ namespace DesktopPet
 				Theme.DrawText(g, Lang.T("pets.updated", pet.lastupdate), form.fontSmall, new Rectangle(x + 110, y + 78, w - 110, 18), Theme.TextMuted, TextFormatFlags.SingleLine);
 				y += 112;
 
+				// color picker of a group card
+				swatches.Clear();
+				if (pet.Variants != null)
+				{
+					int sel = pet.SelectedVariant;
+					string colorName = sel >= 0 ? Lang.T(pet.VariantNames[sel]) : "";
+					Theme.DrawText(g, Lang.T("pets.color", colorName), form.fontBold, new Rectangle(x, y, w, 20), Theme.Text, TextFormatFlags.SingleLine | TextFormatFlags.EndEllipsis);
+					y += 26;
+					int n = pet.Variants.Length, gap = 6;
+					int size = Math.Min(40, (w - gap * (n - 1)) / n);
+					for (int i = 0; i < n; i++)
+					{
+						var v = pet.Variants[i];
+						var sr = new Rectangle(x + i * (size + gap), y, size, size);
+						bool isSel = i == sel, isHover = i == hoverSwatch;
+						Theme.FillRounded(g, isSel ? Theme.AccentSoft : isHover ? Theme.Hover : Theme.SurfaceAlt, sr, 8);
+						if (v?.Image != null) Theme.DrawPixelImage(g, v.Image, Rectangle.Inflate(sr, -4, -4));
+						// color bar under the icon, so similar colors are easy to tell apart
+						Theme.FillRounded(g, v == null ? Theme.Hover : pet.VariantColors[i], new Rectangle(sr.X + 8, sr.Bottom - 6, sr.Width - 16, 3), 1.5f);
+						Theme.DrawRounded(g, isSel ? Theme.Accent : isHover ? Theme.Border : Theme.SurfaceAlt, sr, 8, isSel ? 2f : 1f);
+						if (v != null) swatches.Add((sr, i));
+					}
+					y += size + 14;
+				}
+
 				adoptRect = new Rectangle(x, y, w, 38);
 				bool inUse = pet.folder == CurrentPet;
 				Theme.DrawButton(g, adoptRect, inUse ? Lang.T("pets.adoptAnother") : Lang.T("pets.adopt"), form.fontBold, true, hoverAdopt);
@@ -699,6 +941,9 @@ namespace DesktopPet
 				if (pet.Detail != null)
 				{
 					var stats = ReadStats(pet.Detail);
+					// color group: the third box counts the colors to choose from, not the skins of one file
+					if (pet.Variants != null && stats.Count >= 3)
+						stats[2] = (pet.Variants.Length.ToString(), Lang.T("pets.statColors"));
 					int sw = (w - 16) / 3;
 					for (int i = 0; i < stats.Count && i < 3; i++)
 					{
@@ -777,25 +1022,36 @@ namespace DesktopPet
 				bool ha = selected != null && adoptRect.Contains(e.Location);
 				bool hc = selected != null && closeRect.Contains(e.Location);
 				bool hl = selected != null && links.Any(l => l.rect.Contains(e.Location));
-				Cursor = (hp != null || ha || hc || hl) ? Cursors.Hand : Cursors.Default;
-				if (hp != hoverPet || ha != hoverAdopt || hc != hoverClose)
+				int hs = selected == null ? -1 : swatches.Where(s => s.rect.Contains(e.Location)).Select(s => s.index).DefaultIfEmpty(-1).First();
+				int hch = sortChips.FindIndex(c => c.rect.Contains(e.Location));
+				Cursor = (hp != null || ha || hc || hl || hs >= 0 || hch >= 0) ? Cursors.Hand : Cursors.Default;
+				if (hp != hoverPet || ha != hoverAdopt || hc != hoverClose || hs != hoverSwatch || hch != hoverChip)
 				{
-					hoverPet = hp; hoverAdopt = ha; hoverClose = hc;
+					hoverPet = hp; hoverAdopt = ha; hoverClose = hc; hoverSwatch = hs; hoverChip = hch;
 					Invalidate();
 				}
+				if (hs >= 0 && selected?.VariantNames != null)
+					form.StatusText = Lang.T("pets.color", Lang.T(selected.VariantNames[hs]));
 				if (hl) form.StatusText = links.First(l => l.rect.Contains(e.Location)).url;
 			}
 
 			protected override void OnMouseLeave(EventArgs e)
 			{
 				base.OnMouseLeave(e);
-				hoverPet = null; hoverAdopt = hoverClose = false;
+				hoverPet = null; hoverAdopt = hoverClose = false; hoverSwatch = -1; hoverChip = -1;
 				Invalidate();
 			}
 
 			protected override async void OnMouseClick(MouseEventArgs e)
 			{
 				base.OnMouseClick(e);
+				foreach (var c in sortChips)
+				{
+					if (!c.rect.Contains(e.Location)) continue;
+					sort = c.mode;
+					Invalidate();
+					return;
+				}
 				if (selected != null)
 				{
 					if (closeRect.Contains(e.Location)) { CloseDetail(); return; }
@@ -806,10 +1062,21 @@ namespace DesktopPet
 						return;
 					}
 					foreach (var l in links) if (l.rect.Contains(e.Location)) { Program.OpenLink(l.url); return; }
+					foreach (var s in swatches)
+					{
+						if (!s.rect.Contains(e.Location)) continue;
+						var card = selected;
+						card.SelectVariant(card.Variants[s.index]);
+						Invalidate();
+						await form.LoadDetailsAsync(card);
+						if (selected == card) Invalidate();
+						return;
+					}
 				}
 				var pet = PetAt(e.Location);
 				if (pet == null) return;
 				selected = pet;
+				form.MarkSeen(pet);
 				Invalidate();
 				await form.LoadDetailsAsync(pet);
 				if (selected == pet) Invalidate();
@@ -829,7 +1096,7 @@ namespace DesktopPet
 		{
 			private abstract class Row
 			{
-				public Image Icon;
+				public string Glyph;   // Segoe Fluent Icons code point
 				/// <summary>Translation key: "{Key}.title" and "{Key}.desc" are shown.</summary>
 				public string Key;
 				/// <summary>Optional key overriding the description key.</summary>
@@ -840,7 +1107,7 @@ namespace DesktopPet
 			}
 			private sealed class ToggleRow : Row { public string Setting; }
 			private sealed class SliderRow : Row { public string Setting; public int Min, Max, Value; public Func<int, string> Format; }
-			private sealed class ChoiceRow : Row { public Func<int> Get; public Action<int> Set; public int[] Values; public string[] Texts; public Rectangle[] Segments; }
+			private sealed class ChoiceRow : Row { public bool ConfirmRestart; public Func<int> Get; public Action<int> Set; public int[] Values; public string[] Texts; public Rectangle[] Segments; }
 			private sealed class ActionRow : Row { public string ButtonKey; public Action Run; }
 			private sealed class DropDownRow : Row { public Func<string[]> Items; public Func<int> Get; public Action<int> Set; }
 
@@ -852,20 +1119,24 @@ namespace DesktopPet
 
 			public OptionsView(FormSettings f) { form = f; }
 
-			public void AddToggle(Image icon, string key, string setting) =>
-				rows.Add(new ToggleRow { Icon = icon, Key = key, Setting = setting });
+			/// <summary>Windows 11 icon font (Segoe Fluent Icons, or Segoe MDL2 Assets on Windows 10).</summary>
+			private Font glyphFont;
+			private Font GlyphFont => glyphFont ?? (glyphFont = new Font(new[] { "Segoe Fluent Icons", "Segoe MDL2 Assets" }.FirstOrDefault(n => { using (var f = new Font(n, 10)) return string.Equals(f.Name, n, StringComparison.OrdinalIgnoreCase); }) ?? Theme.FontFamilyName, 20, GraphicsUnit.Pixel));
 
-			public void AddSlider(Image icon, string key, string setting, int min, int max, Func<int, string> format) =>
-				rows.Add(new SliderRow { Icon = icon, Key = key, Setting = setting, Min = min, Max = max, Format = format, Value = Program.MyData.GetIntValue(setting) });
+			public void AddToggle(string glyph, string key, string setting) =>
+				rows.Add(new ToggleRow { Glyph = glyph, Key = key, Setting = setting });
 
-			public void AddChoice(Image icon, string key, Func<int> get, Action<int> set, int[] values, string[] texts) =>
-				rows.Add(new ChoiceRow { Icon = icon, Key = key, Get = get, Set = set, Values = values, Texts = texts });
+			public void AddSlider(string glyph, string key, string setting, int min, int max, Func<int, string> format) =>
+				rows.Add(new SliderRow { Glyph = glyph, Key = key, Setting = setting, Min = min, Max = max, Format = format, Value = Program.MyData.GetIntValue(setting) });
 
-			public void AddAction(Image icon, string key, string buttonKey, Action run, string descKey = null) =>
-				rows.Add(new ActionRow { Icon = icon, Key = key, ButtonKey = buttonKey, Run = run, DescKey = descKey });
+			public void AddChoice(string glyph, string key, Func<int> get, Action<int> set, int[] values, string[] texts, bool confirmRestart = false) =>
+				rows.Add(new ChoiceRow { Glyph = glyph, ConfirmRestart = confirmRestart, Key = key, Get = get, Set = set, Values = values, Texts = texts });
 
-			public void AddDropDown(Image icon, string key, Func<string[]> items, Func<int> get, Action<int> set) =>
-				rows.Add(new DropDownRow { Icon = icon, Key = key, Items = items, Get = get, Set = set });
+			public void AddAction(string glyph, string key, string buttonKey, Action run, string descKey = null) =>
+				rows.Add(new ActionRow { Glyph = glyph, Key = key, ButtonKey = buttonKey, Run = run, DescKey = descKey });
+
+			public void AddDropDown(string glyph, string key, Func<string[]> items, Func<int> get, Action<int> set) =>
+				rows.Add(new DropDownRow { Glyph = glyph, Key = key, Items = items, Get = get, Set = set });
 
 			protected override int PaintContent(Graphics g, int scrollY)
 			{
@@ -873,7 +1144,9 @@ namespace DesktopPet
 				int w = Width - ScrollBarWidth - 16;
 				foreach (var row in rows)
 				{
-					int controlW = row is SliderRow ? 260 : row is ChoiceRow cr ? cr.Values.Length * 56 : row is ActionRow ? 120 : row is DropDownRow ? 220 : 130;
+					// segments of a choice grow with their text ("1×" … "Automático")
+					int segW = row is ChoiceRow crw ? Math.Max(50, crw.Texts.Max(t => Theme.MeasureText(g, Lang.T(t), form.fontBold, int.MaxValue, TextFormatFlags.SingleLine).Width) + 22) : 0;
+					int controlW = row is SliderRow ? 260 : row is ChoiceRow cr ? cr.Values.Length * (segW + 6) : row is ActionRow ? 120 : row is DropDownRow ? 220 : 130;
 					int textW = w - controlW - 110;
 					var descSize = Theme.MeasureText(g, row.Description, form.fontSmall, textW);
 					int h = Math.Max(76, 40 + descSize.Height + 16);
@@ -884,7 +1157,8 @@ namespace DesktopPet
 
 					var iconBack = new Rectangle(row.Rect.X + 16, row.Rect.Y + (h - 44) / 2, 44, 44);
 					Theme.FillRounded(g, Theme.AccentSoft, iconBack, 10);
-					if (row.Icon != null) g.DrawImage(row.Icon, new Rectangle(iconBack.X + 6, iconBack.Y + 6, 32, 32));
+					if (!string.IsNullOrEmpty(row.Glyph))
+						TextRenderer.DrawText(g, row.Glyph, GlyphFont, iconBack, Theme.Accent, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding);
 
 					int tx = row.Rect.X + 76;
 					Theme.DrawText(g, row.Title, form.fontBold, new Rectangle(tx, row.Rect.Y + 16, textW, 22), Theme.Text, TextFormatFlags.SingleLine | TextFormatFlags.EndEllipsis);
@@ -913,12 +1187,13 @@ namespace DesktopPet
 							c.Segments = new Rectangle[c.Values.Length];
 							for (int i = 0; i < c.Values.Length; i++)
 							{
-								var seg = new Rectangle(c.Control.X + 3 + i * 56, c.Control.Y + 3, 50, 26);
+								var seg = new Rectangle(c.Control.X + 3 + i * (segW + 6), c.Control.Y + 3, segW, 26);
 								c.Segments[i] = seg;
 								bool sel = c.Values[i] == current;
 								if (sel) Theme.FillRounded(g, Theme.Accent, seg, 6);
 								else if (hover == c && hoverSegment == i) Theme.FillRounded(g, Theme.Hover, seg, 6);
-								Theme.DrawText(g, c.Texts[i], form.fontBold, seg, sel ? Theme.AccentText : Theme.Text, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine);
+								// texts may be translation keys (instant language switch); plain texts pass through
+								Theme.DrawText(g, Lang.T(c.Texts[i]), form.fontBold, seg, sel ? Theme.AccentText : Theme.Text, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine);
 							}
 							break;
 						case ActionRow a:
@@ -993,8 +1268,9 @@ namespace DesktopPet
 						{
 							if (c.Segments[i].Contains(e.Location) && c.Values[i] != c.Get())
 							{
-								if (MessageBox.Show(form, Lang.T("dlg.restart.text"), c.Title, MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
-									c.Set(c.Values[i]);
+								// only options that really restart the program ask first (pet size); the theme applies at once
+									if (!c.ConfirmRestart || MessageBox.Show(form, Lang.T("dlg.restart.text"), c.Title, MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
+										c.Set(c.Values[i]);
 							}
 						}
 						break;
@@ -1126,6 +1402,91 @@ namespace DesktopPet
 				base.OnMouseClick(e);
 				var l = links.FirstOrDefault(x => x.rect.Contains(e.Location));
 				if (l.url != null) Program.OpenLink(l.url);
+			}
+		}
+
+		// ================================================================== search field
+
+		/// <summary>Rounded search field: magnifier, borderless text box and a clear button.</summary>
+		private sealed class SearchField : Control
+		{
+			public readonly TextBox Box;
+			private readonly Font glyphFont;
+			private Rectangle clearRect;
+			private bool hoverClear;
+
+			public SearchField(Font font)
+			{
+				SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.UserPaint |
+					ControlStyles.ResizeRedraw | ControlStyles.SupportsTransparentBackColor, true);
+				string iconFont = new[] { "Segoe Fluent Icons", "Segoe MDL2 Assets" }.FirstOrDefault(n =>
+				{
+					using (var f = new Font(n, 10)) return string.Equals(f.Name, n, StringComparison.OrdinalIgnoreCase);
+				}) ?? Theme.FontFamilyName;
+				glyphFont = new Font(iconFont, 13, GraphicsUnit.Pixel);
+				Box = new TextBox { BorderStyle = BorderStyle.None, Font = font };
+				Box.TextChanged += (s, e) => Invalidate();
+				Box.GotFocus += (s, e) => Invalidate();
+				Box.LostFocus += (s, e) => Invalidate();
+				Controls.Add(Box);
+				Cursor = Cursors.IBeam;
+				Recolor();
+			}
+
+			public void Recolor()
+			{
+				BackColor = Theme.Background;
+				Box.BackColor = Theme.Surface;
+				Box.ForeColor = Theme.Text;
+				Invalidate();
+			}
+
+			protected override void OnLayout(LayoutEventArgs e)
+			{
+				base.OnLayout(e);
+				int h = Box.PreferredHeight;
+				Box.SetBounds(34, (Height - h) / 2, Width - 34 - 32, h);
+				clearRect = new Rectangle(Width - 30, (Height - 22) / 2, 22, 22);
+			}
+
+			protected override void OnPaint(PaintEventArgs e)
+			{
+				var g = e.Graphics;
+				Theme.Prepare(g);
+				var r = new Rectangle(0, 0, Width - 1, Height - 1);
+				Theme.FillRounded(g, Theme.Surface, r, 9);
+				Theme.DrawRounded(g, Box.Focused ? Theme.Accent : Theme.Border, r, 9, Box.Focused ? 1.5f : 1f);
+				TextRenderer.DrawText(g, "", glyphFont, new Rectangle(10, 0, 20, Height), Theme.TextMuted,
+					TextFormatFlags.VerticalCenter | TextFormatFlags.HorizontalCenter | TextFormatFlags.NoPadding);
+				if (Box.TextLength > 0)
+				{
+					if (hoverClear) Theme.FillRounded(g, Theme.Hover, clearRect, 6);
+					TextRenderer.DrawText(g, "", glyphFont, clearRect, Theme.TextMuted,
+						TextFormatFlags.VerticalCenter | TextFormatFlags.HorizontalCenter | TextFormatFlags.NoPadding);
+				}
+			}
+
+			protected override void OnMouseMove(MouseEventArgs e)
+			{
+				base.OnMouseMove(e);
+				bool h = Box.TextLength > 0 && clearRect.Contains(e.Location);
+				Cursor = h ? Cursors.Hand : Cursors.IBeam;
+				if (h != hoverClear) { hoverClear = h; Invalidate(); }
+			}
+
+			protected override void OnMouseLeave(EventArgs e) { base.OnMouseLeave(e); hoverClear = false; Invalidate(); }
+
+			protected override void OnMouseDown(MouseEventArgs e)
+			{
+				base.OnMouseDown(e);
+				if (Box.TextLength > 0 && clearRect.Contains(e.Location)) Box.Clear();
+				Box.Focus();
+			}
+
+			protected override void Dispose(bool disposing)
+			{
+				if (disposing) glyphFont.Dispose();
+				base.Dispose(disposing);
 			}
 		}
 

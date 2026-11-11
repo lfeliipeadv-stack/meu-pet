@@ -82,6 +82,8 @@ namespace DesktopPet
 
             // Interface language: saved preference, or the Windows language ("auto").
             Lang.Use(MyData.GetLanguage());
+            // Color theme: saved preference, or the Windows setting ("auto").
+            Theme.Mode = MyData.GetTheme();
 
             // Developer helpers: write the English template / check that a translation has every key.
             foreach (string s in args)

@@ -23,3 +23,7 @@ Licenciado sob a Licença MIT — veja [LICENSE](../LICENSE.md).
 * digitar código, barra de carregamento, erro x x
 * sentar na barra de tarefas, dormir e reiniciar
 * arrastar e jogar com o mouse
+* chuva, trovão, amor (coração), dança, pausa para o café
+* download, upload, wi-fi, chuva de código (matrix), "HI" de olá, tela chiando
+* espreguiçar e bocejar, tontura, bateria fraca, caça ao bug, ideia (!)
+* compilando (spinner), piscadinha, commit ✓, ampulheta

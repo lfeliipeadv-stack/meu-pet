@@ -604,13 +604,19 @@ namespace DesktopPet
 		/// </summary>
 		public string folder { get; set; }
 		/// <summary>
-		/// Human friendly name ("gsheep-green" -> "Gsheep Green")
+		/// Display name from pets.json ("eSheep", "Ano Nym XL" …). Optional: the folder name is used when missing.
+		/// </summary>
+		public string name { get; set; }
+		/// <summary>
+		/// Human friendly name: group name, then <see cref="name"/>, then the folder ("gsheep-green" -> "Gsheep Green")
 		/// </summary>
 		[JsonIgnore]
 		public string DisplayName
 		{
 			get
 			{
+				if (!string.IsNullOrEmpty(GroupName)) return GroupName;
+				if (!string.IsNullOrWhiteSpace(name)) return name;
 				var parts = (folder ?? "").Replace('_', ' ').Replace('-', ' ').Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 				for (int i = 0; i < parts.Length; i++)
 					parts[i] = char.ToUpperInvariant(parts[i][0]) + parts[i].Substring(1);
@@ -640,6 +646,42 @@ namespace DesktopPet
 		/// </summary>
 		[JsonIgnore]
 		public XmlDocument Detail { get; set; } = null;
+
+		/// <summary>
+		/// Name of a group of pets that only differ in color (e.g. "gSheep"), or null.
+		/// A group card shows the selected variant: <see cref="folder"/>, <see cref="Image"/> … are copied from it.
+		/// </summary>
+		[JsonIgnore]
+		public string GroupName { get; set; }
+		/// <summary>Color variants of a group card, in display order (null entries are not loaded yet).</summary>
+		[JsonIgnore]
+		public OptionsPet[] Variants { get; set; }
+		/// <summary>Display names of the variants (e.g. color names), same order as <see cref="Variants"/>.</summary>
+		[JsonIgnore]
+		public string[] VariantNames { get; set; }
+		/// <summary>Swatch colors of the variants, same order as <see cref="Variants"/>.</summary>
+		[JsonIgnore]
+		public Color[] VariantColors { get; set; }
+
+		/// <summary>Index of the selected variant, or -1.</summary>
+		[JsonIgnore]
+		public int SelectedVariant => Variants == null ? -1 : Array.FindIndex(Variants, v => v != null && v.folder == folder);
+
+		/// <summary>True if this card (or one of its variants) is the given folder.</summary>
+		public bool Contains(string petFolder)
+		{
+			if (string.IsNullOrEmpty(petFolder)) return false;
+			if (folder == petFolder) return true;
+			return Variants != null && Array.Exists(Variants, v => v != null && v.folder == petFolder);
+		}
+
+		/// <summary>Show a variant on this group card (copies its data).</summary>
+		public void SelectVariant(OptionsPet v)
+		{
+			if (v == null) return;
+			folder = v.folder; name = v.name; author = v.author; lastupdate = v.lastupdate;
+			Image = v.Image; Readme = v.Readme; Detail = v.Detail;
+		}
 	}
 	/// <summary>
 	/// Class conaining a list of pets and a method to reorder them by last update date.

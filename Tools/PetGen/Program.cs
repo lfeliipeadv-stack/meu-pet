@@ -9,7 +9,7 @@ using PetGen;
 string outDir = args.Length > 0 ? args[0] : "pets";
 string previewDir = args.Length > 1 ? args[1] : null;
 
-foreach (var pet in new[] { ClaudePet.Build(), CapiPet.Build(), MagoPet.Build(), NuviPet.Build() })
+foreach (var pet in new[] { ClaudePet.Build(), CapiPet.Build(), MagoPet.Build(), NuviPet.Build(), TicoPet.Build(), BooPet.Build() })
 {
 	string dir = Path.Combine(outDir, pet.Folder);
 	Directory.CreateDirectory(dir);
@@ -43,7 +43,7 @@ static class Art
 	public static Bitmap Render(PetDef pet, int frame, int size)
 	{
 		var f = pet.Frames[frame];
-		int minX = 16, minY = 16, maxX = -1, maxY = -1;
+		int minX = f.Width, minY = f.Height, maxX = -1, maxY = -1;
 		minY = f.Height;
 		for (int y = 0; y < f.Height; y++) for (int x = 0; x < f.Width; x++)
 			if (f.Raw(x, y) != '.') { minX = Math.Min(minX, x); minY = Math.Min(minY, y); maxX = Math.Max(maxX, x); maxY = Math.Max(maxY, y); }
@@ -116,9 +116,10 @@ static class Art
 	/// <summary>All frames, big, on a light and a dark strip, with their index: to check the art.</summary>
 	public static Bitmap Preview(PetDef pet)
 	{
-		const int scale = 6, cols = 8;
-		int fh = pet.Frames[0].Height;
-		int cellW = 16 * scale + 8, cellH = fh * scale + 8 + 14;
+		const int cols = 8;
+		int fw = pet.Frames[0].Width, fh = pet.Frames[0].Height;
+		int scale = fw <= 16 ? 6 : 3;
+		int cellW = fw * scale + 8, cellH = fh * scale + 8 + 14;
 		int rows = (pet.Frames.Count + cols - 1) / cols;
 		var bmp = new Bitmap(cols * cellW, rows * cellH * 2);
 		using var g = Graphics.FromImage(bmp);
@@ -132,7 +133,7 @@ static class Art
 			{
 				int cx = (i % cols) * cellW, cy = baseY + (i / cols) * cellH;
 				using (var p = new Pen(Color.FromArgb(half == 0 ? 225 : 70, half == 0 ? 225 : 70, half == 0 ? 225 : 70)))
-					g.DrawRectangle(p, cx + 3, cy + 3, 16 * scale + 1, fh * scale + 1);
+					g.DrawRectangle(p, cx + 3, cy + 3, fw * scale + 1, fh * scale + 1);
 				var f = pet.Frames[i];
 				for (int y = 0; y < f.Height; y++) for (int x = 0; x < f.Width; x++)
 				{

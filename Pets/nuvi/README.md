@@ -23,3 +23,7 @@ Licensed under the MIT License — see [LICENSE](../LICENSE.md).
 * type code, loading bar, error x x
 * sit on the taskbar, sleep and boot up
 * drag and toss with the mouse
+* rain, thunder, love (heart), dance, coffee break
+* download, upload, wifi, matrix code rain, "HI" hello, TV static
+* stretch and yawn, dizzy spin, battery low, bug hunt, idea (!)
+* compile spinner, wink, commit ✓, hourglass

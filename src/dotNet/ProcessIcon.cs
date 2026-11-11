@@ -33,7 +33,7 @@ namespace DesktopPet
             ni.MouseClick += new MouseEventHandler(Ni_MouseClick);
             ni.MouseDoubleClick += new MouseEventHandler(Ni_MouseDoubleClick);
 
-            ni.Text = Lang.T("tray.tooltip", "eSheep");
+            ni.Text = Lang.T("tray.tooltip", "desktopPet");
             ni.Visible = true;
 
             // Attach a context menu.
@@ -41,7 +41,7 @@ namespace DesktopPet
             Lang.Changed += () => { if (ni != null) ni.Text = Truncate(Lang.T("tray.tooltip", petNameShown)); };
         }
 
-        string petNameShown = "eSheep";
+        string petNameShown = "desktopPet";
 
         /// <summary>Tray tooltips are limited to 127 characters.</summary>
         static string Truncate(string s) => s.Length > 127 ? s.Substring(0, 127) : s;
@@ -52,7 +52,7 @@ namespace DesktopPet
         public void SetIcon(System.IO.MemoryStream icon, string petName, string aboutAuthor, string aboutTitle, string aboutVersion, string aboutInfo)
         {
             bool success = true;
-            petNameShown = string.IsNullOrEmpty(petName) ? "eSheep" : petName;
+            petNameShown = string.IsNullOrEmpty(petName) ? "desktopPet" : petName;
 			try
 			{
 				ni.Icon = new Icon(icon, 32, 32);

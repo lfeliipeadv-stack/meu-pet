@@ -15,22 +15,25 @@ namespace PetGen;
 public sealed class Frame
 {
 	public const int Size = 16;
+	/// <summary>Width (and base height) given to frames created from now on (16 by default; hi-res pets use more).</summary>
+	public static int NewWidth = Size;
+	public readonly int W;
 	/// <summary>Headroom given to frames created from now on (set by a pet builder).</summary>
 	public static int NewHeadroom = 0;
 
 	public readonly int Headroom;
-	public int Width => Size;
-	public int Height => Size + Headroom;
+	public int Width => W;
+	public int Height => W + Headroom;
 	/// <summary>Topmost usable y (negative when the frame has headroom).</summary>
 	public int MinY => -Headroom;
 	private readonly char[,] px;
 
-	public Frame() : this(NewHeadroom) { }
-	private Frame(int headroom) { Headroom = headroom; px = new char[Size, Size + headroom]; Clear(); }
+	public Frame() : this(NewHeadroom, NewWidth) { }
+	private Frame(int headroom, int w) { Headroom = headroom; W = w; px = new char[w, w + headroom]; Clear(); }
 
 	public Frame Clone()
 	{
-		var f = new Frame(Headroom);
+		var f = new Frame(Headroom, W);
 		Array.Copy(px, f.px, px.Length);
 		return f;
 	}
@@ -42,8 +45,8 @@ public sealed class Frame
 
 	public char this[int x, int y]
 	{
-		get => (x < 0 || y < MinY || x >= Size || y >= Size) ? '.' : px[x, y + Headroom];
-		set { if (x >= 0 && y >= MinY && x < Size && y < Size) px[x, y + Headroom] = value; }
+		get => (x < 0 || y < MinY || x >= W || y >= W) ? '.' : px[x, y + Headroom];
+		set { if (x >= 0 && y >= MinY && x < W && y < W) px[x, y + Headroom] = value; }
 	}
 
 	public Frame Rect(int x, int y, int w, int h, char c)
@@ -59,7 +62,7 @@ public sealed class Frame
 	{
 		var copy = Clone();
 		Clear();
-		for (int y = MinY; y < Size; y++) for (int x = 0; x < Size; x++)
+		for (int y = MinY; y < W; y++) for (int x = 0; x < W; x++)
 			if (copy[x, y] != '.') this[x + dx, y + dy] = copy[x, y];
 		return this;
 	}
@@ -76,7 +79,7 @@ public sealed class Frame
 	public Frame MirrorX()
 	{
 		var copy = Clone();
-		for (int y = 0; y < Height; y++) for (int x = 0; x < Width; x++) px[x, y] = copy.px[Size - 1 - x, y];
+		for (int y = 0; y < Height; y++) for (int x = 0; x < Width; x++) px[x, y] = copy.px[W - 1 - x, y];
 		return this;
 	}
 
@@ -143,6 +146,12 @@ public sealed class PetDef
 	public List<Frame> Frames = new();
 	public List<Anim> Anims = new();
 	public List<(int id, int prob, string x, string y, int next)> Spawns = new();
+	/// <summary>
+	/// Children: when the pet starts animation <c>anim</c>, the app opens a second, non-interactive
+	/// window at (x, y) that plays animation <c>next</c> on its own (e.g. a released balloon).
+	/// x/y may use imageX/imageY (the parent's position). The child closes when it leaves the screen.
+	/// </summary>
+	public List<(int anim, string x, string y, int next)> Childs = new();
 	public int Scale = 3;          // 16 px art drawn 3x = 48 px on screen
 	public int TilesX = 8;
 
@@ -153,8 +162,8 @@ public sealed class PetDef
 	public Bitmap Sheet()
 	{
 		int tilesY = (Frames.Count + TilesX - 1) / TilesX;
-		int fw = Frame.Size, fh = Frames[0].Height;
-		if (Frames.Any(f => f.Height != fh)) throw new InvalidOperationException("All frames of a pet need the same headroom");
+		int fw = Frames[0].Width, fh = Frames[0].Height;
+		if (Frames.Any(f => f.Height != fh || f.Width != fw)) throw new InvalidOperationException("All frames of a pet need the same headroom");
 		var small = new Bitmap(TilesX * fw, tilesY * fh, PixelFormat.Format32bppArgb);
 		for (int i = 0; i < Frames.Count; i++)
 			Frames[i].DrawTo(small, (i % TilesX) * fw, (i / TilesX) * fh, Palette);
@@ -180,7 +189,7 @@ public sealed class PetDef
 		foreach (int s in sizes)
 		{
 			using var bmp = new Bitmap(s, s, PixelFormat.Format32bppArgb);
-			using (var tmp = new Bitmap(Frame.Size, Frames[frameIndex].Height, PixelFormat.Format32bppArgb))
+			using (var tmp = new Bitmap(Frames[frameIndex].Width, Frames[frameIndex].Height, PixelFormat.Format32bppArgb))
 			{
 				Frames[frameIndex].DrawTo(tmp, 0, 0, Palette);
 				using var g = Graphics.FromImage(bmp);
@@ -282,7 +291,20 @@ public sealed class PetDef
 		}
 		sb.AppendLine("  </animations>");
 		// XmlSerializer requires <childs> and <sounds> even when empty.
-		sb.AppendLine("  <childs />");
+		if (Childs.Count == 0) sb.AppendLine("  <childs />");
+		else
+		{
+			sb.AppendLine("  <childs>");
+			foreach (var c in Childs)
+			{
+				sb.AppendLine($"    <child animationid=\"{c.anim}\">");
+				sb.AppendLine($"      <x>{Esc(c.x)}</x>");
+				sb.AppendLine($"      <y>{Esc(c.y)}</y>");
+				sb.AppendLine($"      <next>{c.next}</next>");
+				sb.AppendLine("    </child>");
+			}
+			sb.AppendLine("  </childs>");
+		}
 		sb.AppendLine("  <sounds />");
 		sb.AppendLine("</animations>");
 		return sb.ToString();

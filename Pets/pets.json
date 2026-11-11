@@ -1,202 +1,254 @@
 {
   "pets" : [
     {
+      "folder" : "boo",
+      "name" : "Boo",
+      "author" : "Luan Felipe",
+      "lastupdate" : "2026-11-11"
+    },
+    {
+      "folder" : "tico",
+      "name" : "Tico",
+      "author" : "Luan Felipe",
+      "lastupdate" : "2026-11-11"
+    },
+    {
       "folder" : "nuvi",
+      "name" : "Nuvi",
       "author" : "Luan Felipe",
       "lastupdate" : "2026-11-11"
     },
     {
       "folder" : "mago",
+      "name" : "Mago",
       "author" : "Luan Felipe",
       "lastupdate" : "2026-11-11"
     },
     {
       "folder" : "capi",
+      "name" : "Capi",
       "author" : "Luan Felipe",
       "lastupdate" : "2026-11-10"
     },
     {
       "folder" : "claude",
+      "name" : "Claude",
       "author" : "Luan Felipe",
       "lastupdate" : "2026-11-10"
     },
     {
       "folder" : "ano",
+      "name" : "Ano Nym",
       "author" : "Gregor Biswanger",
       "lastupdate" : "2026-11-06"
     },
     {
       "folder" : "ano_xl",
+      "name" : "Ano Nym XL",
       "author" : "Gregor Biswanger",
       "lastupdate" : "2026-11-06"
     },
     {
       "folder" : "ano_calm",
+      "name" : "Ano Nym Calm",
       "author" : "Gregor Biswanger",
       "lastupdate" : "2026-11-06"
     },
     {
       "folder" : "ano_xl_calm",
+      "name" : "Ano Nym XL Calm",
       "author" : "Gregor Biswanger",
       "lastupdate" : "2026-11-06"
     },
 	{
       "folder" : "bbunny",
+      "name" : "Buster Bunny",
       "author" : "Adriano",
       "lastupdate" : "2019-02-25"
     },
 	{
       "folder" : "blue_ham_ham",
+      "name" : "Blue Ham Ham",
       "author" : "Michelle!",
       "lastupdate" : "2025-12-08"
     },
     {
       "folder" : "blue_sheep",
+      "name" : "gSheep Blue",
       "author" : "Oliver B.",
       "lastupdate" : "2021-05-02"
     },
     {
       "folder" : "esheep64",
+      "name" : "eSheep",
       "author" : "Adriano",
       "lastupdate" : "2026-10-16"
     },
     {
       "folder" : "fox",
+      "name" : "Fox",
       "author" : "Michelle!",
       "lastupdate" : "2022-08-03"
     },
     {
       "folder" : "foxy_jumpscare",
+      "name" : "Foxy Jumpscare",
       "author" : "Zecheriah",
       "lastupdate" : "2026-10-26"
     },
     {
       "folder" : "green_sheep",
+      "name" : "gSheep Green",
       "author" : "Oliver B.",
       "lastupdate" : "2021-05-02"
     },
     {
       "folder" : "grian",
+      "name" : "Grian",
       "author" : "RedSparr0w",
       "lastupdate" : "2026-08-14"
     },
     {
       "folder" : "jerma",
+      "name" : "Jerma985",
       "author" : "Zecheriah",
       "lastupdate" : "2026-10-20"
     },
     {
       "folder" : "jerma_compact",
+      "name" : "Jerma985 Compact",
       "author" : "Zecheriah",
       "lastupdate" : "2026-10-20"
     },
 	{
       "folder" : "mareep",
+      "name" : "Mareep",
       "author" : "Michelle!",
       "lastupdate" : "2025-12-08"
     },
     {
       "folder" : "mimiko",
+      "name" : "Mimiko",
       "author" : "Madnuttah",
       "lastupdate" : "2022-08-25"
     },
     {
       "folder" : "mumbojumbo",
+      "name" : "MumboJumbo",
       "author" : "RedSparr0w",
       "lastupdate" : "2026-08-14"
     },
     {
       "folder" : "negima",
+      "name" : "Asuna",
       "author" : "Adriano",
       "lastupdate" : "2019-10-16"
     },
     {
       "folder" : "neko",
+      "name" : "Neko",
       "author" : "Adriano",
       "lastupdate" : "2019-06-28"
     },
     {
       "folder" : "orange_sheep",
+      "name" : "gSheep Orange",
       "author" : "Oliver B.",
       "lastupdate" : "2021-05-02"
     },
 	{
       "folder" : "pikachu",
+      "name" : "Pikachu",
       "author" : "Michelle!",
       "lastupdate" : "2025-12-08"
     },
     {
       "folder" : "pingus",
+      "name" : "Pingus",
       "author" : "Adriano",
       "lastupdate" : "2019-07-08"
     },
     {
       "folder" : "pingus_expansion",
+      "name" : "Pingus Expansion",
       "author" : "Zecheriah",
       "lastupdate" : "2026-10-20"
     },
 	{
       "folder" : "pink_fox",
+      "name" : "Pink Fox",
       "author" : "Michelle!",
       "lastupdate" : "2025-12-08"
     },
 	{
       "folder" : "pink_neko",
+      "name" : "Pink Neko",
       "author" : "Michelle!",
       "lastupdate" : "2025-12-08"
     },
     {
       "folder" : "pink_sheep",
+      "name" : "gSheep Pink",
       "author" : "Oliver B.",
       "lastupdate" : "2021-05-02"
     },
     {
       "folder" : "purple_sheep",
+      "name" : "gSheep Purple",
       "author" : "Oliver B.",
       "lastupdate" : "2021-05-02"
     },
     {
       "folder" : "red_sheep",
+      "name" : "gSheep Red",
       "author" : "Oliver B.",
       "lastupdate" : "2021-05-02"
     },
 	{
       "folder" : "shiny_sylveon",
+      "name" : "Shiny Sylveon",
       "author" : "Michelle!",
       "lastupdate" : "2025-12-08"
     },
     {
       "folder" : "skeleton",
+      "name" : "Skeleton",
       "author" : "RedSparr0w",
       "lastupdate" : "2026-08-14"
     },
     {
       "folder" : "skywire_bean",
+      "name" : "Skywire Bean",
       "author" : "Zecheriah",
       "lastupdate" : "2026-09-15"
     },
     {
       "folder" : "ssj-goku",
+      "name" : "SSJ Goku",
       "author" : "RedSparr0w",
       "lastupdate" : "2019-03-04"
     },
     {
       "folder" : "twin_shot",
+      "name" : "Twin Shot",
       "author" : "Zecheriah",
       "lastupdate" : "2026-10-26"
     },
 	{
       "folder" : "yellow_neko",
+      "name" : "Yellow Neko",
       "author" : "Michelle!",
       "lastupdate" : "2025-12-08"
     },
     {
       "folder" : "yellow_sheep",
+      "name" : "gSheep Yellow",
       "author" : "Oliver B.",
       "lastupdate" : "2021-05-02"
     },
     {
       "folder" : "zombie",
+      "name" : "Zombie",
       "author" : "RedSparr0w",
       "lastupdate" : "2026-08-14"
     }

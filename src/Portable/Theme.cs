@@ -44,10 +44,36 @@ namespace DesktopPet
 			};
 		}
 
-		/// <summary>Read the Windows light/dark setting and rebuild the palette.</summary>
+		/// <summary>Raised after the palette changed (Windows setting or <see cref="Mode"/>).</summary>
+		public static event Action Changed;
+
+		private static string mode = "auto";
+		/// <summary>"auto" follows Windows, "light" or "dark" force a palette.</summary>
+		public static string Mode
+		{
+			get => mode;
+			set
+			{
+				string m = (value ?? "").ToLowerInvariant();
+				if (m != "light" && m != "dark") m = "auto";
+				if (m == mode) return;
+				mode = m;
+				Refresh();
+			}
+		}
+
+		/// <summary>Rebuild the palette from <see cref="Mode"/> (or the Windows setting) and notify the windows.</summary>
 		public static void Refresh()
 		{
-			IsDark = ReadAppsUseDarkTheme();
+			bool wasDark = IsDark;
+			bool first = Background.IsEmpty;
+			IsDark = mode == "dark" || (mode != "light" && ReadAppsUseDarkTheme());
+			Apply();
+			if (!first && wasDark != IsDark) Changed?.Invoke();
+		}
+
+		private static void Apply()
+		{
 			// Friendly green accent (the eSheep meadow). Stays readable in light and dark.
 			if (IsDark)
 			{

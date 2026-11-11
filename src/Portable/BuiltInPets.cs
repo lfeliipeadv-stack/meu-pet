@@ -7,55 +7,44 @@ using System.Xml;
 namespace DesktopPet
 {
     /// <summary>
-    /// Pets shipped inside the EXE (embedded resources), so they appear in the
-    /// gallery instantly with no internet connection and no GitHub download.
+    /// Pets shipped inside the EXE, available instantly and offline.
+    /// <para>
+    /// Only the default eSheep is embedded (it is also the fallback when a download or an XML fails).
+    /// Every other pet — including Claude, Capi, Mago, Nuvi, Boo and Tico — is downloaded from the
+    /// gallery (Pets folder of the repository, see <see cref="AppInfo"/>), which keeps the exe small and
+    /// lets a pet be updated without releasing a new exe.
+    /// </para>
     /// </summary>
     public static class BuiltInPets
     {
         /// <summary>Folder names of every built-in pet.</summary>
-        public static readonly string[] Folders = { "claude", "capi", "mago", "nuvi" };
+        public static readonly string[] Folders = { "esheep64" };
 
         /// <summary>True if a folder is a built-in (offline) pet.</summary>
         public static bool IsBuiltIn(string folder) =>
             !string.IsNullOrEmpty(folder) && Array.IndexOf(Folders, folder) >= 0;
 
+        /// <summary>Name shown in the gallery.</summary>
+        public static string GetName(string folder) => folder == "esheep64" ? "eSheep" : folder;
+
         /// <summary>Return the animations.xml of a built-in pet as a string.</summary>
         public static string GetXml(string folder)
         {
-            return folder switch
-            {
-                "claude" => Properties.Resources.animations_claude,
-                "capi" => Properties.Resources.animations_capi,
-                "mago" => Properties.Resources.animations_mago,
-                "nuvi" => Properties.Resources.animations_nuvi,
-                _ => throw new KeyNotFoundException("Unknown built-in pet: " + folder)
-            };
+            if (folder == "esheep64") return Properties.Resources.animations;
+            throw new KeyNotFoundException("Unknown built-in pet: " + folder);
         }
 
-        /// <summary>Return the icon.png of a built-in pet as a Bitmap.</summary>
+        /// <summary>Return the icon of a built-in pet as a Bitmap.</summary>
         public static Bitmap GetIcon(string folder)
         {
-            return folder switch
-            {
-                "claude" => Properties.Resources.icon_claude,
-                "capi" => Properties.Resources.icon_capi,
-                "mago" => Properties.Resources.icon_mago,
-                "nuvi" => Properties.Resources.icon_nuvi,
-                _ => throw new KeyNotFoundException("Unknown built-in pet: " + folder)
-            };
+            if (folder == "esheep64") return Properties.Resources.esheep;
+            throw new KeyNotFoundException("Unknown built-in pet: " + folder);
         }
 
         /// <summary>Return the README as a list of lines (matching OptionsGit.GetReadMe).</summary>
         public static List<string> GetReadMe(string folder)
         {
-            string text = folder switch
-            {
-                "claude" => ClaudeReadme,
-                "capi" => CapiReadme,
-                "mago" => MagoReadme,
-                "nuvi" => NuviReadme,
-                _ => ""
-            };
+            string text = folder == "esheep64" ? ESheepReadme : "";
             return text.Split(new[] { "<br>", "<br />", "<br/>", "\r\n", "\n" },
                               StringSplitOptions.RemoveEmptyEntries).ToList();
         }
@@ -68,35 +57,11 @@ namespace DesktopPet
             return doc;
         }
 
-        const string ClaudeReadme = @"
-# Claude
-A little desktop companion inspired by the Claude Code mascot: a rounded
-terracotta block with two dark eyes and four short legs.
-Original pixel art, drawn from scratch for desktopPet.
-Unofficial tribute, not affiliated with Anthropic.
-";
-
-        const string CapiReadme = @"
-# Capi the Capybara
-A calm, chubby pixel-art capybara who wanders your desktop,
-sits on the taskbar and naps in the sun.
-Original pixel art by Luan Felipe.
-";
-
-        const string MagoReadme = @"
-# Mago the Wizard
-A kindly old pixel wizard with a long white beard and a blue,
-star-spangled robe and hat. He casts spells, reads his spellbook,
-gazes into a crystal ball and teleports around your desktop.
-Original pixel art by Luan Felipe.
-";
-
-        const string NuviReadme = @"
-# Nuvi the Cloud Terminal
-A little blue cloud robot with a terminal screen for a face.
-It talks with a blinking >_ prompt, types code, shows a loading bar,
-throws the odd error and naps on your taskbar.
-Original pixel art by Luan Felipe.
+        const string ESheepReadme = @"
+# eSheep
+The default pet of the program: a little sheep that walks over your desktop
+and your windows, falls on the taskbar, sleeps and runs around.
+It is included in the program and always works, even without internet.
 ";
     }
 }

@@ -69,6 +69,46 @@ namespace DesktopPet
 			public const string CurrentPetFolder = "CurrentPetFolder";
 		};
 
+		/// <summary>Color theme chosen by the user: "auto" (follows Windows), "light" or "dark".</summary>
+		public string GetTheme()
+		{
+			var value = AppSettings?["Theme"]?.Value;
+			return string.IsNullOrWhiteSpace(value) ? "auto" : value;
+		}
+
+		/// <summary>Save the color theme ("auto", "light" or "dark").</summary>
+		public void SetTheme(string themeMode)
+		{
+			if (AppSettings == null) return;
+			if (AppSettings["Theme"] == null) AppSettings.Add("Theme", themeMode);
+			else AppSettings["Theme"].Value = themeMode;
+			Save();
+		}
+
+		/// <summary>Pets already seen in the gallery, as "folder=lastupdate" (used for the "New" badge).</summary>
+		public Dictionary<string, string> GetSeenPets()
+		{
+			var seen = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+			var value = AppSettings?["SeenPets"]?.Value;
+			if (value == null) return null;   // never saved: first run
+			foreach (var item in value.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+			{
+				int eq = item.IndexOf('=');
+				if (eq > 0) seen[item.Substring(0, eq)] = item.Substring(eq + 1);
+			}
+			return seen;
+		}
+
+		/// <summary>Save the pets already seen in the gallery.</summary>
+		public void SetSeenPets(Dictionary<string, string> seen)
+		{
+			if (AppSettings == null || seen == null) return;
+			string value = string.Join(";", seen.Select(kv => kv.Key + "=" + kv.Value));
+			if (AppSettings["SeenPets"] == null) AppSettings.Add("SeenPets", value);
+			else AppSettings["SeenPets"].Value = value;
+			Save();
+		}
+
 		/// <summary>
 		/// Language chosen by the user ("auto" follows Windows).
 		/// </summary>
