@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Generates the built-in pets (Claude and Capi) of DesktopPet:
+    every frame is drawn in code as a 16x16 pixel grid, assembled into a sprite sheet,
+    and written as animations.xml, icon.png and README.md.
+    Run from repo root:  dotnet run with project Tools\PetGen\PetGen.csproj, args: src\pets
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <NoWarn>$(NoWarn);CA1416</NoWarn>
+  </PropertyGroup>
+
+</Project>

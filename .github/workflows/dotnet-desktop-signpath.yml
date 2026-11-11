@@ -1,0 +1,113 @@
+name: Build DesktopPet Portable - SignPath
+run-name: DesktopPet v${{ github.event.inputs.source_version }} - ${{ github.event.inputs.signing }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_version:
+        description: "Branch or tag"
+        required: true
+        default: "1.6.0"
+        type: string
+  
+      configuration:
+        description: Build Configuration
+        required: true
+        default: Release
+        type: choice
+        options:
+          - Debug
+          - Release
+
+      platform:
+        description: Platform
+        required: true
+        default: x64
+        type: choice
+        options:
+          - x86
+          - x64
+
+      signing:
+        description: Signing Certificate
+        required: true
+        default: test-signing
+        type: choice
+        options:
+          - test-signing
+          - release-signing
+
+jobs:
+
+  build:
+  
+    runs-on: windows-latest
+
+    env:
+      Solution_Name: src/DesktopPet_Portable.sln
+      Project_Path: src/DesktopPet_Portable.csproj
+      Solution_Dir: src/
+
+    steps:
+    - name: Validate version
+      shell: pwsh
+      run: |
+        if ('${{ github.event.inputs.source_version }}' -notmatch '^\d+\.\d+\.\d+$') {
+          throw "Version must be in the format X.Y.Z"
+        }
+    
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        ref: v${{ github.event.inputs.source_version }}
+
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Install NuGet
+      uses: NuGet/setup-nuget@v2
+      
+    - name: Restore NuGet packages
+      run: nuget restore $env:Solution_Name
+
+    - name: Build solution
+      run: msbuild $env:Solution_Name `
+           -p:Configuration=${{ github.event.inputs.configuration }} `
+           -p:Platform=${{ github.event.inputs.platform }}
+           -p:RestorePackages=false
+
+    - name: Create Signed Directory
+      shell: pwsh
+      run: |
+        $dir = "build/DesktopPetPortable/bin/${{ github.event.inputs.configuration }}/${{ github.event.inputs.platform }}/signed/"
+        if (!(Test-Path $dir)) { New-Item -ItemType Directory -Force -Path $dir }
+
+    - name: Upload Unsigned Artifact
+      id: upload-unsigned-artifact
+      uses: actions/upload-artifact@v7
+      with: 
+        name: unsigned-exe
+        path: build/DesktopPetPortable/bin/${{ github.event.inputs.configuration }}/${{ github.event.inputs.platform }}/app.publish/DesktopPet.exe
+        archive: false
+        
+    - name: Sign DesktopPet
+      uses: signpath/github-action-submit-signing-request@v2
+      with:
+        api-token: "${{ secrets.SIGNPATH_API_TOKEN }}"
+        organization-id: "dd17bc69-e331-421d-9e86-7fbb26a445d2"
+        project-slug: "desktopPet"
+        signing-policy-slug: "${{ github.event.inputs.signing }}"
+        github-artifact-id: "${{ steps.upload-unsigned-artifact.outputs.artifact-id }}"
+        output-artifact-directory: "build/DesktopPetPortable/bin/${{ github.event.inputs.configuration }}/${{ github.event.inputs.platform }}/signed/"
+        skip-decompress: true
+        wait-for-completion: true
+        parameters: |
+          version: ${{ toJSON(github.event.inputs.source_version) }}
+
+    - name: Upload signed EXE artifact
+      uses: actions/upload-artifact@v7
+      with:
+        name: DesktopPet_Portable
+        path: build/DesktopPetPortable/bin/${{ github.event.inputs.configuration }}/${{ github.event.inputs.platform }}/
+       
+    

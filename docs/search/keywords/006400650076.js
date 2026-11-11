@@ -1,0 +1,1 @@
+﻿NDSearch.OnPrefixDataLoaded("dev",["Variable"],[["Developer",,[["LocalData.LocalData",,,,0,"File:LocalData/Class1.cs:LocalData.LocalData.Developer","CSharpClass:LocalData.LocalData:Developer"]]],["DeveloperPets",,[["LocalData.LocalData",,,,0,"File:LocalData/Class1.cs:LocalData.LocalData.DeveloperPets","CSharpClass:LocalData.LocalData:DeveloperPets"]]]]);

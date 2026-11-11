@@ -1,0 +1,1 @@
+﻿NDSearch.OnPrefixDataLoaded("isl",["Variable"],[["IsLeaving",,[["DesktopPet.FormPet",,,,0,"File:dotNet/FormPet.cs:DesktopPet.FormPet.IsLeaving","CSharpClass:DesktopPet.FormPet:IsLeaving"]]]]);

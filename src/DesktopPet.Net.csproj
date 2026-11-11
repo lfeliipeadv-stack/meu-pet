@@ -1,0 +1,106 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Modern SDK-style project (.NET 10 LTS, WinForms).
+    The legacy .NET Framework projects (DesktopPet_Portable.csproj / DesktopPet.csproj) are kept untouched.
+    Build:   dotnet build DesktopPet.Net.csproj -c Release
+    Publish: dotnet publish DesktopPet.Net.csproj -c Release -o ..\publish
+    Release: ..\Tools\release.ps1 -Version 2.1.0   (version, publish, SHA256SUMS, GitHub release)
+    Languages: lang\*.json files are copied next to the exe (not embedded), see Portable\Lang.cs
+  -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <RootNamespace>DesktopPet</RootNamespace>
+    <AssemblyName>DesktopPet</AssemblyName>
+    <ApplicationIcon>icon.ico</ApplicationIcon>
+    <ApplicationManifest>Properties\app.net.manifest</ApplicationManifest>
+    <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
+    <ApplicationVisualStyles>true</ApplicationVisualStyles>
+    <ForceDesignerDpiUnaware>true</ForceDesignerDpiUnaware>
+    <DefineConstants>$(DefineConstants);PORTABLE;NETCORE</DefineConstants>
+    <PlatformTarget>x64</PlatformTarget>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>false</SelfContained>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <NoWarn>$(NoWarn);CS1591;SYSLIB0014;CA1416;WFO1000;WFAC010</NoWarn>
+    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <PublishSingleFile>true</PublishSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <DebugType>none</DebugType>
+  </PropertyGroup>
+
+  <!--
+    No NuGet packages: sound uses the Windows MCI API (dotNet\Mp3Player.cs) and JSON uses
+    System.Text.Json from the runtime (Portable\JsonText.cs). This keeps the exe around 1 MB.
+  -->
+
+  <ItemGroup>
+    <Compile Include="dotNet\Animations.cs" />
+    <Compile Include="dotNet\Mp3Player.cs" />
+    <Compile Include="Portable\JsonText.cs" />
+    <Compile Include="Portable\AppInfo.cs" />
+    <Compile Include="Portable\Updater.cs" />
+    <Compile Include="dotNet\MotionTrack.cs" />
+    <Compile Include="dotNet\FormPet.Motion.cs" />
+    <Compile Include="dotNet\ContextMenus.cs" />
+    <Compile Include="dotNet\ProcessIcon.cs" />
+    <Compile Include="dotNet\StartUp.cs" />
+    <Compile Include="dotNet\FormPet.cs" />
+    <Compile Include="dotNet\FormAnimPicker.cs" />
+    <Compile Include="dotNet\FormPet.Designer.cs" />
+    <Compile Include="dotNet\FormDebug.cs" />
+    <Compile Include="dotNet\FormDebug.Designer.cs" />
+    <Compile Include="dotNet\Program.cs" />
+    <Compile Include="dotNet\Xml.cs" />
+    <Compile Include="LocalData\AnimationXML.cs" />
+    <Compile Include="Portable\AboutBox.cs" />
+    <Compile Include="Portable\AboutBox.designer.cs" />
+    <Compile Include="Portable\FormHelp.cs" />
+    <Compile Include="Portable\FormHelp.designer.cs" />
+    <Compile Include="Portable\FormOptions.cs" />
+    <Compile Include="Portable\FormOptions.designer.cs" />
+    <Compile Include="Portable\FormOptions2.cs" />
+    <Compile Include="Portable\FormOptions2.Designer.cs" />
+    <Compile Include="Portable\FormOptions2.SurfacePets.cs" />
+    <Compile Include="Portable\FormOptions2.SurfaceOptions.cs" />
+    <Compile Include="Portable\FormOptions2.SurfaceMenu.cs" />
+    <Compile Include="Portable\Install.cs" />
+    <Compile Include="Portable\Install.designer.cs" />
+    <Compile Include="Portable\LocalData.cs" />
+    <Compile Include="Portable\Theme.cs" />
+    <Compile Include="Portable\Lang.cs" />
+    <Compile Include="Portable\FormSettings.cs" />
+    <Compile Include="Portable\BuiltInPets.cs" />
+    <Compile Include="Properties\Resources.Designer.cs" />
+    <Compile Include="Properties\AssemblyInfoPortable.cs" />
+    <Compile Include="Properties\Settings1.Designer.cs" />
+    <Compile Include="Settings.cs" />
+    <Compile Include="Tools\XmlToDot.cs" />
+  </ItemGroup>
+
+  <!-- Language files stay outside the exe: anybody can edit them or add a language without recompiling. -->
+  <ItemGroup>
+    <None Include="lang\*.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" ExcludeFromSingleFile="true" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="dotNet\FormPet.resx" DependentUpon="FormPet.cs" />
+    <EmbeddedResource Include="dotNet\FormDebug.resx" DependentUpon="FormDebug.cs" />
+    <EmbeddedResource Include="Portable\AboutBox.resx" DependentUpon="AboutBox.cs" />
+    <EmbeddedResource Include="Portable\FormHelp.resx" DependentUpon="FormHelp.cs" />
+    <EmbeddedResource Include="Portable\FormOptions.resx" DependentUpon="FormOptions.cs" />
+    <EmbeddedResource Include="Portable\FormOptions2.resx" DependentUpon="FormOptions2.cs" />
+    <EmbeddedResource Include="Portable\Install.resx" DependentUpon="Install.cs" />
+    <EmbeddedResource Include="Properties\Resources.resx" />
+  </ItemGroup>
+
+</Project>

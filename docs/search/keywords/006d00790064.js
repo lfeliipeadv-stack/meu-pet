@@ -1,0 +1,1 @@
+﻿NDSearch.OnPrefixDataLoaded("myd",["Variable"],[["MyData",,[["DesktopPet.ContextMenus",,,,0,"File:dotNet/ContextMenus.cs:DesktopPet.ContextMenus.MyData","CSharpClass:DesktopPet.ContextMenus:MyData"],["DesktopPet.Program",,,,0,"File:dotNet/Program.cs:DesktopPet.Program.MyData","CSharpClass:DesktopPet.Program:MyData"]]]]);

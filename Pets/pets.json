@@ -1,0 +1,194 @@
+{
+  "pets" : [
+    {
+      "folder" : "capi",
+      "author" : "Luan Felipe",
+      "lastupdate" : "2026-11-10"
+    },
+    {
+      "folder" : "claude",
+      "author" : "Luan Felipe",
+      "lastupdate" : "2026-11-10"
+    },
+    {
+      "folder" : "ano",
+      "author" : "Gregor Biswanger",
+      "lastupdate" : "2026-11-06"
+    },
+    {
+      "folder" : "ano_xl",
+      "author" : "Gregor Biswanger",
+      "lastupdate" : "2026-11-06"
+    },
+    {
+      "folder" : "ano_calm",
+      "author" : "Gregor Biswanger",
+      "lastupdate" : "2026-11-06"
+    },
+    {
+      "folder" : "ano_xl_calm",
+      "author" : "Gregor Biswanger",
+      "lastupdate" : "2026-11-06"
+    },
+	{
+      "folder" : "bbunny",
+      "author" : "Adriano",
+      "lastupdate" : "2019-02-25"
+    },
+	{
+      "folder" : "blue_ham_ham",
+      "author" : "Michelle!",
+      "lastupdate" : "2025-12-08"
+    },
+    {
+      "folder" : "blue_sheep",
+      "author" : "Oliver B.",
+      "lastupdate" : "2021-05-02"
+    },
+    {
+      "folder" : "esheep64",
+      "author" : "Adriano",
+      "lastupdate" : "2026-10-16"
+    },
+    {
+      "folder" : "fox",
+      "author" : "Michelle!",
+      "lastupdate" : "2022-08-03"
+    },
+    {
+      "folder" : "foxy_jumpscare",
+      "author" : "Zecheriah",
+      "lastupdate" : "2026-10-26"
+    },
+    {
+      "folder" : "green_sheep",
+      "author" : "Oliver B.",
+      "lastupdate" : "2021-05-02"
+    },
+    {
+      "folder" : "grian",
+      "author" : "RedSparr0w",
+      "lastupdate" : "2026-08-14"
+    },
+    {
+      "folder" : "jerma",
+      "author" : "Zecheriah",
+      "lastupdate" : "2026-10-20"
+    },
+    {
+      "folder" : "jerma_compact",
+      "author" : "Zecheriah",
+      "lastupdate" : "2026-10-20"
+    },
+	{
+      "folder" : "mareep",
+      "author" : "Michelle!",
+      "lastupdate" : "2025-12-08"
+    },
+    {
+      "folder" : "mimiko",
+      "author" : "Madnuttah",
+      "lastupdate" : "2022-08-25"
+    },
+    {
+      "folder" : "mumbojumbo",
+      "author" : "RedSparr0w",
+      "lastupdate" : "2026-08-14"
+    },
+    {
+      "folder" : "negima",
+      "author" : "Adriano",
+      "lastupdate" : "2019-10-16"
+    },
+    {
+      "folder" : "neko",
+      "author" : "Adriano",
+      "lastupdate" : "2019-06-28"
+    },
+    {
+      "folder" : "orange_sheep",
+      "author" : "Oliver B.",
+      "lastupdate" : "2021-05-02"
+    },
+	{
+      "folder" : "pikachu",
+      "author" : "Michelle!",
+      "lastupdate" : "2025-12-08"
+    },
+    {
+      "folder" : "pingus",
+      "author" : "Adriano",
+      "lastupdate" : "2019-07-08"
+    },
+    {
+      "folder" : "pingus_expansion",
+      "author" : "Zecheriah",
+      "lastupdate" : "2026-10-20"
+    },
+	{
+      "folder" : "pink_fox",
+      "author" : "Michelle!",
+      "lastupdate" : "2025-12-08"
+    },
+	{
+      "folder" : "pink_neko",
+      "author" : "Michelle!",
+      "lastupdate" : "2025-12-08"
+    },
+    {
+      "folder" : "pink_sheep",
+      "author" : "Oliver B.",
+      "lastupdate" : "2021-05-02"
+    },
+    {
+      "folder" : "purple_sheep",
+      "author" : "Oliver B.",
+      "lastupdate" : "2021-05-02"
+    },
+    {
+      "folder" : "red_sheep",
+      "author" : "Oliver B.",
+      "lastupdate" : "2021-05-02"
+    },
+	{
+      "folder" : "shiny_sylveon",
+      "author" : "Michelle!",
+      "lastupdate" : "2025-12-08"
+    },
+    {
+      "folder" : "skeleton",
+      "author" : "RedSparr0w",
+      "lastupdate" : "2026-08-14"
+    },
+    {
+      "folder" : "skywire_bean",
+      "author" : "Zecheriah",
+      "lastupdate" : "2026-09-15"
+    },
+    {
+      "folder" : "ssj-goku",
+      "author" : "RedSparr0w",
+      "lastupdate" : "2019-03-04"
+    },
+    {
+      "folder" : "twin_shot",
+      "author" : "Zecheriah",
+      "lastupdate" : "2026-10-26"
+    },
+	{
+      "folder" : "yellow_neko",
+      "author" : "Michelle!",
+      "lastupdate" : "2025-12-08"
+    },
+    {
+      "folder" : "yellow_sheep",
+      "author" : "Oliver B.",
+      "lastupdate" : "2021-05-02"
+    },
+    {
+      "folder" : "zombie",
+      "author" : "RedSparr0w",
+      "lastupdate" : "2026-08-14"
+    }
+  ]
+}

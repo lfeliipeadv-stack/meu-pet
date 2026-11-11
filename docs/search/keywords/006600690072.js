@@ -1,0 +1,1 @@
+﻿NDSearch.OnPrefixDataLoaded("fir",["Property","Variable"],[["First",,[["DesktopPet.TMenuItem",,,,0,"File:Portable/FormOptions2.SurfaceMenu.cs:DesktopPet.TMenuItem.First","CSharpClass:DesktopPet.TMenuItem:First"]]],["FirstBoot",,[["LocalData.LocalData",,,,1,"File:LocalData/Class1.cs:LocalData.LocalData.FirstBoot","CSharpClass:LocalData.LocalData:FirstBoot"]]]]);

@@ -1,0 +1,1 @@
+﻿NDSearch.OnPrefixDataLoaded("onl",["Variable"],[["only",,[["DesktopPet.TNextAnimation",,,,0,"File:dotNet/Animations.cs:DesktopPet.TNextAnimation.only","CSharpClass:DesktopPet.TNextAnimation:only"]]],["OnlyFlag",,[["XmlData.NextNode",,,,0,"File:LocalData/AnimationXML.cs:XmlData.NextNode.OnlyFlag","CSharpClass:XmlData.NextNode:OnlyFlag"]]]]);
