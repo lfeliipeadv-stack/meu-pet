@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Builds desktop pets from ready-made PNG frames (for example frames generated with PixelLab),
+    using the same XML model as PetGen (PetModel.cs is shared, not copied).
+    Run from repo root:  dotnet run - -project Tools\PetPack\PetPack.csproj - - Pets
+    Frames live in Tools\PetPack\art\<pet>\<animation>\frame_NNN.png
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <NoWarn>$(NoWarn);CA1416</NoWarn>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="PngPet.cs" />
+    <Compile Include="SabioPet.cs" />
+    <Compile Include="..\PetGen\PetModel.cs" Link="PetModel.cs" />
+  </ItemGroup>
+
+</Project>

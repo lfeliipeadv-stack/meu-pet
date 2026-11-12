@@ -176,9 +176,10 @@ namespace DesktopPet
             {
                 RefreshBuiltInPet();
             }
+            WindowsStartup.Refresh();   // "start with Windows" follows the exe after an install
 #endif
 
-            // Show the system tray icon.					
+            // Show the system tray icon.
             using (ProcessIcon pi = new ProcessIcon())
             {
                 pi.Display();
@@ -189,6 +190,12 @@ namespace DesktopPet
                 // "DesktopPet.exe settings[=pets|behaviour|application|about]" opens the settings window at startup.
                 foreach (string s in args)
                 {
+                    // developer: another gallery address ("--gallery=https://nowhere.invalid/" tests the no-internet panel)
+                    if (s.StartsWith("--gallery=", StringComparison.OrdinalIgnoreCase))
+                    {
+                        OptionsGit.BaseGitUrl = s.Substring("--gallery=".Length);
+                        continue;
+                    }
                     if (s.StartsWith("--snapshot=", StringComparison.OrdinalIgnoreCase))
                     {
                         FormSettings.SaveSnapshots(s.Substring("--snapshot=".Length));

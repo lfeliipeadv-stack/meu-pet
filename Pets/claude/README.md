@@ -19,8 +19,7 @@ terracotta tone, dark eyes, four legs) is borrowed.
 
 **Unofficial tribute.** The Claude Code mascot and the name "Claude" belong
 to Anthropic PBC. This pet is a fan tribute and is not affiliated with,
-endorsed by, or sponsored by Anthropic. For a freely redistributable pet in
-the same art style, see [Capi](../capi).
+endorsed by, or sponsored by Anthropic.
 
 ## Animations
 

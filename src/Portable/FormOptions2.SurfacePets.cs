@@ -631,6 +631,15 @@ namespace DesktopPet
 		/// Last update of the animation file
 		/// </summary>
 		public string lastupdate { get; set; }
+		/// <summary>
+		/// Size in bytes of animations.xml (pets.json, optional; asked to the server when missing).
+		/// Shown on the download button before downloading.
+		/// </summary>
+		public long size { get; set; }
+		/// <summary>Number of animations (pets.json, optional), shown before the pet is downloaded.</summary>
+		public int animations { get; set; }
+		/// <summary>Number of sounds (pets.json, optional).</summary>
+		public int sounds { get; set; }
 
 		/// <summary>
 		/// Image to show in the windows95-explorer on the left side
@@ -641,6 +650,9 @@ namespace DesktopPet
 		/// Readme to parse and show on the page
 		/// </summary>
 		public List<String> Readme { get; set; } = new List<string>();
+		/// <summary>Language the <see cref="Readme"/> was loaded in (it is loaded again after a language change).</summary>
+		[JsonIgnore]
+		public string ReadmeLang { get; set; }
 		/// <summary>
 		/// Detail XML, loaded directly from XML animation file
 		/// </summary>
@@ -680,7 +692,8 @@ namespace DesktopPet
 		{
 			if (v == null) return;
 			folder = v.folder; name = v.name; author = v.author; lastupdate = v.lastupdate;
-			Image = v.Image; Readme = v.Readme; Detail = v.Detail;
+			size = v.size; animations = v.animations; sounds = v.sounds;
+			Image = v.Image; Readme = v.Readme; ReadmeLang = v.ReadmeLang; Detail = v.Detail;
 		}
 	}
 	/// <summary>

@@ -20,8 +20,7 @@ olhos escuros, quatro perninhas).
 
 **Homenagem não oficial.** O mascote do Claude Code e o nome "Claude"
 pertencem à Anthropic PBC. Este pet é uma homenagem de fã e não tem
-vínculo com a Anthropic. Se você quiser um pet no mesmo estilo que pode
-distribuir livremente, veja a [Capi](../capi).
+vínculo com a Anthropic.
 
 ## Animações
 

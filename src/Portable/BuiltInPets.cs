@@ -44,9 +44,10 @@ namespace DesktopPet
         /// <summary>Return the README as a list of lines (matching OptionsGit.GetReadMe).</summary>
         public static List<string> GetReadMe(string folder)
         {
-            string text = folder == "esheep64" ? ESheepReadme : "";
+            string text = folder != "esheep64" ? ""
+                : Lang.Current.StartsWith("pt", StringComparison.OrdinalIgnoreCase) ? ESheepReadmePt : ESheepReadme;
             return text.Split(new[] { "<br>", "<br />", "<br/>", "\r\n", "\n" },
-                              StringSplitOptions.RemoveEmptyEntries).ToList();
+                              StringSplitOptions.None).ToList();   // keep blank lines: they separate paragraphs
         }
 
         /// <summary>Parsed XML detail document for the detail panel.</summary>
@@ -62,6 +63,13 @@ namespace DesktopPet
 The default pet of the program: a little sheep that walks over your desktop
 and your windows, falls on the taskbar, sleeps and runs around.
 It is included in the program and always works, even without internet.
+";
+
+        const string ESheepReadmePt = @"
+# eSheep
+O pet padrão do programa: uma ovelhinha que anda pela sua área de trabalho
+e pelas janelas, cai na barra de tarefas, dorme e corre por aí.
+Ela vem junto com o programa e funciona sempre, mesmo sem internet.
 ";
     }
 }

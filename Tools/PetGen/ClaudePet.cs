@@ -1286,8 +1286,7 @@ static class ClaudePet
 
 			**Unofficial tribute.** The Claude Code mascot and the name "Claude" belong
 			to Anthropic PBC. This pet is a fan tribute and is not affiliated with,
-			endorsed by, or sponsored by Anthropic. For a freely redistributable pet in
-			the same art style, see [Capi](../capi).
+			endorsed by, or sponsored by Anthropic.
 
 			## Animations
 
@@ -1326,8 +1325,7 @@ static class ClaudePet
 
 			**Homenagem não oficial.** O mascote do Claude Code e o nome "Claude"
 			pertencem à Anthropic PBC. Este pet é uma homenagem de fã e não tem
-			vínculo com a Anthropic. Se você quiser um pet no mesmo estilo que pode
-			distribuir livremente, veja a [Capi](../capi).
+			vínculo com a Anthropic.
 
 			## Animações
 

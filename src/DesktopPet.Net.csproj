@@ -78,6 +78,7 @@
     <Compile Include="Portable\LocalData.cs" />
     <Compile Include="Portable\Theme.cs" />
     <Compile Include="Portable\Lang.cs" />
+    <Compile Include="Portable\WindowsStartup.cs" />
     <Compile Include="Portable\FormSettings.cs" />
     <Compile Include="Portable\BuiltInPets.cs" />
     <Compile Include="Properties\Resources.Designer.cs" />

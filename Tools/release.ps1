@@ -3,6 +3,7 @@
     Build a DesktopPet release and publish it on GitHub (the source of the in-app updater).
 
 .DESCRIPTION
+    0. Updates size and counts of every pet in Pets\pets.json (Tools\update-pets-json.ps1)
     1. Writes the version into src\Properties\AssemblyInfoPortable.cs
     2. Publishes the .NET 10 single-file exe
     3. Packs lang\*.json into lang.zip
@@ -12,7 +13,7 @@
     Commit the version change after the release.
 
 .EXAMPLE
-    .\Tools\release.ps1 -Version 2.1.0 -Notes "- New pet: Capi"
+    .\Tools\release.ps1 -Version 2.1.0 -Notes "- New pet: Rex"
 .EXAMPLE
     .\Tools\release.ps1 -Version 2.1.0 -NoUpload     # build and check only, nothing is sent to GitHub
 #>
@@ -29,6 +30,14 @@ $root = Split-Path $PSScriptRoot -Parent
 $src = Join-Path $root 'src'
 $out = Join-Path $root "release\$Version"
 $utf8 = New-Object System.Text.UTF8Encoding($false)
+
+# 0. gallery: size and counts of every pet in Pets\pets.json (shown before downloading)
+& (Join-Path $PSScriptRoot 'update-pets-json.ps1')
+$listed = (Get-Content (Join-Path $root 'Pets\pets.json') -Raw | ConvertFrom-Json).pets.folder
+$onDisk = Get-ChildItem (Join-Path $root 'Pets') -Directory | Where-Object { Test-Path (Join-Path $_.FullName 'animations.xml') } | ForEach-Object Name
+foreach ($f in $onDisk | Where-Object { $listed -notcontains $_ }) { Write-Warning "Pets\$f is not in pets.json (it will not appear in the gallery)" }
+foreach ($f in $listed | Where-Object { $onDisk -notcontains $_ }) { throw "pets.json lists '$f', but Pets\$f\animations.xml does not exist" }
+if (git -C $root status --porcelain -- Pets/pets.json) { Write-Warning "Pets\pets.json changed: commit and push it, the gallery reads it from GitHub" }
 
 # 1. version
 $info = Join-Path $src 'Properties\AssemblyInfoPortable.cs'

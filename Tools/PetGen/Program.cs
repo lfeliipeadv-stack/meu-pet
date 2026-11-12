@@ -9,8 +9,9 @@ using PetGen;
 string outDir = args.Length > 0 ? args[0] : "pets";
 string previewDir = args.Length > 1 ? args[1] : null;
 
-foreach (var pet in new[] { ClaudePet.Build(), CapiPet.Build(), MagoPet.Build(), NuviPet.Build(), BooPet.Build(), PingoPet.Build(), RexPet.Build() })
+foreach (var pet in new[] { ClaudePet.Build(), MagoPet.Build(), NuviPet.Build(), BooPet.Build(), PingoPet.Build(), RexPet.Build() })
 {
+	pet.Sounds = PetSounds.For(pet.Folder);
 	string dir = Path.Combine(outDir, pet.Folder);
 	Directory.CreateDirectory(dir);
 
@@ -33,7 +34,7 @@ foreach (var pet in new[] { ClaudePet.Build(), CapiPet.Build(), MagoPet.Build(),
 		using var prev = Art.Preview(pet);
 		prev.Save(Path.Combine(previewDir, pet.Folder + "-frames.png"), ImageFormat.Png);
 	}
-	Console.WriteLine($"{pet.Folder}: {pet.Frames.Count} frames, {pet.Anims.Count} animations, sheet {sheet.Length / 1024} KB");
+	Console.WriteLine($"{pet.Folder}: {pet.Frames.Count} frames, {pet.Anims.Count} animations, {pet.Sounds.Count} sounds, sheet {sheet.Length / 1024} KB");
 }
 
 /// <summary>Image helpers: icon rendering, .ico writer, preview sheet.</summary>

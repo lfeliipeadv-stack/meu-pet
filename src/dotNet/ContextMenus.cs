@@ -101,7 +101,7 @@ namespace DesktopPet
             // Item: Install.
             installMenuItem = item = new ToolStripMenuItem();
             item.Click += new EventHandler(InstallApplication);
-            item.Image = installForm.Icon.ToBitmap();
+            item.Image = SmallImage(Resources.install, 32);   // software box with a disc: reads as "installer"
             menu.Items.Add(item);
 #endif
 			// Item: Audio.
@@ -183,6 +183,20 @@ namespace DesktopPet
         }
 
         private void OpenOptionWindow(string url) { }
+
+        /// <summary>A large picture reduced smoothly to menu-icon size (the menu would scale it roughly).</summary>
+        static Bitmap SmallImage(Image source, int size)
+        {
+            var bmp = new Bitmap(size, size);
+            using (var g = Graphics.FromImage(bmp))
+            {
+                g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+                g.DrawImage(source, new Rectangle(0, 0, size, size));
+            }
+            return bmp;
+        }
 
         /// <summary>
         /// Set a new icon in the context menu with the new pet and updated the info to show in the about dialog.<br />

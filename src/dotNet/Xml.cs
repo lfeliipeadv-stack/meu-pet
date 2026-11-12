@@ -554,25 +554,46 @@ namespace DesktopPet
             int srcW = spriteWidth / iScale;
             int srcH = spriteHeight / iScale;
 
+            // Read the sheet once as raw 32-bit ARGB pixels.
+            var sheetRect = new Rectangle(0, 0, spriteSheet.Width, spriteSheet.Height);
+            var sheetData = spriteSheet.LockBits(sheetRect, System.Drawing.Imaging.ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            var sheetPixels = new int[sheetData.Stride / 4 * spriteSheet.Height];
+            System.Runtime.InteropServices.Marshal.Copy(sheetData.Scan0, sheetPixels, 0, sheetPixels.Length);
+            int sheetStride = sheetData.Stride / 4;
+            spriteSheet.UnlockBits(sheetData);
+
+            var spritePixels = new int[spriteWidth * spriteHeight];
             for (var yOffset = 0; yOffset + srcH <= spriteSheet.Height; yOffset += srcH)
             {
                 for (var xOffset = 0; xOffset + srcW <= spriteSheet.Width; xOffset += srcW)
                 {
+                    // Copy pixel by pixel (each source pixel becomes an iScale x iScale block).
+                    // GDI+ DrawImage, even with nearest neighbour at 1:1, softens the edges into nearly transparent
+                    // pixels; on the magenta window background they became a visible pink outline.
+                    for (int y = 0; y < spriteHeight; y++)
+                    {
+                        int srcRow = (yOffset + y / iScale) * sheetStride + xOffset;
+                        int dstRow = y * spriteWidth;
+                        for (int x = 0; x < spriteWidth; x++)
+                        {
+                            int argb = sheetPixels[srcRow + x / iScale];
+                            int a = (argb >> 24) & 0xFF;
+                            if (a == 0) argb = 0;
+                            else if (a < 255)
+                            {
+                                // 32bpp premultiplied: color channels scaled by alpha
+                                int r = ((argb >> 16) & 0xFF) * a / 255, g = ((argb >> 8) & 0xFF) * a / 255, b = (argb & 0xFF) * a / 255;
+                                argb = (a << 24) | (r << 16) | (g << 8) | b;
+                            }
+                            spritePixels[dstRow + x] = argb;
+                        }
+                    }
                     // 32bpp premultiplied is the fastest format for GDI+ to draw on a layered window.
                     var bmpImage = new Bitmap(spriteWidth, spriteHeight, System.Drawing.Imaging.PixelFormat.Format32bppPArgb);
-                    using (var graphics = Graphics.FromImage(bmpImage))
-                    using (var attributes = new System.Drawing.Imaging.ImageAttributes())
-                    {
-                        // Pixel-perfect upscale (crisp pixel art) in a single draw call instead of one per pixel.
-                        graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
-                        graphics.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.Half;
-                        graphics.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceCopy;
-                        attributes.SetWrapMode(System.Drawing.Drawing2D.WrapMode.TileFlipXY);
-                        graphics.DrawImage(spriteSheet,
-                            new Rectangle(0, 0, spriteWidth, spriteHeight),
-                            xOffset, yOffset, srcW, srcH,
-                            GraphicsUnit.Pixel, attributes);
-                    }
+                    var data = bmpImage.LockBits(new Rectangle(0, 0, spriteWidth, spriteHeight), System.Drawing.Imaging.ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format32bppPArgb);
+                    for (int y = 0; y < spriteHeight; y++)
+                        System.Runtime.InteropServices.Marshal.Copy(spritePixels, y * spriteWidth, data.Scan0 + y * data.Stride, spriteWidth);
+                    bmpImage.UnlockBits(data);
                     sprites.Add(bmpImage);
                 }
             }

@@ -152,6 +152,8 @@ public sealed class PetDef
 	/// x/y may use imageX/imageY (the parent's position). The child closes when it leaves the screen.
 	/// </summary>
 	public List<(int anim, string x, string y, int next)> Childs = new();
+	/// <summary>Sound effects: played when the animation starts (see Sfx and PetSounds).</summary>
+	public List<PetSound> Sounds = new();
 	public int Scale = 3;          // 16 px art drawn 3x = 48 px on screen
 	public int TilesX = 8;
 
@@ -305,7 +307,19 @@ public sealed class PetDef
 			}
 			sb.AppendLine("  </childs>");
 		}
-		sb.AppendLine("  <sounds />");
+		if (Sounds.Count == 0) sb.AppendLine("  <sounds />");
+		else
+		{
+			sb.AppendLine("  <sounds>");
+			foreach (var s in Sounds)
+			{
+				sb.AppendLine($"    <sound animationid=\"{s.Anim}\">");
+				sb.AppendLine($"      <probability>{s.Probability}</probability>");
+				sb.AppendLine($"      <base64>{Convert.ToBase64String(s.Sound.Mp3())}</base64>");
+				sb.AppendLine("    </sound>");
+			}
+			sb.AppendLine("  </sounds>");
+		}
 		sb.AppendLine("</animations>");
 		return sb.ToString();
 	}

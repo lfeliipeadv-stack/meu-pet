@@ -922,18 +922,21 @@ namespace DesktopPet
 			string cached = File.Exists(jsonFile) ? File.ReadAllText(jsonFile) : null;
 
 			// The list is small (a few KB) and is the source of new pets, names and updates:
-			// always ask the repository; without internet, use the copy saved last time.
+			// always ask the repository. Without internet the copy saved last time is used only for
+			// names and icons of pets already downloaded (the caller hides the rest: see Online).
+			Online = false;
 			try
 			{
 				using (var client = new HttpClient { Timeout = TimeSpan.FromSeconds(15) })
 				{
 					client.DefaultRequestHeaders.Add("User-Agent", "DesktopPet");
 					jsonString = await client.GetStringAsync(BaseGitUrl + "pets.json");
+					Online = true;
 				}
 			}
 			catch (Exception)
 			{
-				if (cached == null) throw;   // first run without internet: nothing to show
+				if (cached == null) return;   // first run without internet: nothing to show
 			}
 
 			if (jsonString == null)
@@ -952,7 +955,7 @@ namespace DesktopPet
 						foreach (var lp in local)
 						{
 							if (!online.Any(op => op.folder == lp.folder && op.lastupdate != lp.lastupdate)) continue;
-							foreach (var ext in new[] { ".png", ".xml", ".md" })
+							foreach (var ext in new[] { ".png", ".xml", ".md", ".pt-BR.md", ".pt-BR.none" })
 								File.Delete(Path.Combine(BaseLocalPath, lp.folder + ext));
 						}
 					}
@@ -965,15 +968,22 @@ namespace DesktopPet
 			// Order by date, as this is the default selection in the option window
 			pets.Reorder(MenuItemIndex.View_Date);
 
-			pets.pets.ForEach(p =>
+			foreach (var p in pets.pets)
 			{
-				using (Stream stream = GetOrDownload(p.folder, "icon.png"))
+				// one missing icon must not hide the rest of the gallery
+				try
 				{
-					p.Image = Image.FromStream(stream);
-					progress.Report(p);
+					using (Stream stream = GetOrDownload(p.folder, "icon.png"))
+					using (var img = Image.FromStream(stream))
+						p.Image = new Bitmap(img);
 				}
-			});
+				catch (Exception) { p.Image = null; }
+				progress.Report(p);
+			}
 		}
+
+		/// <summary>True when the last <see cref="GetPetList"/> got the list from the repository (not the saved copy).</summary>
+		public static volatile bool Online;
 
 		/// <summary>
 		/// Get (if neccessary, download) the README.md file for a pet, and return it as a list of strings, one string per line.
@@ -983,12 +993,27 @@ namespace DesktopPet
 		public static List<string> GetReadMe(string folder)	
 		{
 			List<string> readme = new List<string>();
-			using (var stream = GetOrDownload(folder, "README.md"))
+			// Portuguese description when the program is in Portuguese and the pet has one (README.pt-BR.md)
+			string file = "README.md";
+			if (Lang.Current.StartsWith("pt", StringComparison.OrdinalIgnoreCase))
+			{
+				string none = Path.Combine(BaseLocalPath, folder + ".pt-BR.none");   // remembers "this pet has none"
+				if (!File.Exists(none))
+				{
+					try { using (GetOrDownload(folder, "README.pt-BR.md")) { } file = "README.pt-BR.md"; }
+					catch (WebException ex) when ((ex.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.NotFound)
+					{
+						try { File.WriteAllText(none, ""); } catch (Exception) { }
+					}
+					catch (Exception) { }   // offline: the English one may still be saved
+				}
+			}
+			using (var stream = GetOrDownload(folder, file))
 			{
 				using (StreamReader reader = new StreamReader(stream))
 				{
 					var str = reader.ReadToEnd();
-					readme = str.Split(new string[] { "<br>", "<br />", "<br/>", "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries).ToList();
+					readme = str.Split(new string[] { "<br>", "<br />", "<br/>", "\r\n", "\n" }, StringSplitOptions.None).ToList();   // keep blank lines: they separate paragraphs
 				}
 			}
 			return readme;
@@ -1010,6 +1035,63 @@ namespace DesktopPet
 				}
 			}
 			return xmlStr;
+		}
+
+		/// <summary>
+		/// Size of a pet's animations.xml on the server, without downloading it (HEAD request). 0 if unknown.
+		/// </summary>
+		public static async Task<long> GetPetSize(string folder)
+		{
+			try
+			{
+				using (var client = new HttpClient { Timeout = TimeSpan.FromSeconds(10) })
+				using (var request = new HttpRequestMessage(HttpMethod.Head, BaseGitUrl + folder + "/animations.xml"))
+				{
+					client.DefaultRequestHeaders.Add("User-Agent", "DesktopPet");
+					using (var response = await client.SendAsync(request))
+						return response.IsSuccessStatusCode ? response.Content.Headers.ContentLength ?? 0 : 0;
+				}
+			}
+			catch (Exception) { return 0; }
+		}
+
+		/// <summary>
+		/// Download a pet's animations.xml, reporting the progress (0..1). Returns the text of the file.
+		/// </summary>
+		public static async Task<string> DownloadPetXml(string folder, long expectedSize, IProgress<double> progress, System.Threading.CancellationToken cancel = default)
+		{
+			using (var client = new HttpClient { Timeout = TimeSpan.FromMinutes(5) })
+			{
+				client.DefaultRequestHeaders.Add("User-Agent", "DesktopPet");
+				using (var response = await client.GetAsync(BaseGitUrl + folder + "/animations.xml", HttpCompletionOption.ResponseHeadersRead, cancel))
+				{
+					response.EnsureSuccessStatusCode();
+					long? announced = response.Content.Headers.ContentLength;
+					long total = announced ?? expectedSize;
+					using (var stream = await response.Content.ReadAsStreamAsync(cancel))
+					using (var memory = new MemoryStream())
+					{
+						var buffer = new byte[32 * 1024];
+						long received = 0;
+						int read;
+						while ((read = await stream.ReadAsync(buffer, 0, buffer.Length, cancel)) > 0)
+						{
+							memory.Write(buffer, 0, read);
+							received += read;
+							if (total > 0) progress?.Report(Math.Min(1.0, received / (double)total));
+						}
+						// a cut connection or a file that does not match the gallery is never saved
+						if (announced.HasValue && received != announced.Value)
+							throw new IOException(Lang.T("pets.errIncomplete"));
+						if (expectedSize > 0 && received != expectedSize)
+							throw new IOException(Lang.T("pets.errMismatch"));
+						progress?.Report(1.0);
+						memory.Position = 0;
+						using (var reader = new StreamReader(memory, System.Text.Encoding.UTF8, true))   // also strips a BOM
+							return reader.ReadToEnd();
+					}
+				}
+			}
 		}
 
 		/// <summary>
