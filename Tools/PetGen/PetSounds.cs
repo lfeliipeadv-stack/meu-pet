@@ -7,7 +7,7 @@ using W = Sfx.Wave;
 /// volume setting), and is attached to an animation with a chance in percent: frequent animations
 /// get a lower chance, so the pet is not noisy.
 /// </summary>
-static class PetSounds
+public static class PetSounds
 {
 	public static List<PetSound> For(string folder) => folder switch
 	{
@@ -17,8 +17,41 @@ static class PetSounds
 		"mago" => Mago(),
 		"nuvi" => Nuvi(),
 		"claude" => Claude(),
+		"sabio" => Sabio(),
 		_ => new List<PetSound>(),
 	};
+
+	/// <summary>Cartoon "meow": a tone that rises and falls, with a nasal overtone.</summary>
+	static Sfx Meow(int seed, double pitch = 1)
+	{
+		var s = new Sfx(0.8, seed);
+		s.Tone(0, 0.22, 520 * pitch, 820 * pitch, 0.4, W.Triangle, 0.03, 0.02, harmonic: 0.35);
+		s.Tone(0.2, 0.38, 820 * pitch, 480 * pitch, 0.4, W.Triangle, 0.01, 0.2, vibHz: 7, vibDepth: 0.02, harmonic: 0.35);
+		return s.Soften(2800);
+	}
+
+	static List<PetSound> Sabio()
+	{
+		var summon = Sparkle(0.5, true, 131);
+		summon.Tone(0.55, 0.22, 520, 820, 0.35, W.Triangle, 0.03, 0.02, harmonic: 0.35)
+			.Tone(0.75, 0.38, 820, 480, 0.35, W.Triangle, 0.01, 0.2, vibHz: 7, vibDepth: 0.02, harmonic: 0.35);
+		var purr = new Sfx(1.4, 132).Noise(0, 1.2, 0.3, 400, 300, 0.2, 0.4, amHz: 24, amDepth: 0.8).Soften(700);
+		var hmm = new Sfx(1.0, 133).Tone(0, 0.8, 180, 160, 0.4, W.Triangle, 0.1, 0.3, vibHz: 5, vibDepth: 0.02, harmonic: 0.3).Soften(1500);
+
+		return new List<PetSound>
+		{
+			new(20, 100, Sparkle(0.6, true, 134)),          // spell
+			new(10, 60, Sparkle(0.4, true, 135)),           // sync (spell)
+			new(21, 100, Poof(136)),                        // poof out
+			new(23, 100, Poof(137)),                        // poof in
+			new(28, 50, hmm),                               // think
+			new(13, 35, Snore(138)),                        // sleep
+			new(31, 100, summon),                           // summon cat
+			new(47, 100, Meow(139)),                        // cat appear
+			new(41, 30, purr),                              // cat sit
+			new(44, 70, Meow(140, 1.15)),                   // cat wake
+		};
+	}
 
 	// ------------------------------------------------------------------ shared effects
 

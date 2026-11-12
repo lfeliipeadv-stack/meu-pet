@@ -413,7 +413,7 @@ namespace DesktopPet
             /// <remarks>Sound is played only if the volume is greater than 0 and there are no sound problems.</remarks>
         public void Play(int loopCount)
         {
-            if (Program.MyData.GetVolume() > 0.0 && Audio != null)
+            if (Program.MyData.GetVolume() > 0.0 && Audio != null && !Program.MyData.IsPetMuted(Program.MyData.CurrentPetKey()) && !HideHotkey.Hidden)
             {
                 try
                 {

@@ -129,6 +129,74 @@ namespace DesktopPet
 			Save();
 		}
 
+		/// <summary>Ctrl+Alt+P hides/shows the pets (on unless turned off).</summary>
+		public bool GetHotkeyEnabled() => (AppSettings?["HideHotkey"]?.Value ?? "1") != "0";
+
+		public void SetHotkeyEnabled(bool on)
+		{
+			if (AppSettings == null) return;
+			if (AppSettings["HideHotkey"] == null) AppSettings.Add("HideHotkey", on ? "1" : "0");
+			else AppSettings["HideHotkey"].Value = on ? "1" : "0";
+			Save();
+		}
+
+		/// <summary>Pet updates already announced in a notification ("folder=lastupdate").</summary>
+		public Dictionary<string, string> GetNotifiedUpdates()
+		{
+			var told = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+			foreach (var item in (AppSettings?["NotifiedUpdates"]?.Value ?? "").Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries))
+			{
+				int eq = item.IndexOf('=');
+				if (eq > 0) told[item.Substring(0, eq)] = item.Substring(eq + 1);
+			}
+			return told;
+		}
+
+		public void SetNotifiedUpdates(Dictionary<string, string> told)
+		{
+			if (AppSettings == null || told == null) return;
+			string value = string.Join(";", told.Select(kv => kv.Key + "=" + kv.Value));
+			if (AppSettings["NotifiedUpdates"] == null) AppSettings.Add("NotifiedUpdates", value);
+			else AppSettings["NotifiedUpdates"].Value = value;
+			Save();
+		}
+
+		/// <summary>Pets whose sounds are off (folder names). Sound is on by default for every pet.</summary>
+		private HashSet<string> mutedPets;
+
+		private HashSet<string> MutedPets
+		{
+			get
+			{
+				if (mutedPets != null) return mutedPets;
+				var value = AppSettings?["MutedPets"]?.Value ?? "";
+				mutedPets = new HashSet<string>(value.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries), StringComparer.OrdinalIgnoreCase);
+				return mutedPets;
+			}
+		}
+
+		/// <summary>Folder of the pet on screen ("" means the built-in eSheep).</summary>
+		public string CurrentPetKey() { var f = GetCurrentPetFolder(); return string.IsNullOrEmpty(f) ? "esheep64" : f; }
+
+		/// <summary>True if the sounds of this pet are turned off.</summary>
+		public bool IsPetMuted(string folder) => MutedPets.Contains(string.IsNullOrEmpty(folder) ? "esheep64" : folder);
+
+		/// <summary>Turn the sounds of one pet on or off.</summary>
+		public void SetPetMuted(string folder, bool muted)
+		{
+			if (AppSettings == null) return;
+			folder = string.IsNullOrEmpty(folder) ? "esheep64" : folder;
+			if (muted) MutedPets.Add(folder); else MutedPets.Remove(folder);
+			string value = string.Join(";", MutedPets);
+			if (AppSettings["MutedPets"] == null) AppSettings.Add("MutedPets", value);
+			else AppSettings["MutedPets"].Value = value;
+			Save();
+			PetSoundChanged?.Invoke();
+		}
+
+		/// <summary>The sound of a pet was turned on or off (menu and panel follow it).</summary>
+		public event Action PetSoundChanged;
+
 		/// <summary>Get the folder name of the currently adopted pet (empty = default eSheep).</summary>
 		public string GetCurrentPetFolder()
 		{

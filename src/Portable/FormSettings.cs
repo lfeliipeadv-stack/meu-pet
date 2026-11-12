@@ -58,6 +58,10 @@ namespace DesktopPet
 				}
 			}
 			save("pets");
+			var keepTab = f.petsView.CurrentTab;
+			f.petsView.CurrentTab = f.petsView.CurrentTab == PetsView.Tab.Mine ? PetsView.Tab.Download : PetsView.Tab.Mine;
+			f.petsView.Invalidate(); save("pets-tab2");
+			f.petsView.CurrentTab = keepTab;
 			var first = f.WebPets.pets.FirstOrDefault(p => p.folder == "esheep64") ?? f.WebPets.pets.FirstOrDefault();
 			if (first != null) { f.petsView.SelectForSnapshot(first); await f.LoadDetailsAsync(first); await Task.Delay(300); save("pets-detail"); }
 			// a gallery pet that is not downloaded yet: the button must offer the download
@@ -117,6 +121,21 @@ namespace DesktopPet
 				}
 			}
 			catch (Exception ex) { StartUp.AddDebugInfo(StartUp.DEBUG_TYPE.warning, "picker snapshot: " + ex.Message); }
+
+			// debug window, with a warning and an error in the log
+			StartUp.AddDebugInfo(StartUp.DEBUG_TYPE.warning, "snapshot: sample warning");
+			StartUp.AddDebugInfo(StartUp.DEBUG_TYPE.error, "snapshot: sample error");
+			FormDebugModern.ShowWindow();
+			var dbg = Application.OpenForms.OfType<FormDebugModern>().First();
+			dbg.Location = new Point(-5000, -5000);
+			await Task.Delay(600);
+			dbg.Refresh();
+			using (var bmp = new Bitmap(dbg.ClientSize.Width, dbg.ClientSize.Height))
+			{
+				dbg.DrawToBitmap(bmp, new Rectangle(Point.Empty, dbg.ClientSize));
+				bmp.Save(System.IO.Path.Combine(folder, "debug.png"), System.Drawing.Imaging.ImageFormat.Png);
+			}
+			dbg.Close();
 		}
 
 		// ------------------------------------------------------------------ state
@@ -422,6 +441,15 @@ namespace DesktopPet
 				petsView.CurrentPet = "";
 				petsView.Invalidate();
 			});
+			applicationView.AddToggle("", /* keyboard */ "opt.hotkey", () => Program.MyData.GetHotkeyEnabled(), on =>
+			{
+				Program.MyData.SetHotkeyEnabled(on);
+				if (!HideHotkey.Apply()) StatusText = Lang.T("status.hotkeyBusy", HideHotkey.Text);
+				ContextMenus.UpdateTexts();
+			});
+			applicationView.AddAction("", /* export */ "opt.export", "opt.export.button", ExportPets);
+			applicationView.AddAction("", /* import */ "opt.import", "opt.import.button", ImportPets);
+			applicationView.AddAction("", /* bug */ "opt.debug", "opt.debug.button", FormDebugModern.ShowWindow);
 #if PORTABLE
 			applicationView.AddAction("", /* download */ Program.IsApplicationInstalled() ? "opt.install.titleInstalled" : "opt.install", "opt.install.button",
 				() => ContextMenus.OpenInstaller(), "opt.install.desc");
@@ -688,6 +716,7 @@ namespace DesktopPet
 				pet.Detail = xml;                           // real counts for the detail panel
 				MarkSeen(pet);
 				StatusText = Lang.T("status.downloaded", pet.DisplayName);
+				PetUpdates.Recount();
 				petsView.DownloadingFolder = null;
 				// the pet in use was updated: reload it right away
 				if (pet.folder == petsView.CurrentPet) AdoptPet(pet);
@@ -713,6 +742,55 @@ namespace DesktopPet
 		/// <summary>Stop the download in progress (the ✕ next to the progress bar).</summary>
 		public void CancelDownload() => downloadCancel?.Cancel();
 
+		/// <summary>Save every downloaded pet into one file (to take them to another computer).</summary>
+		private void ExportPets()
+		{
+			if (PetStore.Folders().Count == 0) { StatusText = Lang.T("status.exportNone"); return; }
+			using (var dlg = new SaveFileDialog
+			{
+				Filter = Lang.T("dlg.petsFile") + " (*" + PetBackup.Extension + ")|*" + PetBackup.Extension,
+				FileName = Lang.T("dlg.petsFileName") + PetBackup.Extension,
+				InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+			})
+			{
+				if (dlg.ShowDialog(this) != DialogResult.OK) return;
+				try
+				{
+					int n = PetBackup.Export(dlg.FileName);
+					StatusText = Lang.T("status.exported", n, System.IO.Path.GetFileName(dlg.FileName));
+				}
+				catch (Exception ex) { StatusText = Lang.T("status.exportError", ex.Message); }
+			}
+		}
+
+		/// <summary>Bring the pets of an exported file to this computer.</summary>
+		private void ImportPets()
+		{
+			using (var dlg = new OpenFileDialog
+			{
+				Filter = Lang.T("dlg.petsFile") + " (*" + PetBackup.Extension + ")|*" + PetBackup.Extension,
+				InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+			})
+			{
+				if (dlg.ShowDialog(this) != DialogResult.OK) return;
+				try
+				{
+					var (imported, current) = PetBackup.Import(dlg.FileName);
+					StatusText = imported.Count == 0 ? Lang.T("status.importNone") : Lang.T("status.imported", imported.Count);
+					PetUpdates.Recount();
+					// show them in "My pets"
+					foreach (var pet in WebPets.pets) pet.Detail = null;
+					petsView.CurrentTab = PetsView.Tab.Mine;
+					ReloadPets();
+					// the pet that was in use on the other computer: offer it
+					if (imported.Contains(current) && current != petsView.CurrentPet &&
+						MessageBox.Show(this, Lang.T("dlg.importAdopt", current), Lang.T("opt.import.title"), MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+						AdoptPet(new OptionsPet { folder = current, name = current });
+				}
+				catch (Exception ex) { StatusText = Lang.T("status.importError", ex.Message); }
+			}
+		}
+
 		/// <summary>Delete a downloaded pet from the computer (not the one in use).</summary>
 		public void RemovePet(OptionsPet pet)
 		{
@@ -731,6 +809,7 @@ namespace DesktopPet
 					WebPets.pets.Remove(pet);
 				}
 				StatusText = Lang.T("status.removed", pet.DisplayName);
+				PetUpdates.Recount();
 			}
 			catch (Exception ex) { StatusText = Lang.T("status.removeError", pet.DisplayName, ex.Message); }
 			petsView.PetsChanged();
@@ -770,6 +849,7 @@ namespace DesktopPet
 				MarkSeen(pet);
 				// Persist the adopted pet folder so the gallery badge survives restart.
 				Program.MyData.SetCurrentPetFolder(pet.folder);
+				ContextMenus.UpdateTexts();   // "Sounds of <pet>" follows the new pet
 			}
 			catch (Exception ex)
 			{
@@ -940,8 +1020,8 @@ namespace DesktopPet
 			public string FailedFolder;
 			/// <summary>The gallery list could not be fetched: only pets on this computer are shown.</summary>
 			public bool Offline;
-			private Rectangle cancelRect, removeRect, retryListRect;
-			private bool hoverCancel, hoverRemove, hoverRetryList;
+			private Rectangle cancelRect, removeRect, retryListRect, soundRect;
+			private bool hoverCancel, hoverRemove, hoverRetryList, hoverSound;
 
 			// with the detail panel open, the page scroll bar sits next to the cards, not on the panel
 			protected override int ScrollBarX => selected != null ? GridArea.Right : base.ScrollBarX;
@@ -950,7 +1030,12 @@ namespace DesktopPet
 			private const int CardW = 150, CardH = 150, Gap = 14;
 			private const int DetailW = 340;
 
-			public PetsView(FormSettings f) { form = f; }
+			public PetsView(FormSettings f)
+			{
+				form = f;
+				// nothing downloaded yet: start where the pets are
+				if (PetStore.Folders().Count == 0) CurrentTab = Tab.Download;
+			}
 
 			public bool DetailOpen => selected != null;
 
@@ -978,9 +1063,27 @@ namespace DesktopPet
 				base.OnMouseWheel(e);
 			}
 
+			/// <summary>Tabs of the gallery: pets on this computer, and pets to download.</summary>
+			public enum Tab { Mine, Download }
+			public Tab CurrentTab = Tab.Mine;
+			private readonly List<(Rectangle rect, Tab tab)> tabRects = new List<(Rectangle, Tab)>();
+			private int hoverTab = -1;
+
+			/// <summary>On this computer: the built-in eSheep and every downloaded pet (a color group if any color is).</summary>
+			private bool IsMine(OptionsPet p) => p.Variants != null
+				? p.Variants.Any(v => v != null && form.IsDownloaded(v))
+				: form.IsDownloaded(p);
+
+			/// <summary>Still to download (a color group while some color is missing).</summary>
+			private bool IsToDownload(OptionsPet p) => p.Variants != null
+				? p.Variants.Any(v => v != null && !form.IsDownloaded(v))
+				: !form.IsDownloaded(p);
+
+			private IEnumerable<OptionsPet> TabPets(Tab t) => form.WebPets.pets.Where(p => t == Tab.Mine ? IsMine(p) : IsToDownload(p));
+
 			private IEnumerable<OptionsPet> FilteredPets()
 			{
-				var pets = form.WebPets.pets;
+				var pets = TabPets(CurrentTab);
 				if (filter.Length == 0) return pets;
 				bool Has(string s) => (s ?? "").IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0;
 				return pets.Where(p =>
@@ -1018,6 +1121,26 @@ namespace DesktopPet
 				var area = GridArea;
 				int y = 4 - scrollY;
 
+				// --- tabs: "Meus pets (n)" | "Baixar pets (n)", underlined like the Windows 11 pivots
+				tabRects.Clear();
+				int tx = 8;
+				var tabs = new[] { (Tab.Mine, "pets.tabMine"), (Tab.Download, "pets.tabDownload") };
+				for (int i = 0; i < tabs.Length; i++)
+				{
+					int count = TabPets(tabs[i].Item1).Count();
+					string text = Lang.T(tabs[i].Item2) + (Loading && tabs[i].Item1 == Tab.Download ? "" : "  " + count);
+					int tw = Theme.MeasureText(g, text, form.fontBold, int.MaxValue, TextFormatFlags.SingleLine).Width + 24;
+					var tr = new Rectangle(tx, y, tw, 34);
+					bool on = CurrentTab == tabs[i].Item1;
+					if (hoverTab == i && !on) Theme.FillRounded(g, Theme.Hover, tr, 6);
+					Theme.DrawText(g, text, form.fontBold, tr, on ? Theme.Text : Theme.TextMuted, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine);
+					if (on) Theme.FillRounded(g, Theme.Accent, new Rectangle(tr.X + 12, tr.Bottom - 3, tr.Width - 24, 3), 1.5f);
+					tabRects.Add((tr, tabs[i].Item1));
+					tx += tw + 6;
+				}
+				using (var line = new Pen(Theme.Border)) g.DrawLine(line, 8, y + 34, area.Width - 8, y + 34);
+				y += 44;
+
 				// --- sort chips: "Ordenar: Recentes | Nome | Autor"
 				int cx = 8;
 				Theme.DrawText(g, Lang.T("pets.sortBy"), form.fontSmall, new Rectangle(cx, y, 120, 28), Theme.TextMuted, TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine);
@@ -1045,7 +1168,7 @@ namespace DesktopPet
 
 				// --- no internet: say why there is nothing to download, with a way to try again
 				retryListRect = Rectangle.Empty;
-				if (Offline)
+				if (Offline && CurrentTab == Tab.Download)
 				{
 					var box = new Rectangle(8, y, area.Width - 16, 44);
 					Theme.FillRounded(g, Theme.SurfaceAlt, box, 8);
@@ -1061,7 +1184,11 @@ namespace DesktopPet
 				var list = FilteredPets().ToList();
 				if (list.Count == 0)
 				{
-					string msg = Loading ? Lang.T("pets.loading") : (filter.Length > 0 ? Lang.T("pets.noMatch", filter) : Lang.T("pets.empty"));
+					string msg = Loading ? Lang.T("pets.loading")
+						: filter.Length > 0 ? Lang.T("pets.noMatch", filter)
+						: CurrentTab == Tab.Download && !Offline ? Lang.T("pets.allDownloaded")
+						: CurrentTab == Tab.Download ? ""
+						: Lang.T("pets.empty");
 					Theme.DrawText(g, msg, form.fontText, new Rectangle(8, y + 32, area.Width - 16, 40), Theme.TextMuted, TextFormatFlags.HorizontalCenter);
 				}
 
@@ -1119,10 +1246,10 @@ namespace DesktopPet
 						TextFormatFlags.HorizontalCenter | TextFormatFlags.SingleLine | TextFormatFlags.EndEllipsis);
 				}
 
-				// badge: in use > new (or updated) > downloaded
-				string badgeKey = pet.Contains(CurrentPet) ? "pets.badgeInUse"
+				// badge: update > in use > new ("downloaded" is said by the tab itself)
+				string badgeKey = form.IsOutdated(pet) ? "pets.badgeUpdate"
+					: pet.Contains(CurrentPet) ? "pets.badgeInUse"
 					: form.IsNewPet(pet) ? "pets.badgeNew"
-					: (form.IsDownloaded(pet) && !BuiltInPets.IsBuiltIn(pet.folder)) ? "pets.badgeDownloaded"
 					: null;
 				if (badgeKey != null)
 				{
@@ -1183,7 +1310,7 @@ namespace DesktopPet
 				}
 
 				adoptRect = new Rectangle(x, y, w, 38);
-				cancelRect = removeRect = Rectangle.Empty;
+				cancelRect = removeRect = soundRect = Rectangle.Empty;
 				bool inUse = pet.folder == CurrentPet;
 				if (DownloadingFolder != null && DownloadingFolder == pet.folder)
 				{
@@ -1239,7 +1366,21 @@ namespace DesktopPet
 						Theme.DrawText(g, stats[i].value, form.fontBold, new Rectangle(sr.X, sr.Y + 8, sr.Width, 20), Theme.Text, TextFormatFlags.HorizontalCenter | TextFormatFlags.SingleLine);
 						Theme.DrawText(g, stats[i].label, form.fontSmall, new Rectangle(sr.X, sr.Y + 28, sr.Width, 18), Theme.TextMuted, TextFormatFlags.HorizontalCenter | TextFormatFlags.SingleLine);
 					}
-					y += 68;
+					y += 66;
+					// sounds of this pet on/off (only when it has sounds and is on this computer)
+					soundRect = Rectangle.Empty;
+					if (form.IsDownloaded(pet) && stats.Count >= 2 && int.TryParse(stats[1].value, out int nSounds) && nSounds > 0)
+					{
+						bool on = !Program.MyData.IsPetMuted(pet.folder);
+						var row = new Rectangle(x, y, w, 30);
+						soundRect = row;
+						if (hoverSound) Theme.FillRounded(g, Theme.Hover, row, 6);
+						Theme.DrawText(g, Lang.T("pets.sounds"), form.fontText, new Rectangle(row.X + 8, row.Y, row.Width - 70, row.Height), Theme.Text,
+							TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine | TextFormatFlags.EndEllipsis);
+						Theme.DrawToggle(g, new Rectangle(row.Right - 52, row.Y + 5, 44, 20), on);
+						y += 38;
+					}
+					else y += 2;
 				}
 				else if (form.IsDownloaded(pet))   // the file is here: its counts are on the way
 				{
@@ -1408,15 +1549,17 @@ namespace DesktopPet
 				bool hx = selected != null && cancelRect.Contains(e.Location);
 				bool hr = selected != null && removeRect.Contains(e.Location);
 				bool hrl = Offline && retryListRect.Contains(e.Location);
+				bool hsn = selected != null && soundRect.Contains(e.Location);
 				bool hl = selected != null && links.Any(l => l.rect.Contains(e.Location));
 				int hs = selected == null ? -1 : swatches.Where(s => s.rect.Contains(e.Location)).Select(s => s.index).DefaultIfEmpty(-1).First();
 				int hch = sortChips.FindIndex(c => c.rect.Contains(e.Location));
-				Cursor = (hp != null || ha || hc || hx || hr || hrl || hl || hs >= 0 || hch >= 0) ? Cursors.Hand : Cursors.Default;
+				int htb = tabRects.FindIndex(t => t.rect.Contains(e.Location));
+				Cursor = (hp != null || ha || hc || hx || hr || hrl || hsn || hl || hs >= 0 || hch >= 0 || htb >= 0) ? Cursors.Hand : Cursors.Default;
 				if (hp != hoverPet || ha != hoverAdopt || hc != hoverClose || hs != hoverSwatch || hch != hoverChip
-					|| hx != hoverCancel || hr != hoverRemove || hrl != hoverRetryList)
+					|| hx != hoverCancel || hr != hoverRemove || hrl != hoverRetryList || hsn != hoverSound || htb != hoverTab)
 				{
 					hoverPet = hp; hoverAdopt = ha; hoverClose = hc; hoverSwatch = hs; hoverChip = hch;
-					hoverCancel = hx; hoverRemove = hr; hoverRetryList = hrl;
+					hoverCancel = hx; hoverRemove = hr; hoverRetryList = hrl; hoverSound = hsn; hoverTab = htb;
 					Invalidate();
 				}
 				if (hs >= 0 && selected?.VariantNames != null)
@@ -1427,7 +1570,7 @@ namespace DesktopPet
 			protected override void OnMouseLeave(EventArgs e)
 			{
 				base.OnMouseLeave(e);
-				hoverPet = null; hoverAdopt = hoverClose = hoverCancel = hoverRemove = hoverRetryList = false; hoverSwatch = -1; hoverChip = -1;
+				hoverPet = null; hoverAdopt = hoverClose = hoverCancel = hoverRemove = hoverRetryList = hoverSound = false; hoverSwatch = -1; hoverChip = -1; hoverTab = -1;
 				Invalidate();
 			}
 
@@ -1441,12 +1584,26 @@ namespace DesktopPet
 					Invalidate();
 					return;
 				}
+				foreach (var t in tabRects)
+				{
+					if (!t.rect.Contains(e.Location)) continue;
+					if (CurrentTab != t.tab) { CurrentTab = t.tab; ScrollY = 0; CloseDetail(); }
+					return;
+				}
 				if (Offline && retryListRect.Contains(e.Location)) { form.ReloadPets(); return; }
 				if (selected != null)
 				{
 					if (closeRect.Contains(e.Location)) { CloseDetail(); return; }
 					if (cancelRect.Contains(e.Location)) { form.CancelDownload(); return; }
 					if (removeRect.Contains(e.Location)) { form.RemovePet(selected); return; }
+					if (soundRect.Contains(e.Location))
+					{
+						bool muted = !Program.MyData.IsPetMuted(selected.folder);
+						Program.MyData.SetPetMuted(selected.folder, muted);
+						form.StatusText = Lang.T(muted ? "status.soundOff" : "status.soundOn", selected.DisplayName);
+						Invalidate();
+						return;
+					}
 					if (adoptRect.Contains(e.Location))
 					{
 						if (DownloadingFolder == null) form.PrimaryAction(selected);   // the progress bar is not a button

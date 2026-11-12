@@ -9,4 +9,7 @@ if (!Directory.Exists(artRoot))   // dotnet run: art sits next to the project, n
 if (!Directory.Exists(artRoot)) artRoot = Path.Combine("Tools", "PetPack", "art");
 
 foreach (var pet in new[] { SabioPet.Build(artRoot) })
+{
+	pet.Def.Sounds = PetGen.PetSounds.For(pet.Def.Folder);
 	pet.Write(Path.Combine(outDir, pet.Def.Folder), pet.FootFrame, pet.IconFrame);
+}

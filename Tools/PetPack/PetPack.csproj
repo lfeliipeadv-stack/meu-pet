@@ -21,6 +21,8 @@
     <Compile Include="PngPet.cs" />
     <Compile Include="SabioPet.cs" />
     <Compile Include="..\PetGen\PetModel.cs" Link="PetModel.cs" />
+    <Compile Include="..\PetGen\Sfx.cs" Link="Sfx.cs" />
+    <Compile Include="..\PetGen\PetSounds.cs" Link="PetSounds.cs" />
   </ItemGroup>
 
 </Project>

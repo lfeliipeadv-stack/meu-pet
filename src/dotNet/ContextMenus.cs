@@ -90,6 +90,13 @@ namespace DesktopPet
             newSheepMenuItem.Image = Resources.icon.ToBitmap();
             menu.Items.Add(newSheepMenuItem);
 
+            // Item: Hide / show every pet (also Ctrl+Alt+P).
+            hideMenuItem = new ToolStripMenuItem { ShortcutKeyDisplayString = HideHotkey.Text };
+            hideMenuItem.Click += (s, e) => HideHotkey.Toggle();
+            menu.Items.Add(hideMenuItem);
+            HideHotkey.Changed += UpdateTexts;
+            HideHotkey.Apply();
+
                 // Item: Separator.
             sep = new ToolStripSeparator();
             menu.Items.Add(sep);
@@ -159,23 +166,36 @@ namespace DesktopPet
 #endif
             UpdateTexts();
             Lang.Changed += UpdateTexts;     // follow language changes
+            Program.MyData.PetSoundChanged += UpdateTexts;   // sound switched in the panel
+            PetUpdates.Changed += UpdateTexts;               // "Open Panel (1 update)"
+            PetUpdates.Start();
             return menu;
         }
 
+        static ToolStripMenuItem hideMenuItem;
         static ToolStripMenuItem optionsMenuItem, installMenuItem, soundMenuItem, aboutMenuItem, helpMenuItem;
         static string currentPetName;
 
         /// <summary>
         /// (Re)write every menu text in the current language.
         /// </summary>
-        static void UpdateTexts()
+        public static void UpdateTexts()
         {
             if (newSheepMenuItem == null) return;
             bool hasName = !string.IsNullOrEmpty(currentPetName);
             newSheepMenuItem.Text = hasName ? Lang.T("tray.add", currentPetName) : Lang.T("tray.addDefault");
             closeSheepMenuItem.Text = hasName ? Lang.T("tray.exit", currentPetName) : Lang.T("tray.exitDefault");
-            optionsMenuItem.Text = Lang.T("tray.panel");
-            soundMenuItem.Text = Lang.T("tray.sound");
+            if (hideMenuItem != null)
+            {
+                hideMenuItem.Text = HideHotkey.Hidden ? Lang.T("tray.showPets") : Lang.T("tray.hidePets");
+                hideMenuItem.ShortcutKeyDisplayString = Program.MyData.GetHotkeyEnabled() ? HideHotkey.Text : "";
+            }
+            int updates = PetUpdates.Outdated.Count;
+            optionsMenuItem.Text = updates > 0 ? Lang.T(updates == 1 ? "tray.panelUpdateOne" : "tray.panelUpdates", updates) : Lang.T("tray.panel");
+            bool muted = Program.MyData.IsPetMuted(Program.MyData.CurrentPetKey());
+            soundMenuItem.Text = hasName ? Lang.T("tray.soundPet", currentPetName) : Lang.T("tray.sound");
+            soundMenuItem.Checked = !muted;
+            soundMenuItem.Image = muted ? Resources.audiooff : Resources.audioon;
             aboutMenuItem.Text = Lang.T("tray.about");
             helpMenuItem.Text = Lang.T("tray.help");
             if (installMenuItem != null)
@@ -276,21 +296,10 @@ namespace DesktopPet
 		/// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
 		void Audio_Click(object sender, EventArgs e)
 		{
-            var item = sender as ToolStripMenuItem;
-            if(item != null)
-            {
-                if(Program.MyData.Mute)
-                {
-					Program.MyData.Mute = false;
-                    item.Image = Resources.audioon;
-
-				}
-                else
-                {
-					Program.MyData.Mute = true;
-					item.Image = Resources.audiooff;
-				}
-            }
+            // sounds are on/off per pet: this item switches the pet on screen (the panel shows the same switch)
+            string pet = Program.MyData.CurrentPetKey();
+            Program.MyData.SetPetMuted(pet, !Program.MyData.IsPetMuted(pet));
+            UpdateTexts();
 		}
 
 		/// <summary>

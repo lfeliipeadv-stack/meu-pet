@@ -22,6 +22,21 @@ namespace DesktopPet
         {
             // Instantiate the NotifyIcon object.
             ni = new NotifyIcon();
+            Current = this;
+            ni.BalloonTipClicked += (s, e) => { var a = balloonClick; balloonClick = null; a?.Invoke(); };
+        }
+
+        /// <summary>The tray icon of the program (for notifications).</summary>
+        public static ProcessIcon Current { get; private set; }
+
+        Action balloonClick;
+
+        /// <summary>A Windows notification from the tray icon; <paramref name="onClick"/> runs if it is clicked.</summary>
+        public void Notify(string title, string text, Action onClick)
+        {
+            if (ni == null) return;
+            balloonClick = onClick;
+            ni.ShowBalloonTip(8000, title, text, ToolTipIcon.Info);
         }
 
             /// <summary>

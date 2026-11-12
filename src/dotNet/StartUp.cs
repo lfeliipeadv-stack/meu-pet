@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Threading;
@@ -109,12 +110,21 @@ namespace DesktopPet
 
                 // If SHIFT key was pressed, open Debug window
             Keys ks = Control.ModifierKeys;
+#if NETCORE
+            // CTRL (or SHIFT, as in the original eSheep) held while the program starts: debug window
+            if ((ks & (Keys.Control | Keys.Shift)) != 0)
+            {
+                FormDebugModern.ShowWindow();
+                AddDebugInfo(DEBUG_TYPE.info, "debug window started");
+            }
+#else
             if (ks == Keys.Shift)
             {
                 debug = new FormDebug();
                 debug.Show();
                 AddDebugInfo(DEBUG_TYPE.info, "debug window started");
             }
+#endif
             
                 // Read XML file and start new sheep in 1 second
             if(!xml.ReadXML())
@@ -174,6 +184,7 @@ namespace DesktopPet
             /// </summary>
         public void AddSheep()
         {
+            if (HideHotkey.Hidden) HideHotkey.SetHidden(false);   // a new pet while hidden: show them all again
             if (iSheeps < MAX_SHEEPS)
             {
                 var newSheep = new FormPet(animations, xml);
@@ -396,8 +407,30 @@ namespace DesktopPet
             /// </summary>
             /// <param name="type">See <see cref="StartUp.DEBUG_TYPE"/> for the possible values. </param>
             /// <param name="text">Text to show in the dialog window.</param>
+        /// <summary>One line of the debug log.</summary>
+        public struct LogLine { public DateTime Time; public DEBUG_TYPE Type; public string Text; }
+
+        static readonly List<LogLine> log = new List<LogLine>();
+        const int MaxLog = 5000;
+
+        /// <summary>Copy of the log (kept from the start, so the debug window also shows what happened before it opened).</summary>
+        public static List<LogLine> LogSnapshot() { lock (log) return new List<LogLine>(log); }
+
+        public static void ClearLog() { lock (log) log.Clear(); }
+
+        /// <summary>Pets on the screen now.</summary>
+        public int PetCount => iSheeps;
+
         public static void AddDebugInfo(DEBUG_TYPE type, string text)
         {
+            lock (log)
+            {
+                log.Add(new LogLine { Time = DateTime.Now, Type = type, Text = text ?? "" });
+                if (log.Count > MaxLog) log.RemoveRange(0, log.Count - MaxLog);
+            }
+#if NETCORE
+            FormDebugModern.Poke();
+#endif
             if(debug != null)
             {
                 if (debug.InvokeRequired)
@@ -419,6 +452,9 @@ namespace DesktopPet
             /// <returns>true if the application is running with debug window.</returns>
         public static bool IsDebugActive()
         {
+#if NETCORE
+            if (FormDebugModern.IsOpen) return true;
+#endif
             return (debug != null);
         }
 

@@ -79,6 +79,10 @@
     <Compile Include="Portable\Theme.cs" />
     <Compile Include="Portable\Lang.cs" />
     <Compile Include="Portable\WindowsStartup.cs" />
+    <Compile Include="Portable\PetUpdates.cs" />
+    <Compile Include="Portable\PetBackup.cs" />
+    <Compile Include="Portable\HideHotkey.cs" />
+    <Compile Include="Portable\FormDebugModern.cs" />
     <Compile Include="Portable\FormSettings.cs" />
     <Compile Include="Portable\BuiltInPets.cs" />
     <Compile Include="Properties\Resources.Designer.cs" />
