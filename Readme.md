@@ -63,7 +63,7 @@ Na galeria também estão pets da comunidade do eSheep, como as ovelhas colorida
 - Opção de iniciar com o Windows
 
 **Por baixo**
-- Executável de cerca de 1 MB, atualização automática com verificação SHA-256
+- Executável de cerca de 2 MB, atualização automática com verificação SHA-256
 - Os pets vêm direto deste repositório (pasta [`Pets`](Pets)), sem precisar de um exe novo
 - Tradução em arquivos simples (`src/lang`), fácil de editar
 
