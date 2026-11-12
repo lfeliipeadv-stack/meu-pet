@@ -68,7 +68,6 @@ namespace DesktopPet
 			this.choices = choices;
 			FormBorderStyle = FormBorderStyle.None;
 			ShowInTaskbar = false;
-			TopMost = true;
 			StartPosition = FormStartPosition.Manual;
 			DoubleBuffered = true;
 			BackColor = Theme.Surface;
@@ -96,6 +95,7 @@ namespace DesktopPet
 				var cp = base.CreateParams;
 				cp.ExStyle |= 0x00000080;   // WS_EX_TOOLWINDOW: not in Alt+Tab
 				cp.ExStyle |= 0x08000000;   // WS_EX_NOACTIVATE: never steals the focus
+				cp.ExStyle |= 0x00000008;   // WS_EX_TOPMOST (set here: the TopMost property would activate the window)
 				cp.ClassStyle |= 0x00020000; // CS_DROPSHADOW
 				return cp;
 			}

@@ -97,7 +97,7 @@ namespace DesktopPet
 			public Hud()
 			{
 				FormBorderStyle = FormBorderStyle.None;
-				ShowInTaskbar = false; TopMost = true; StartPosition = FormStartPosition.Manual; DoubleBuffered = true;
+				ShowInTaskbar = false; StartPosition = FormStartPosition.Manual; DoubleBuffered = true;
 				Size = new Size(150, 70);
 				Theme.ApplyWindowChrome(this);
 				follow.Tick += (s, e) => { if (pet != null && !pet.IsDisposed && pet.Visible) Place(); };
@@ -112,7 +112,7 @@ namespace DesktopPet
 				get
 				{
 					var cp = base.CreateParams;
-					cp.ExStyle |= 0x00000080 | 0x08000000 | 0x00000020;   // tool window, no activate, click-through
+					cp.ExStyle |= 0x00000080 | 0x08000000 | 0x00000020 | 0x00000008;   // tool window, no activate, click-through, topmost
 					return cp;
 				}
 			}

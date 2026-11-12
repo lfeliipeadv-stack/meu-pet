@@ -57,7 +57,7 @@ namespace DesktopPet
 			}
 		}
 
-		static void Decay(PetNeeds n)
+		internal static void Decay(PetNeeds n)
 		{
 			var now = DateTime.Now;
 			double minutes = Math.Max(0, (now - n.Updated).TotalMinutes);

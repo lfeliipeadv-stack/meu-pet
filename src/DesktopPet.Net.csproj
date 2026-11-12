@@ -92,6 +92,7 @@
     <Compile Include="Portable\PcMonitor.cs" />
     <Compile Include="Portable\Mood.cs" />
     <Compile Include="Portable\PetMenu.cs" />
+    <Compile Include="Portable\SelfTest.cs" />
     <Compile Include="Portable\FormDebugModern.cs" />
     <Compile Include="Portable\FormSettings.cs" />
     <Compile Include="Portable\BuiltInPets.cs" />

@@ -56,6 +56,9 @@ namespace DesktopPet
 		/// <summary>Every key the application uses (to check translation files).</summary>
 		public static IEnumerable<string> Keys => fallback.Keys;
 
+		/// <summary>The built-in English text of a key (self-test: compare translations).</summary>
+		public static string English(string key) => fallback.TryGetValue(key, out var v) ? v : key;
+
 		/// <summary>
 		/// Languages available: the built-in English plus every <c>lang\*.json</c> file found.
 		/// </summary>
@@ -560,24 +563,6 @@ namespace DesktopPet
 				["inst.incompleteRelease"] = "version {0} was published without DesktopPet.exe or SHA256SUMS",
 				["inst.hashMissing"] = "{0} has no SHA-256 in the release, the download was refused",
 				["inst.hashMismatch"] = "{0} does not match its SHA-256, the download was refused",
-
-				// ---- easter egg animation menu
-				["pet.animMenu.title"] = "Animations",
-				["pet.animMenu.quick"] = "Quick picks",
-				["pet.animMenu.all"] = "All animations",
-				["pet.animMenu.spawns"] = "Spawns",
-				["pet.anim.dance"] = "Dance",
-				["pet.anim.wave"] = "Wave",
-				["pet.anim.sleep"] = "Sleep",
-				["pet.anim.jump"] = "Jump",
-				["pet.anim.spin"] = "Spin",
-				["pet.anim.eat"] = "Eat",
-				["pet.anim.flower"] = "Flower",
-				["pet.anim.think"] = "Think",
-				["pet.anim.scared"] = "Scared",
-				["pet.anim.angry"] = "Angry",
-				["pet.anim.sneak"] = "Sneak",
-				["pet.anim.stretch"] = "Stretch",
 			};
 		}
 	}

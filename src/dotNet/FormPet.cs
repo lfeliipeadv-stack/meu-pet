@@ -391,7 +391,11 @@ namespace DesktopPet
 			PositionX = Left;
 			PositionY = Top;
 			OffsetY = 0.0;
+#if NETCORE
+            Visible = !HideHotkey.Hidden;               // Now we can show this child (not while the pets are hidden)
+#else
             Visible = true;                             // Now we can show this child
+#endif
             Opacity = 1.0;
             IsLeaving = false;
             ResetMotion();
@@ -1632,6 +1636,12 @@ namespace DesktopPet
         /// Triggered by middle-clicking (wheel button) the pet sprite.
         /// </summary>
         private FormAnimPicker animPicker;
+
+        /// <summary>Self-test: an animation of this pet that opens a second window (balloon, plane…), or -1.</summary>
+        internal int TestChildAnimation() => Animations?.SheepAnimations?.Keys.FirstOrDefault(id => Animations.HasAnimationChild(id)) is int id && Animations.HasAnimationChild(id) ? id : -1;
+
+        /// <summary>Self-test: play an animation now.</summary>
+        internal void TestPlay(int id) { SetNewAnimation(id); timer1.Interval = 1; timer1.Enabled = true; }
 
         /// <summary>True for the extra windows a pet opens (balloons, planes…), false for a real pet.</summary>
         public bool IsChildWindow => Name.IndexOf("child") >= 0;

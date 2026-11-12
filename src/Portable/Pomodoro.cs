@@ -74,6 +74,9 @@ namespace DesktopPet
 			Changed?.Invoke();
 		}
 
+		/// <summary>Self-test: end the current phase now.</summary>
+		internal static void TestFinishPhase() { EndsAt = DateTime.Now.AddSeconds(-1); Paused = false; Tick(); }
+
 		static void Tick()
 		{
 			if (Current == Phase.Off || Paused || DateTime.Now < EndsAt) return;

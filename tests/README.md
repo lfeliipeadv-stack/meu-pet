@@ -89,3 +89,18 @@ Automated assertions and native windows are not subjective visual acceptance.
 Before release, separately check real pointer capture/release, child choreography,
 multiple monitors, mixed DPI, monitor removal, long sessions and battery use.
 Store packaging and installation are not covered by this Portable runner.
+
+# Self-test of the app features (.NET 10 build)
+
+Reminders, focus timer, virtual pet, per-pet sound, translations, export/import,
+speech bubbles, hide shortcut, pet menu and PC monitor are checked by the program
+itself, with the real code and a pet on screen:
+
+```powershell
+dotnet build src/DesktopPet.Net.csproj -c Release
+src/bin/Release/net10.0-windows/win-x64/DesktopPet.exe --selftest=$env:TEMP\selftest.txt
+```
+
+The program writes one `PASS`/`FAIL` line per check, closes by itself and returns the
+number of failures as exit code. The user's reminders, needs, mood and shortcuts files are
+not changed; settings changed by a check are put back. Close a running DesktopPet first.

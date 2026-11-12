@@ -196,6 +196,12 @@ namespace DesktopPet
                         OptionsGit.BaseGitUrl = s.Substring("--gallery=".Length);
                         continue;
                     }
+                    // developer: check the features and write PASS/FAIL lines ("--selftest=C:\folder\result.txt")
+                    if (s.StartsWith("--selftest=", StringComparison.OrdinalIgnoreCase))
+                    {
+                        SelfTest.Run(s.Substring("--selftest=".Length));
+                        continue;
+                    }
                     if (s.StartsWith("--snapshot=", StringComparison.OrdinalIgnoreCase))
                     {
                         FormSettings.SaveSnapshots(s.Substring("--snapshot=".Length));
