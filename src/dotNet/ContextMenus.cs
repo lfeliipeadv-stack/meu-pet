@@ -115,6 +115,7 @@ namespace DesktopPet
             VirtualPet.Start();
             Mood.Start();
             PcMonitor.Apply();
+            AgentBridge.Apply();
 
                 // Item: Separator.
             sep = new ToolStripSeparator();
