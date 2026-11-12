@@ -75,6 +75,9 @@ if ($NoUpload) { Write-Output "Built in $out (not uploaded)."; return }
 # 5. GitHub release
 if (-not $Notes) { $Notes = "DesktopPet $Version" }
 $Notes += "`n`nRequires the .NET 10 Desktop Runtime: https://dotnet.microsoft.com/download/dotnet/10.0"
-gh release create "v$Version" $exe $langZip $sumsFile --repo $Repo --title "DesktopPet $Version" --notes $Notes
+# notes go through a file: quotes or line breaks in the text would break the command line
+$notesFile = Join-Path $out 'NOTES.md'
+[IO.File]::WriteAllText($notesFile, $Notes, $utf8)
+gh release create "v$Version" $exe $langZip $sumsFile --repo $Repo --title "DesktopPet $Version" --notes-file $notesFile --target master
 if ($LASTEXITCODE -ne 0) { throw "gh release create failed" }
 Write-Output "Release v$Version published on https://github.com/$Repo/releases"
