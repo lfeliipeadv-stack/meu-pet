@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  Um bichinho que anda pelas suas janelas, cai na barra de tarefas, dorme, dança, faz bagunça<br>
+  Um bichinho que anda pelas suas janelas, cai na barra de tarefas, dorme, dança, faz bagunça
   e pode ser arrastado e arremessado com o mouse. Escolha o seu no painel de pets e adote.
 </p>
 
@@ -28,16 +28,16 @@ Feitos para o Meu Pet, em pixel art, com dezenas de animações e sons próprios
 
 <table>
   <tr>
-    <td align="center" width="25%"><img src=".github/readme/rex.gif" height="120" alt="Rex"><br><b>Rex</b><br><sub>Dinossauro que ruge, joga bola, toca guitarra e vira super-herói. 107 animações.</sub></td>
-    <td align="center" width="25%"><img src=".github/readme/pingo.gif" height="120" alt="Pingo"><br><b>Pingo</b><br><sub>Pinguim que desliza de barriga, patina, toca trompete e faz boneco de neve. 104 animações.</sub></td>
-    <td align="center" width="25%"><img src=".github/readme/boo.gif" height="120" alt="Boo"><br><b>Boo</b><br><sub>Fantasminha que voa pela tela, dá sustos, some e reaparece. 86 animações.</sub></td>
-    <td align="center" width="25%"><img src=".github/readme/mago.gif" height="120" alt="Mago"><br><b>Mago</b><br><sub>Faz feitiços, se teletransporta, voa de vassoura e é engolido pelo chapéu. 49 animações.</sub></td>
+    <td align="center" valign="top" width="25%"><img src=".github/readme/rex.gif" height="120" alt="Rex"><br><b>Rex</b><br><sub>Dinossauro que ruge, joga bola, toca guitarra e vira super-herói. 107 animações.</sub></td>
+    <td align="center" valign="top" width="25%"><img src=".github/readme/pingo.gif" height="120" alt="Pingo"><br><b>Pingo</b><br><sub>Pinguim que desliza de barriga, patina, toca trompete e faz boneco de neve. 104 animações.</sub></td>
+    <td align="center" valign="top" width="25%"><img src=".github/readme/boo.gif" height="120" alt="Boo"><br><b>Boo</b><br><sub>Fantasminha que voa pela tela, dá sustos, some e reaparece. 86 animações.</sub></td>
+    <td align="center" valign="top" width="25%"><img src=".github/readme/mago.gif" height="120" alt="Mago"><br><b>Mago</b><br><sub>Faz feitiços, se teletransporta, voa de vassoura e é engolido pelo chapéu. 49 animações.</sub></td>
   </tr>
   <tr>
-    <td align="center"><img src=".github/readme/sabio.gif" height="120" alt="Sábio"><br><b>Sábio</b><br><sub>Velho mago cinzento que lança feitiços com o cajado e invoca um gato.</sub></td>
-    <td align="center"><img src=".github/readme/nuvi.gif" height="120" alt="Nuvi"><br><b>Nuvi</b><br><sub>Nuvem-terminal que programa, dá erro, compila e faz trovão. 45 animações.</sub></td>
-    <td align="center"><img src=".github/readme/claude.gif" height="120" alt="Claude"><br><b>Claude</b><br><sub>Homenagem de fã ao mascote do Claude Code (sem vínculo com a Anthropic). 45 animações.</sub></td>
-    <td align="center"><img src="Pets/esheep64/icon.png" height="96" alt="eSheep"><br><b>eSheep</b><br><sub>A ovelhinha clássica. Vem dentro do programa e funciona sem internet.</sub></td>
+    <td align="center" valign="top"><img src=".github/readme/sabio.gif" height="120" alt="Sábio"><br><b>Sábio</b><br><sub>Velho mago cinzento que lança feitiços com o cajado e invoca um gato.</sub></td>
+    <td align="center" valign="top"><img src=".github/readme/nuvi.gif" height="120" alt="Nuvi"><br><b>Nuvi</b><br><sub>Nuvem-terminal que programa, dá erro, compila e faz trovão. 45 animações.</sub></td>
+    <td align="center" valign="top"><img src=".github/readme/claude.gif" height="120" alt="Claude"><br><b>Claude</b><br><sub>Homenagem de fã ao mascote do Claude Code (sem vínculo com a Anthropic). 45 animações.</sub></td>
+    <td align="center" valign="top"><img src="Pets/esheep64/icon.png" height="96" alt="eSheep"><br><b>eSheep</b><br><sub>A ovelhinha clássica. Vem dentro do programa e funciona sem internet.</sub></td>
   </tr>
 </table>
 
