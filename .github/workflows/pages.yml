@@ -1,0 +1,44 @@
+name: Página de download
+
+# Publica a página (pasta site) no GitHub Pages, com as prévias animadas dos pets (Pets/*/preview.gif),
+# a lista pets.json e as imagens do README. Roda quando a página, os pets ou as imagens mudam.
+on:
+  push:
+    branches: [master]
+    paths: ['site/**', 'Pets/**', '.github/readme/**', '.github/workflows/pages.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Montar o site
+        run: |
+          mkdir -p _site/pets _site/img
+          cp site/* _site/
+          cp Pets/pets.json _site/
+          for d in Pets/*/; do f=$(basename "$d"); [ -f "$d/preview.gif" ] && cp "$d/preview.gif" "_site/pets/$f.gif"; done
+          cp .github/readme/painel-meus-pets.png .github/readme/painel-detalhe.png _site/img/
+          cp Pets/esheep64/icon.png _site/img/icon.png
+          ls -R _site | head -50
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4

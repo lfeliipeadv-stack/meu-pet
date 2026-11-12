@@ -39,6 +39,37 @@ namespace DesktopPet
 			timer.Start();
 		}
 
+		/// <summary>
+		/// A tiny conversation: one pet says a line, the other answers a moment later (pairs of lines in the language
+		/// in use). Not during quiet time or while a bubble is talking to the user. False if it did not happen.
+		/// </summary>
+		static DateTime chatUntil = DateTime.MinValue;
+		internal static void ResetChat() => chatUntil = DateTime.MinValue;
+
+		internal static bool Talk(FormPet a, FormPet b)
+		{
+			if (SpeechBubble.QuietNow || SpeechBubble.Talking || DateTime.Now < chatUntil) return false;
+			var first = Lang.T("chat.first").Split('|');
+			var answer = Lang.T("chat.answer").Split('|');
+			int n = Math.Min(first.Length, answer.Length);
+			if (n == 0) return false;
+			int i = rnd.Next(n);
+			if (SpeechBubble.Chat(a, first[i].Trim(), 4) == null) return false;
+			chatUntil = DateTime.Now.AddSeconds(8);   // one conversation at a time
+			a.React("wave", "hello", "talk");
+			var later = new Timer { Interval = 2200 };
+			later.Tick += (s, e) =>
+			{
+				later.Stop(); later.Dispose();
+				if (b.IsDisposed || !b.Visible) return;
+				SpeechBubble.Chat(b, answer[i].Trim(), 4);
+				b.React("happy", "laugh", "wave", "talk");
+			};
+			later.Start();
+			StartUp.AddDebugInfo(StartUp.DEBUG_TYPE.info, "pets chat: " + first[i]);
+			return true;
+		}
+
 		/// <summary>Two pets standing side by side on the same ground (self-test checks it with rectangles).</summary>
 		public static bool Close(Rectangle a, Rectangle b)
 		{
@@ -59,6 +90,8 @@ namespace DesktopPet
 					string key = a.Handle + "-" + b.Handle;
 					if (lastMeet.TryGetValue(key, out var t) && (DateTime.Now - t).TotalSeconds < 90) continue;
 					lastMeet[key] = DateTime.Now;
+					// sometimes they say a few words to each other, otherwise they wave, dance or show love
+					if (rnd.Next(100) < 40 && Talk(a, b)) continue;
 					var mood = Moods[rnd.Next(Moods.Length)];
 					a.React(mood);
 					b.React(mood);

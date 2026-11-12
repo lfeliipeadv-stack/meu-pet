@@ -1707,6 +1707,7 @@
         <frame>3</frame>
         <frame>9</frame>
         <frame>10</frame>
+        <frame>10</frame>
         <next probability="100" only="none">3</next>
       </sequence>
     </animation>

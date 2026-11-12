@@ -1733,6 +1733,9 @@ namespace DesktopPet
 
         int stillId = -2;   // -2: not looked for yet
 
+        /// <summary>Names of the animations a pet uses while it talks, in order of preference (only ones that stay in place count).</summary>
+        internal static readonly string[] StillNames = { "talk", "talking", "speak", "idle", "sit", "look around", "think", "blink", "wait", "busy", "stand", "look_down", "look down" };
+
         /// <summary>
         /// The animation the pet uses while a speech bubble is open: one that does not move ("talk", "sit", "idle"…,
         /// or any animation without movement). -1 if the pet has none.
@@ -1743,7 +1746,7 @@ namespace DesktopPet
             {
                 if (stillId != -2) return stillId;
                 // the first of these names that really stays in place
-                stillId = FindAnimation(new[] { "talk", "talking", "speak", "idle", "sit", "look around", "think", "blink", "look_down", "look down" }
+                stillId = FindAnimation(StillNames
                     .Where(n => { int i = FindAnimation(n); return i >= 0 && IsStill(Animations.GetAnimation(i)); }).ToArray());
                 if (stillId < 0 && Animations?.SheepAnimations != null)
                 {

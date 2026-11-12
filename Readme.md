@@ -18,6 +18,8 @@
   <a href="https://github.com/lfeliipeadv-stack/meu-pet/releases/latest/download/DesktopPet.exe"><b>⬇️ Baixar o DesktopPet.exe</b></a>
   &nbsp;·&nbsp;
   <a href="https://github.com/lfeliipeadv-stack/meu-pet/releases/latest">Todas as versões</a>
+  &nbsp;·&nbsp;
+  <a href="https://lfeliipeadv-stack.github.io/meu-pet/">Página do Meu Pet</a>
 </p>
 
 ---
@@ -63,13 +65,16 @@ Na galeria também estão pets da comunidade do eSheep, como as ovelhas colorida
 - Opção de iniciar com o Windows
 
 **Pergunte ao pet (IA)**
-- Passe o mouse sobre o pet e clique em **Perguntar** (ou aperte **Ctrl + Alt + Espaço**): a resposta aparece no balão
+- Passe o mouse sobre o pet e clique em **Perguntar** (ou aperte **Ctrl + Alt + Espaço**, que dá para trocar se outro programa já usa): a resposta aparece no balão
 - Funciona com serviços gratuitos: Ollama (no seu computador, privado), Google Gemini, Groq, OpenRouter ou outro compatível
 - Lembra a conversa ("e depois?" funciona), tem personalidade (simpático, direto, para crianças, divertido) e aceita ditado por voz
 - A chave fica criptografada só para o seu usuário do Windows
 
 **Companhia no trabalho**
 - **Lembretes** de água, alongamento e pausa, e **Pomodoro**: durante o foco o pet fica em silêncio e guarda os avisos para depois
+- **Lembretes por texto**: "me lembra de ligar para a Ana às 15h", "daqui a 20 minutos", "todo dia às 8" (entendido no computador, sem internet)
+- **Cuida de você**: sugere uma pausa depois de 1h30 sem parar, fica feliz quando você volta e comemora quando você fecha um programa usado por horas
+- **Pets que conversam**: quando dois pets se encontram na tela, eles batem um papo rápido
 - **Agenda** do Google ou do Outlook (link iCal): o pet avisa antes de cada reunião
 - **E-mails novos** do Outlook clássico (só a quantidade, nunca o conteúdo)
 - **Pet virtual**: ele sente fome, quer carinho e sono; brincadeiras como biscoito da sorte, piadas e bola 8

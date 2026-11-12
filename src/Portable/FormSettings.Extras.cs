@@ -36,6 +36,7 @@ namespace DesktopPet
 			// the pet and the computer
 			extrasView.AddToggle("", /* people */ "opt.petsMeet", () => PetsMeet.Enabled, on => PetsMeet.Enabled = on);
 			extrasView.AddToggle("", /* monitor */ "opt.pcEvents", () => ComputerEvents.Enabled, on => ComputerEvents.Enabled = on);
+			extrasView.AddToggle("", /* activity */ "opt.activity", () => Activity.Enabled, on => Activity.Enabled = on);
 
 			// new e-mails in the classic Outlook
 			extrasView.AddToggle("", /* mail */ "opt.mail", () => OutlookMail.Enabled, on => OutlookMail.Enabled = on);
@@ -70,11 +71,17 @@ namespace DesktopPet
 			aiView.AddChoice("", /* emoji */ "opt.aiStyle", () => AiAssistant.Style, v => AiAssistant.Style = v, styles,
 				new[] { "opt.aiStyle.friendly", "opt.aiStyle.direct", "opt.aiStyle.kids", "opt.aiStyle.funny" });
 			aiView.AddToggle("", /* cursor */ "opt.hoverAsk", () => HoverAsk.Enabled, on => HoverAsk.Enabled = on);
-			aiView.AddToggle("", /* keyboard */ "opt.askHotkey", () => HideHotkey.AskEnabled, on =>
-			{
-				HideHotkey.AskEnabled = on;
-				if (on && !HideHotkey.ApplyAsk()) StatusText = Lang.T("status.hotkeyBusy", HideHotkey.AskText);
-			});
+			// off, or one of the shortcuts; a shortcut taken by another program says so
+			aiView.AddDropDown("", /* keyboard */ "opt.askHotkey",
+				() => new[] { Lang.T("opt.off") }.Concat(Enumerable.Range(0, HideHotkey.AskKeyCount).Select(HideHotkey.AskKeyText)).ToArray(),
+				() => HideHotkey.AskEnabled ? HideHotkey.AskKey + 1 : 0,
+				i =>
+				{
+					if (i <= 0) { HideHotkey.AskEnabled = false; StatusText = Lang.T("status.disabled", Lang.T("opt.askHotkey.title")); return; }
+					Program.MyData.SetSetting("AskHotkey", true);
+					HideHotkey.AskKey = i - 1;
+					StatusText = HideHotkey.AskBusy ? Lang.T("status.hotkeyBusy", HideHotkey.AskText) : Lang.T("status.setTo", Lang.T("opt.askHotkey.title"), HideHotkey.AskText);
+				});
 		}
 
 		/// <summary>Paste (or clear) the private iCal link of the calendar, then check it.</summary>

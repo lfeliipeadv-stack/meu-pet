@@ -96,6 +96,7 @@ namespace DesktopPet
             menu.Items.Add(hideMenuItem);
             HideHotkey.Changed += UpdateTexts;
             HideHotkey.Apply();
+            HideHotkey.WarnIfBusyLater();
 
             // Item: Reminders (quick "remind me in…" and the reminders page).
             remindersMenuItem = new ToolStripMenuItem();
@@ -107,6 +108,9 @@ namespace DesktopPet
                 remindersMenuItem.DropDownItems.Add(quick);
             }
             remindersMenuItem.DropDownItems.Add(new ToolStripSeparator());
+            var smart = new ToolStripMenuItem { Tag = "smart" };
+            smart.Click += (s, e) => SmartReminder.AskAndAdd();
+            remindersMenuItem.DropDownItems.Add(smart);
             var manage = new ToolStripMenuItem { Tag = "manage" };
             manage.Click += (s, e) => FormSettings.ShowPage(FormSettings.Page.Reminders);
             remindersMenuItem.DropDownItems.Add(manage);
@@ -120,6 +124,7 @@ namespace DesktopPet
             AgentBridge.Apply();
             PetsMeet.Start();
             ComputerEvents.Apply();
+            Activity.Apply();
             Agenda.Start();
             OutlookMail.Start();
             HoverAsk.Start();
@@ -225,6 +230,7 @@ namespace DesktopPet
                 {
                     if (it.Tag is int m) it.Text = Lang.T("tray.remindIn", m);
                     else if (Equals(it.Tag, "manage")) it.Text = Lang.T("tray.manageReminders");
+                    else if (Equals(it.Tag, "smart")) it.Text = Lang.T("rem.smartMenu");
                 }
             }
             int updates = PetUpdates.Outdated.Count;

@@ -214,6 +214,13 @@ namespace DesktopPet
 		/// <summary>Think, ask the service, say the answer (shortened in the bubble, whole on "See all").</summary>
 		public static async Task AskNow(string q)
 		{
+			// "me lembra de… às 15h": a reminder, understood here (nothing is sent anywhere)
+			bool wantsReminder = SmartReminder.LooksLikeReminder(q);
+			if (wantsReminder)
+			{
+				var local = SmartReminder.Parse(q, DateTime.Now);
+				if (local != null) { SmartReminder.AddAndConfirm(local); return; }
+			}
 			// once: questions to a service on the internet leave this computer
 			if (!AiAssistant.IsLocal(AiAssistant.BaseUrl) && Program.MyData.GetSetting("AiPrivacyOk") != "1")
 			{
@@ -223,6 +230,12 @@ namespace DesktopPet
 			}
 			Program.Mainthread?.ReactAll("think", "review", "idea", "crystal ball", "read");
 			SpeechBubble.Say(Lang.T("ask.thinking"), 0);
+			if (wantsReminder)
+			{
+				// a reminder said in another way: the AI rewrites it in a simple form, read here
+				var r = await SmartReminder.Understand(q);
+				if (r != null) { SmartReminder.AddAndConfirm(r); return; }
+			}
 			try
 			{
 				string answer = await AiAssistant.Ask(q);

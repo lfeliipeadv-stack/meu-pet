@@ -229,6 +229,11 @@ namespace DesktopPet
                         SelfTest.AiCheck(s.Substring("--ai-check=".Length));
                         continue;
                     }
+                    if (s.StartsWith("--only=", StringComparison.OrdinalIgnoreCase))
+                    {
+                        SelfTest.Only = s.Substring("--only=".Length);
+                        continue;
+                    }
                     if (s.StartsWith("--selftest=", StringComparison.OrdinalIgnoreCase))
                     {
                         Onboarding.Disabled = true;

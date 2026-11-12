@@ -46,6 +46,23 @@ namespace DesktopPet
 			current.FormClosed += (s, e) => FormPet.Hold(false);
 		}
 
+		/// <summary>
+		/// A short line said by one pet to another (pets that meet): its own bubble above that pet, next to the main one,
+		/// gone by itself. Not during quiet time, and never over a bubble that is talking to the user.
+		/// </summary>
+		public static SpeechBubble Chat(FormPet pet, string text, int seconds = 4)
+		{
+			if (pet == null || pet.IsDisposed || !pet.Visible || QuietNow) return null;
+			var b = new SpeechBubble(pet, text, seconds, new Choice[0]);
+			b.Show();
+			FormPet.Hold(true);
+			b.FormClosed += (s, e) => FormPet.Hold(false);
+			return b;
+		}
+
+		/// <summary>A bubble is talking to the user now (a question, a reminder…): pets do not chat over it.</summary>
+		public static bool Talking => current != null && !current.IsDisposed && current.Visible;
+
 		// ------------------------------------------------------------------ quiet time
 
 		/// <summary>Focus time (Pomodoro running, not paused) or pets hidden with Ctrl+Alt+P: no bubbles, no sounds.</summary>
@@ -146,6 +163,9 @@ namespace DesktopPet
 			follow.Start();
 			FormClosed += (s, e) => { follow.Stop(); if (current == this) current = null; };
 		}
+
+		/// <summary>Self-test: what this bubble says.</summary>
+		internal string Said => text;
 
 		protected override bool ShowWithoutActivation => true;
 

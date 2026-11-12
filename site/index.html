@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meu Pet – bichinhos para a área de trabalho do Windows</title>
+<meta name="description" content="Um bichinho que anda pelas suas janelas, conversa com você, lembra de pausas e reuniões e responde perguntas. Grátis, para Windows 10 e 11.">
+<link rel="icon" href="img/icon.png">
+<style>
+:root {
+  --bg: #f6f8f6; --surface: #ffffff; --text: #17201b; --muted: #5b6b62; --border: #dfe7e2;
+  --accent: #1f7a4d; --accent-strong: #176040; --accent-soft: #e3f2ea; --on-accent: #ffffff;
+  --shadow: 0 1px 2px rgba(16,40,28,.06), 0 8px 24px rgba(16,40,28,.08);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1512; --surface: #18201c; --text: #e8efe9; --muted: #9db0a4; --border: #2a362f;
+    --accent: #3fae78; --accent-strong: #5cc492; --accent-soft: #1d3327; --on-accent: #0b1a12;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.55 "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif; }
+a { color: var(--accent); }
+.wrap { max-width: 1040px; margin: 0 auto; padding: 0 16px; }
+header { padding: 56px 0 32px; text-align: center; }
+.logo { width: 72px; height: 72px; image-rendering: pixelated; }
+h1 { font-size: clamp(2rem, 5vw, 3rem); line-height: 1.1; margin: 12px 0 8px; letter-spacing: -.02em; }
+.lead { font-size: 1.15rem; color: var(--muted); max-width: 640px; margin: 0 auto; }
+.download { margin: 32px auto 0; max-width: 560px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; box-shadow: var(--shadow); }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 22px; border-radius: 10px; font-weight: 600; text-decoration: none; font-size: 1.05rem; }
+.btn-primary { background: var(--accent); color: var(--on-accent); width: 100%; }
+.btn-primary:hover { background: var(--accent-strong); }
+.version { color: var(--muted); font-size: .9rem; margin-top: 10px; }
+.other { display: flex; flex-wrap: wrap; gap: 8px 16px; justify-content: center; margin-top: 14px; font-size: .92rem; }
+.other a { text-decoration: none; }
+.other a:hover { text-decoration: underline; }
+.hint { font-size: .85rem; color: var(--muted); margin-top: 14px; }
+section { padding: 40px 0; }
+h2 { font-size: 1.6rem; margin: 0 0 6px; text-align: center; }
+.sub { text-align: center; color: var(--muted); margin: 0 0 24px; }
+.pets { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+.pet { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px 10px 12px; text-align: center; }
+.pet .stage { height: 120px; display: flex; align-items: flex-end; justify-content: center; }
+.pet img { max-height: 120px; max-width: 100%; image-rendering: pixelated; }
+.pet b { display: block; margin-top: 8px; }
+.pet small { color: var(--muted); }
+.features { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
+.feature { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px; }
+.feature .icon { font-size: 1.6rem; }
+.feature h3 { margin: 6px 0 4px; font-size: 1.05rem; }
+.feature p { margin: 0; color: var(--muted); font-size: .95rem; }
+.shots { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+.shots img { width: 100%; border-radius: 12px; border: 1px solid var(--border); box-shadow: var(--shadow); }
+footer { padding: 32px 0 48px; color: var(--muted); font-size: .88rem; text-align: center; border-top: 1px solid var(--border); margin-top: 24px; }
+footer p { margin: 6px 0; }
+</style>
+</head>
+<body>
+<header class="wrap">
+  <img class="logo" src="img/icon.png" alt="">
+  <h1>Meu Pet</h1>
+  <p class="lead">Um bichinho que anda pelas suas janelas, cai na barra de tarefas, conversa com você, lembra de pausas e reuniões e responde perguntas. Grátis, para Windows 10 e 11.</p>
+
+  <div class="download">
+    <a class="btn btn-primary" id="get" href="https://github.com/lfeliipeadv-stack/meu-pet/releases/latest/download/DesktopPet-Instalador.exe">⬇️ Baixar o instalador</a>
+    <div class="version" id="version">Versão mais recente</div>
+    <div class="other">
+      <a href="https://github.com/lfeliipeadv-stack/meu-pet/releases/latest/download/DesktopPet.exe">Só o programa (precisa do .NET 10)</a>
+      <a href="https://github.com/lfeliipeadv-stack/meu-pet/releases/latest/download/DesktopPet-completo.exe">Completo, sem instalar nada</a>
+      <a href="https://github.com/lfeliipeadv-stack/meu-pet/releases">Todas as versões</a>
+    </div>
+    <p class="hint">O instalador confere se o .NET 10 está no computador e oferece o instalador oficial da Microsoft quando falta. Se o Windows avisar que o editor é desconhecido, clique em “Mais informações” e depois em “Executar assim mesmo”.</p>
+  </div>
+</header>
+
+<main class="wrap">
+  <section>
+    <h2>Escolha o seu</h2>
+    <p class="sub">Pixel art feita para o Meu Pet, com dezenas de animações e sons. Há também pets da comunidade no painel do programa.</p>
+    <div class="pets" id="pets"></div>
+  </section>
+
+  <section>
+    <h2>O que ele faz</h2>
+    <p class="sub">Tudo opcional, tudo em português, inglês ou espanhol.</p>
+    <div class="features">
+      <div class="feature"><div class="icon">💬</div><h3>Pergunte ao pet</h3><p>Passe o mouse e clique em Perguntar. Funciona com IAs gratuitas, inclusive no seu computador, sem internet.</p></div>
+      <div class="feature"><div class="icon">⏰</div><h3>Lembretes por texto</h3><p>“Me lembra de ligar para a Ana às 15h” e pronto. Também água, alongamento e pausas.</p></div>
+      <div class="feature"><div class="icon">🍅</div><h3>Foco (Pomodoro)</h3><p>Durante o foco o pet fica em silêncio e guarda os avisos para depois.</p></div>
+      <div class="feature"><div class="icon">📅</div><h3>Agenda e e-mail</h3><p>Avisa antes das reuniões do Google ou do Outlook e quando chega e-mail novo.</p></div>
+      <div class="feature"><div class="icon">🚶</div><h3>Cuida de você</h3><p>Sugere uma pausa depois de muito tempo sem parar e comemora quando você volta.</p></div>
+      <div class="feature"><div class="icon">🎨</div><h3>Crie o seu pet</h3><p>Escolha algumas imagens e ele anda, dorme e cai como os outros.</p></div>
+      <div class="feature"><div class="icon">🐑</div><h3>Pets que conversam</h3><p>Quando dois pets se encontram na tela, eles batem um papo rápido.</p></div>
+      <div class="feature"><div class="icon">🤫</div><h3>Discreto</h3><p>Ctrl+Alt+P esconde todos na hora de uma reunião. Usa menos de 1% de CPU.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Telas</h2>
+    <p class="sub">Um painel simples para adotar pets e ajustar tudo.</p>
+    <div class="shots">
+      <img src="img/painel-meus-pets.png" alt="Painel com os pets do computador" loading="lazy">
+      <img src="img/painel-detalhe.png" alt="Detalhe de um pet com animações e sons" loading="lazy">
+    </div>
+  </section>
+</main>
+
+<footer class="wrap">
+  <p>Código aberto, licença MIT · <a href="https://github.com/lfeliipeadv-stack/meu-pet">Código no GitHub</a></p>
+  <p>Baseado no <a href="https://github.com/Adrianotiger/desktopPet">desktopPet</a> de Adriano Petrucci, a versão para Windows da ovelhinha clássica do eSheep. Os pets da comunidade pertencem aos seus autores.</p>
+</footer>
+
+<script>
+// the project's own pets (the gallery in the program has the community ones too)
+const PETS = ["rex", "pingo", "boo", "mago", "sabio", "nuvi", "esheep64"];
+const NAMES = { esheep64: "eSheep" };
+
+fetch("pets.json").then(r => r.json()).then(data => {
+  const byFolder = Object.fromEntries((data.pets || []).map(p => [p.folder, p]));
+  const box = document.getElementById("pets");
+  for (const folder of PETS) {
+    const p = byFolder[folder] || { name: folder };
+    const card = document.createElement("div");
+    card.className = "pet";
+    const stage = document.createElement("div");
+    stage.className = "stage";
+    const img = document.createElement("img");
+    img.src = "pets/" + folder + ".gif";
+    img.alt = NAMES[folder] || p.name;
+    img.loading = "lazy";
+    stage.appendChild(img);
+    const name = document.createElement("b");
+    name.textContent = NAMES[folder] || p.name;
+    const info = document.createElement("small");
+    info.textContent = p.animations ? p.animations + " animações" + (p.sounds ? " · " + p.sounds + " sons" : "") : "";
+    card.append(stage, name, info);
+    box.appendChild(card);
+  }
+}).catch(() => {});
+
+// the latest version and its size, from GitHub
+fetch("https://api.github.com/repos/lfeliipeadv-stack/meu-pet/releases/latest").then(r => r.ok ? r.json() : null).then(rel => {
+  if (!rel) return;
+  const setup = (rel.assets || []).find(a => a.name === "DesktopPet-Instalador.exe");
+  const date = rel.published_at ? new Date(rel.published_at).toLocaleDateString("pt-BR") : "";
+  document.getElementById("version").textContent =
+    "Versão " + String(rel.tag_name || "").replace(/^v/, "") + (date ? " · " + date : "") + (setup ? " · " + (setup.size / 1048576).toFixed(1).replace(".", ",") + " MB" : "");
+}).catch(() => {});
+</script>
+</body>
+</html>

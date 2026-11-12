@@ -60,6 +60,7 @@ namespace DesktopPet
 			var remind = Item(cm.Items, Lang.T("tray.reminders"), null);
 			foreach (int m in new[] { 5, 10, 15, 30, 60 }) { int min = m; Item(remind.DropDownItems, Lang.T("tray.remindIn", min), () => Reminders.In(min)); }
 			remind.DropDownItems.Add(new ToolStripSeparator());
+			Item(remind.DropDownItems, Lang.T("rem.smartMenu"), SmartReminder.AskAndAdd);
 			Item(remind.DropDownItems, Lang.T("tray.manageReminders"), () => FormSettings.ShowPage(FormSettings.Page.Reminders));
 
 			var shortcuts = Item(cm.Items, Lang.T("menu.shortcuts"), null);

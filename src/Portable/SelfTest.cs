@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -30,8 +30,12 @@ namespace DesktopPet
 			lines.Add((ok ? "PASS  " : "FAIL  ") + name + (ok || detail.Length == 0 ? "" : "  →  " + detail));
 		}
 
+		/// <summary>Developer: "--only=name" runs only the tests whose name contains it.</summary>
+		public static string Only;
+
 		static void Try(string name, Action test)
 		{
+			if (Only != null && name.IndexOf(Only, StringComparison.OrdinalIgnoreCase) < 0) return;
 			try { test(); }
 			catch (Exception ex) { Check(name, false, ex.GetType().Name + ": " + ex.Message); }
 		}
@@ -75,6 +79,9 @@ namespace DesktopPet
 			await TryAsync("dialogs hold the pets", DialogsHold);
 			Try("colour emoji", ColorEmoji);
 			Try("sheep talk", SheepTalk);
+			Try("smart reminders", SmartReminders);
+			Try("activity", ActivityCare);
+			await TryAsync("pets chat", PetsChat);
 			await TryAsync("sky arrival", SkyArrival);
 			await TryAsync("tour", Onboard);
 			await TryAsync("talking pet", TalkingPet);
@@ -134,6 +141,7 @@ namespace DesktopPet
 
 		static async Task TryAsync(string name, Func<Task> test)
 		{
+			if (Only != null && name.IndexOf(Only, StringComparison.OrdinalIgnoreCase) < 0) return;
 			try { await test(); }
 			catch (Exception ex) { Check(name, false, ex.GetType().Name + ": " + ex.Message); }
 		}
@@ -291,6 +299,119 @@ namespace DesktopPet
 		/// <summary>Falling from a window that went away: a pet in the air cannot stand still until it lands.</summary>
 		static bool InAir(FormPet pet) => (pet.CurrentAnimationName ?? "").IndexOf("fall", StringComparison.OrdinalIgnoreCase) >= 0;
 
+		/// <summary>Two pets chat: the first says a line, the other answers in its own bubble a moment later.</summary>
+		static async Task PetsChat()
+		{
+			bool meetWas = PetsMeet.Enabled;
+			PetsMeet.Enabled = false;   // no meeting on its own during the check
+			try
+			{
+				var first = Lang.T("chat.first").Split('|');
+				Check("chat: lines and answers match", first.Length >= 5 && first.Length == Lang.T("chat.answer").Split('|').Length, first.Length.ToString());
+				foreach (var x in Application.OpenForms.OfType<SpeechBubble>().ToList()) x.Close();
+				var before = Program.Mainthread.sheeps.Where(p => p != null && !p.IsDisposed).ToList();
+				Program.Mainthread.AddSheep();
+				var b = Program.Mainthread.sheeps.FirstOrDefault(p => p != null && !p.IsDisposed && !before.Contains(p));
+				var a = Pet();
+				if (a == null || b == null) { lines.Add("SKIP  chat: no room for a second pet"); return; }
+				for (int i = 0; i < 40 && b.Opacity <= 0; i++) await Task.Delay(100);
+				await Task.Delay(1500);
+				foreach (var x in Application.OpenForms.OfType<SpeechBubble>().ToList()) x.Close();   // the new pet's "hello"
+				await Task.Delay(200);
+				PetsMeet.ResetChat();
+				bool talked = PetsMeet.Talk(a, b);
+				Check("chat: the first pet says something", talked && Application.OpenForms.OfType<SpeechBubble>().Count(x => x.Visible) == 1);
+				Check("chat: the pets stop while they chat", FormPet.Held);
+				Check("chat: one conversation at a time", !PetsMeet.Talk(b, a));
+				await Task.Delay(2600);
+				Check("chat: the other pet answers in its own bubble", Application.OpenForms.OfType<SpeechBubble>().Count(x => x.Visible) == 2,
+					string.Join(" / ", Application.OpenForms.OfType<SpeechBubble>().Where(x => x.Visible).Select(x => x.Said)));
+				await Task.Delay(4500);
+				Check("chat: the bubbles go away by themselves", !Application.OpenForms.OfType<SpeechBubble>().Any(x => x.Visible) && !FormPet.Held);
+				SpeechBubble.Say("teste", 5);
+				PetsMeet.ResetChat();
+				Check("chat: not over a bubble talking to the user", !PetsMeet.Talk(a, b));
+				foreach (var x in Application.OpenForms.OfType<SpeechBubble>().ToList()) x.Close();
+				if (!Program.Mainthread.KillSheep(b)) b.Close();
+				await Task.Delay(1500);
+			}
+			finally { PetsMeet.Enabled = meetWas; PetsMeet.ResetChat(); }
+		}
+
+		/// <summary>Breaks, coming back and long programs, with a made-up clock (every 30 s, like the real timer).</summary>
+		static void ActivityCare()
+		{
+			Activity.Reset();
+			var t = new DateTime(2026, 11, 11, 9, 0, 0);
+			string said = null;
+			int when = -1;
+			// 100 minutes of work without a pause: the break is suggested once, at 90 minutes
+			for (int i = 0; i <= 200; i++)
+			{
+				string s = Activity.Step(t.AddSeconds(i * 30), 5, false);
+				if (s != null && said == null) { said = s; when = i / 2; }
+				else if (s != null) { Check("activity: break said only once", false, s + " at " + i / 2 + " min"); break; }
+			}
+			Check("activity: break after 90 minutes without a pause", said == "break" && when == Activity.BreakAfter, said + " at " + when + " min");
+
+			// a 6-minute pause starts again: no break 80 minutes later
+			Activity.Reset();
+			bool breakSaid = false;
+			for (int i = 0; i <= 120; i++) breakSaid |= Activity.Step(t.AddMinutes(i), 5, false) == "break";
+			for (int i = 0; i < 6; i++) Activity.Step(t.AddMinutes(121 + i), 600, false);   // away: idle
+			Activity.Reset();
+			var t2 = t.AddMinutes(200);
+			for (int i = 0; i < 60; i++) Activity.Step(t2.AddMinutes(i), 5, false);
+			for (int i = 0; i < 6; i++) Activity.Step(t2.AddMinutes(60 + i), 400, false);
+			bool afterPause = false;
+			for (int i = 0; i <= 80; i++) afterPause |= Activity.Step(t2.AddMinutes(66 + i), 5, false) == "break";
+			Check("activity: a 5-minute pause counts as a break", !afterPause);
+			Check("activity: during Pomodoro the pet does not suggest breaks", Enumerable.Range(0, 200).All(i => { if (i == 0) Activity.Reset(); return Activity.Step(t.AddMinutes(i), 5, true) != "break"; }));
+
+			// coming back after 40 minutes away (sleep, lock or just out)
+			Activity.Reset();
+			Activity.Step(t, 5, false);
+			Check("activity: back after 40 min away", Activity.Step(t.AddMinutes(40), 5, false) == "welcome");
+			Check("activity: back after 10 min is nothing special", Activity.Step(t.AddMinutes(50), 5, false) == null);
+
+			// a program used 2h10 today and then closed: celebrated once; a short one: nothing
+			Activity.Reset();
+			Activity.Track(111, "Excel", 130 * 60, t);
+			Activity.Track(222, "Bloco de notas", 10 * 60, t);
+			Check("activity: still open, nothing yet", Activity.EndedApp(t, pid => true) == null);
+			string ended = Activity.EndedApp(t, pid => pid != 111);
+			Check("activity: long program closed is celebrated", ended == "app|Excel|2h10", ended);
+			Check("activity: short program closed is not", Activity.EndedApp(t, pid => false) == null);
+			Activity.Reset();
+		}
+
+		/// <summary>Reminders written as a sentence, read on this computer (fixed "now": Wednesday 14:10).</summary>
+		static void SmartReminders()
+		{
+			var now = new DateTime(2026, 11, 11, 14, 10, 0);
+			void T(string sentence, Reminder.Kinds kind, string when, string text)
+			{
+				var r = SmartReminder.Parse(sentence, now);
+				string got = r == null ? "(not understood)"
+					: r.Kind + " " + (r.Kind == Reminder.Kinds.Once ? r.At.ToString("dd HH:mm") : r.Kind == Reminder.Kinds.Daily ? r.Time : r.Minutes + "min") + " \"" + r.Text + "\"";
+				string want = kind + " " + when + " \"" + text + "\"";
+				Check("smart reminder: " + sentence, got == want, got + "  (wanted " + want + ")");
+			}
+			T("me lembra de ligar para a Ana às 15h", Reminder.Kinds.Once, "11 15:00", "Ligar para a Ana");
+			T("Me lembre daqui a 20 minutos de tirar o bolo do forno", Reminder.Kinds.Once, "11 14:30", "Tirar o bolo do forno");
+			T("lembrete amanhã às 9:30 reunião com o time", Reminder.Kinds.Once, "12 09:30", "Reunião com o time");
+			T("me lembra às 3 de buscar as crianças", Reminder.Kinds.Once, "11 15:00", "Buscar as crianças");
+			T("me lembra às 10 de pagar a conta", Reminder.Kinds.Once, "11 22:00", "Pagar a conta");
+			T("todo dia às 8 tomar o remédio", Reminder.Kinds.Daily, "08:00", "Tomar o remédio");
+			T("a cada 30 minutos me lembra de alongar", Reminder.Kinds.Interval, "30min", "Alongar");
+			T("me lembra em meia hora de beber água", Reminder.Kinds.Once, "11 14:40", "Beber água");
+			T("remind me to call mom at 6pm", Reminder.Kinds.Once, "11 18:00", "Call mom");
+			T("remind me in 2 hours to stretch", Reminder.Kinds.Once, "11 16:10", "Stretch");
+			T("recuérdame mañana a las 8 llamar al médico", Reminder.Kinds.Once, "12 08:00", "Llamar al médico");
+			Check("smart reminder: no time, not understood", SmartReminder.Parse("me lembra de comprar pão", now) == null);
+			Check("smart reminder: a question is not a reminder", !SmartReminder.LooksLikeReminder("por que o céu é azul?") && SmartReminder.LooksLikeReminder("me lembra de comprar pão às 18h"));
+		}
+
 		/// <summary>The eSheep that comes with the program turns to face you while it talks (and turns back after).</summary>
 		static void SheepTalk()
 		{
@@ -301,7 +422,11 @@ namespace DesktopPet
 			Check("eSheep: has a talk animation", talk != null);
 			if (talk == null) return;
 			Check("eSheep talk: stays in place", talk.Start.X == "0" && talk.End.X == "0" && talk.Start.Y == "0" && talk.End.Y == "0", $"{talk.Start.X},{talk.Start.Y}");
-			Check("eSheep talk: ends looking at you (front frame)", talk.Sequence.Frame.Last() == 10 && talk.Sequence.RepeatFromFrame == talk.Sequence.Frame.Length - 1);
+			// counted like the program does (Xml.cs): frames + (frames - repeatfrom - 1) × repeat; the repeated frames are repeatfrom…end
+			int f = talk.Sequence.Frame.Length, rf = talk.Sequence.RepeatFromFrame, rep = int.TryParse(talk.Sequence.RepeatCount, out int rr) ? rr : 0;
+			int steps = rf > 0 ? f + (f - rf - 1) * rep : f + f * rep;
+			var held = talk.Sequence.Frame.Skip(rf).Distinct().ToList();
+			Check("eSheep talk: stays looking at you (the front frame repeats)", steps >= 50 && held.Count == 1 && held[0] == 10, $"{steps} steps, repeats {string.Join(",", held)}");
 			var back = root.Animations.Animation.FirstOrDefault(a => talk.Sequence.Next != null && a.Id == talk.Sequence.Next[0].Value);
 			Check("eSheep talk: then turns back", back?.Name == "rotate1b", back?.Name);
 		}
@@ -371,9 +496,18 @@ namespace DesktopPet
 			// the text of this version, or of the next one (the version number goes up when it is released)
 			var cur = Updater.CurrentVersion;
 			Check("what's new: text for this (or the next) version", Lang.Keys.Any(k => k.StartsWith("whatsnew.") && Version.TryParse(k.Substring(9), out var v) && v >= new Version(cur.Major, cur.Minor, cur.Build)), cur.ToString(3));
-			if (!HideHotkey.AskEnabled) lines.Add("SKIP  hotkey: Ctrl+Alt+Space turned off");
-			else if (HideHotkey.ApplyAsk()) Check("hotkey: Ctrl+Alt+Space registered", true);
-			else lines.Add("SKIP  hotkey: Ctrl+Alt+Space is taken by another program on this computer (the pet says so in its settings)");
+			// the ask shortcut: when one is taken by another program, another one can be chosen and works
+			bool wasOn = HideHotkey.AskEnabled; int wasKey = HideHotkey.AskKey;
+			try
+			{
+				Program.MyData.SetSetting("AskHotkey", true);
+				var free = Enumerable.Range(0, HideHotkey.AskKeyCount).Where(k => { HideHotkey.AskKey = k; return !HideHotkey.AskBusy; }).ToList();
+				var taken = Enumerable.Range(0, HideHotkey.AskKeyCount).Except(free).Select(HideHotkey.AskKeyText).ToList();
+				Check("hotkey: at least one ask shortcut is free", free.Count > 0, "taken: " + string.Join(", ", taken));
+				if (taken.Count > 0) lines.Add("INFO  hotkey: taken by another program here: " + string.Join(", ", taken));
+				Check("hotkey: names in the language", HideHotkey.AskKeyText(0).EndsWith(Lang.T("key.space")), HideHotkey.AskKeyText(0));
+			}
+			finally { Program.MyData.SetSetting("AskHotkey", wasOn); HideHotkey.AskKey = wasKey; }
 		}
 
 		static string Placeholders(string s) => string.Join(",", System.Text.RegularExpressions.Regex.Matches(s ?? "", @"\{(\d+)").Select(m => m.Groups[1].Value).Distinct().OrderBy(x => x));
@@ -743,6 +877,20 @@ namespace DesktopPet
 			string dir = AppContext.BaseDirectory;
 			while (dir != null && !File.Exists(Path.Combine(dir, "Pets", "pets.json"))) dir = Path.GetDirectoryName(dir);
 			if (dir == null) { lines.Add("SKIP  pet actions: Pets folder not found"); return; }
+			// every pet of the gallery has its own animation to stand still while it talks (not just any animation)
+			var noTalk = new List<string>();
+			foreach (var petDir in Directory.GetDirectories(Path.Combine(dir, "Pets")))
+			{
+				string file = Path.Combine(petDir, "animations.xml");
+				if (!File.Exists(file)) continue;
+				var ser = new System.Xml.Serialization.XmlSerializer(typeof(XmlData.RootNode));
+				XmlData.RootNode root;
+				using (var r = File.OpenRead(file)) root = (XmlData.RootNode)ser.Deserialize(r);
+				bool has = root.Animations.Animation.Any(a => FormPet.StillNames.Contains(a.Name, StringComparer.OrdinalIgnoreCase)
+					&& a.Start.X == "0" && a.End.X == "0" && a.Start.Y == "0" && a.End.Y == "0");
+				if (!has) noTalk.Add(Path.GetFileName(petDir));
+			}
+			Check("talk: every gallery pet has a still animation for talking", noTalk.Count == 0, string.Join(", ", noTalk));
 			foreach (var folder in PetActions.KnownPets)
 			{
 				string file = Path.Combine(dir, "Pets", folder, "animations.xml");

@@ -29,24 +29,78 @@ namespace DesktopPet
 
         /// <summary>Register or release the shortcut, following the setting. Returns false if another program has it.</summary>
         const int AskId = 0x5046;
-        public const string AskText = "Ctrl+Alt+Space";
+        const uint MOD_SHIFT = 0x4;
         static bool askRegistered;
 
-        /// <summary>Ctrl+Alt+Space opens "Ask the pet" (when the AI is set up). On unless turned off.</summary>
+        /// <summary>The shortcuts that can open "Ask the pet" (another program may already use one of them).</summary>
+        static readonly (uint mods, Keys key)[] AskKeys =
+        {
+            (MOD_CONTROL | MOD_ALT, Keys.Space),
+            (MOD_CONTROL | MOD_SHIFT, Keys.Space),
+            (MOD_CONTROL | MOD_ALT, Keys.A),
+            (MOD_CONTROL | MOD_ALT, Keys.Q),
+        };
+
+        public static int AskKeyCount => AskKeys.Length;
+
+        /// <summary>Name of a shortcut in the language in use ("Ctrl+Alt+Espaço").</summary>
+        public static string AskKeyText(int i)
+        {
+            var (mods, key) = AskKeys[Math.Max(0, Math.Min(AskKeys.Length - 1, i))];
+            return ((mods & MOD_CONTROL) != 0 ? "Ctrl+" : "") + ((mods & MOD_SHIFT) != 0 ? "Shift+" : "") + ((mods & MOD_ALT) != 0 ? "Alt+" : "")
+                + (key == Keys.Space ? Lang.T("key.space") : key.ToString());
+        }
+
+        /// <summary>The shortcut chosen now, as text.</summary>
+        public static string AskText => AskKeyText(AskKey);
+
+        /// <summary>Which of <see cref="AskKeys"/> (default Ctrl+Alt+Space).</summary>
+        public static int AskKey
+        {
+            get => Math.Max(0, Math.Min(AskKeys.Length - 1, Program.MyData.GetSettingInt("AskKey", 0)));
+            set { Program.MyData.SetSetting("AskKey", value); ApplyAsk(); }
+        }
+
+        /// <summary>The shortcut opens "Ask the pet" (when the AI is set up). On unless turned off.</summary>
         public static bool AskEnabled
         {
             get => Program.MyData.GetSettingBool("AskHotkey", true);
             set { Program.MyData.SetSetting("AskHotkey", value); ApplyAsk(); }
         }
 
+        /// <summary>The shortcut is on but another program already has it.</summary>
+        public static bool AskBusy => AskEnabled && !askRegistered;
+
         public static bool ApplyAsk()
         {
             if (window == null) window = new Receiver();
             if (askRegistered) { UnregisterHotKey(window.Handle, AskId); askRegistered = false; }
             if (!AskEnabled) return true;
-            askRegistered = RegisterHotKey(window.Handle, AskId, MOD_CONTROL | MOD_ALT | MOD_NOREPEAT, (uint)Keys.Space);
+            var (mods, key) = AskKeys[AskKey];
+            askRegistered = RegisterHotKey(window.Handle, AskId, mods | MOD_NOREPEAT, (uint)key);
             if (!askRegistered) StartUp.AddDebugInfo(StartUp.DEBUG_TYPE.warning, AskText + " is used by another program");
             return askRegistered;
+        }
+
+        /// <summary>
+        /// A while after the program opens: if the AI is set up and the shortcut is taken by another program, the pet
+        /// says so once (for that shortcut) and offers to choose another one.
+        /// </summary>
+        public static void WarnIfBusyLater()
+        {
+            var t = new Timer { Interval = 25000 };
+            t.Tick += (s, e) =>
+            {
+                t.Stop(); t.Dispose();
+                if (!AskBusy || !AiAssistant.Configured || Onboarding.Disabled) return;
+                string warned = Program.MyData.GetSetting("AskKeyWarned");
+                if (warned == AskKey.ToString()) return;
+                Program.MyData.SetSetting("AskKeyWarned", AskKey.ToString());
+                SpeechBubble.Notify(Lang.T("ask.keyBusy", AskText), 0,
+                    new SpeechBubble.Choice(Lang.T("ask.keyChoose"), () => FormSettings.ShowPage(FormSettings.Page.Ai), true),
+                    new SpeechBubble.Choice(Lang.T("vpet.later"), null));
+            };
+            t.Start();
         }
 
         public static bool Apply()

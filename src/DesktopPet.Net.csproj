@@ -120,6 +120,8 @@
     <Compile Include="Portable\PetCreator.cs" />
     <Compile Include="Portable\UninstallScript.cs" />
     <Compile Include="Portable\ColorText.cs" />
+    <Compile Include="Portable\SmartReminder.cs" />
+    <Compile Include="Portable\Activity.cs" />
     <Compile Include="Portable\FormDebugModern.cs" />
     <Compile Include="Portable\FormSettings.cs" />
     <Compile Include="Portable\BuiltInPets.cs" />
