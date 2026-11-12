@@ -20,7 +20,7 @@ namespace DesktopPet
 	public sealed partial class FormSettings : Form
 	{
 		/// <summary>Pages of the window (sidebar entries).</summary>
-		public enum Page { Pets, Behaviour, Application, About, Reminders }
+		public enum Page { Pets, Behaviour, Application, About, Reminders, Extras }
 
 		private static FormSettings openInstance;
 
@@ -82,7 +82,7 @@ namespace DesktopPet
 				save(System.IO.Path.Combine("details", pet.folder));
 			}
 			f.petsView.CloseDetail();
-			foreach (Page p in new[] { Page.Behaviour, Page.Application, Page.About, Page.Reminders }) { f.SelectPage(p); await Task.Delay(200); save(p.ToString().ToLowerInvariant()); }
+			foreach (Page p in new[] { Page.Behaviour, Page.Application, Page.About, Page.Reminders, Page.Extras }) { f.SelectPage(p); await Task.Delay(200); save(p.ToString().ToLowerInvariant()); }
 			// color group card (gSheep) with the pink color selected
 			var group = f.WebPets.pets.FirstOrDefault(p => p.Variants != null);
 			if (group != null)
@@ -153,6 +153,37 @@ namespace DesktopPet
 			}
 			catch (Exception ex) { StartUp.AddDebugInfo(StartUp.DEBUG_TYPE.warning, "bubble snapshot: " + ex.Message); }
 
+			// pet menu (right click) and the PC monitor plate
+			try
+			{
+				var pet = Application.OpenForms.OfType<FormPet>().FirstOrDefault(p => p.Visible && !p.IsChildWindow);
+				if (pet != null)
+				{
+					bool monitorWas = PcMonitor.Enabled;
+					PcMonitor.Enabled = true;
+					await Task.Delay(2500);
+					foreach (var hud in Application.OpenForms.Cast<Form>().Where(fm => fm.GetType().Name == "Hud").ToList())
+						using (var bmp = new Bitmap(hud.Width, hud.Height))
+						{
+							hud.DrawToBitmap(bmp, new Rectangle(Point.Empty, hud.Size));
+							bmp.Save(System.IO.Path.Combine(folder, "monitor.png"), System.Drawing.Imaging.ImageFormat.Png);
+						}
+					PcMonitor.Enabled = monitorWas;
+					var menu = PetMenu.Show(pet, pet, new Point(0, 0), () => { });
+					await Task.Delay(500);
+					if (menu != null)
+					{
+						using (var bmp = new Bitmap(menu.Width, menu.Height))
+						{
+							menu.DrawToBitmap(bmp, new Rectangle(Point.Empty, menu.Size));
+							bmp.Save(System.IO.Path.Combine(folder, "pet-menu.png"), System.Drawing.Imaging.ImageFormat.Png);
+						}
+						menu.Close();
+					}
+				}
+			}
+			catch (Exception ex) { StartUp.AddDebugInfo(StartUp.DEBUG_TYPE.warning, "pet menu snapshot: " + ex.Message); }
+
 			// debug window, with a warning and an error in the log
 			StartUp.AddDebugInfo(StartUp.DEBUG_TYPE.warning, "snapshot: sample warning");
 			StartUp.AddDebugInfo(StartUp.DEBUG_TYPE.error, "snapshot: sample error");
@@ -186,6 +217,7 @@ namespace DesktopPet
 		private readonly OptionsView applicationView;
 		private readonly AboutView aboutView;
 		private readonly RemindersView remindersView;
+		private readonly OptionsView extrasView;
 
 		private Font fontTitle, fontSubtitle, fontText, fontSmall, fontBold, fontNav, fontH2;
 
@@ -270,8 +302,10 @@ namespace DesktopPet
 			applicationView = new OptionsView(this) { Dock = DockStyle.Fill };
 			aboutView = new AboutView(this) { Dock = DockStyle.Fill };
 			remindersView = new RemindersView(this) { Dock = DockStyle.Fill };
+			extrasView = new OptionsView(this) { Dock = DockStyle.Fill };
 			BuildBehaviourOptions();
 			BuildApplicationOptions();
+			BuildExtrasOptions();
 
 			searchBox.TextChanged += (s, e) => petsView.Filter = searchBox.Text;
 
@@ -322,7 +356,7 @@ namespace DesktopPet
 			header.BackColor = Theme.Background; content.BackColor = Theme.Background;
 			headerTitle.ForeColor = Theme.Text; headerSubtitle.ForeColor = Theme.TextMuted;
 			searchField.Recolor();
-			foreach (Control c in new Control[] { sidebar, petsView, behaviourView, applicationView, aboutView, remindersView })
+			foreach (Control c in new Control[] { sidebar, petsView, behaviourView, applicationView, aboutView, remindersView, extrasView })
 			{
 				c.BackColor = Theme.Background;
 				c.Invalidate();
@@ -340,7 +374,7 @@ namespace DesktopPet
 			searchBox.PlaceholderText = Lang.T("pets.search");
 			StatusText = Lang.T("status.available", WebPets.pets.Count);
 			SelectPage(page);
-			foreach (Control c in new Control[] { sidebar, petsView, behaviourView, applicationView, aboutView, remindersView }) c.Invalidate();
+			foreach (Control c in new Control[] { sidebar, petsView, behaviourView, applicationView, aboutView, remindersView, extrasView }) c.Invalidate();
 		}
 
 		private void CreateFonts()
@@ -400,6 +434,11 @@ namespace DesktopPet
 					headerTitle.Text = Lang.T("page.application.title");
 					headerSubtitle.Text = Lang.T("page.application.subtitle");
 					content.Controls.Add(applicationView);
+					break;
+				case Page.Extras:
+					headerTitle.Text = Lang.T("page.extras.title");
+					headerSubtitle.Text = Lang.T("page.extras.subtitle");
+					content.Controls.Add(extrasView);
 					break;
 				case Page.Reminders:
 					headerTitle.Text = Lang.T("page.reminders.title");
@@ -961,6 +1000,7 @@ namespace DesktopPet
 				(Page.Pets, "nav.pets", ""),          // home-ish
 				(Page.Behaviour, "nav.behaviour", ""), // touch/pointer
 				(Page.Reminders, "nav.reminders", ""),      // clock
+				(Page.Extras, "nav.extras", ""),      // star
 				(Page.Application, "nav.application", ""), // settings
 				(Page.About, "nav.about", ""),         // info
 			};

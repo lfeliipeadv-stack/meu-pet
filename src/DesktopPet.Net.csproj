@@ -85,6 +85,13 @@
     <Compile Include="Portable\SpeechBubble.cs" />
     <Compile Include="Portable\Reminders.cs" />
     <Compile Include="Portable\FormSettings.Reminders.cs" />
+    <Compile Include="Portable\Pomodoro.cs" />
+    <Compile Include="Portable\Fun.cs" />
+    <Compile Include="Portable\Launchers.cs" />
+    <Compile Include="Portable\VirtualPet.cs" />
+    <Compile Include="Portable\PcMonitor.cs" />
+    <Compile Include="Portable\Mood.cs" />
+    <Compile Include="Portable\PetMenu.cs" />
     <Compile Include="Portable\FormDebugModern.cs" />
     <Compile Include="Portable\FormSettings.cs" />
     <Compile Include="Portable\BuiltInPets.cs" />

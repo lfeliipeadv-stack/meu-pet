@@ -112,6 +112,9 @@ namespace DesktopPet
             remindersMenuItem.DropDownItems.Add(manage);
             menu.Items.Add(remindersMenuItem);
             Reminders.Start();
+            VirtualPet.Start();
+            Mood.Start();
+            PcMonitor.Apply();
 
                 // Item: Separator.
             sep = new ToolStripSeparator();

@@ -247,6 +247,15 @@ namespace DesktopPet
         /// <summary>
         /// Bring every sheep to top most again
         /// </summary>
+#if NETCORE
+        /// <summary>Every pet on screen plays the first of these animations it has (see <see cref="FormPet.React"/>).</summary>
+        public void ReactAll(params string[] names)
+        {
+            for (int i = 0; i < iSheeps; i++)
+                if (sheeps[i] != null && !sheeps[i].IsDisposed) sheeps[i].React(names);
+        }
+#endif
+
         public void TopMostSheeps()
         {
             AddDebugInfo(DEBUG_TYPE.info, "Top most all sheeps");

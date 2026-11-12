@@ -9,6 +9,31 @@ namespace DesktopPet
 {
 	public sealed partial class FormSettings
 	{
+		// ================================================================== Extras page
+
+		/// <summary>Focus timer, virtual pet, PC monitor, mood and shortcuts (all used from the pet menu).</summary>
+		private void BuildExtrasOptions()
+		{
+			int[] focus = { 15, 25, 45, 50 };
+			extrasView.AddChoice("", /* stopwatch */ "opt.pomoFocus",
+				() => Program.MyData.GetSettingInt("PomodoroFocus", 25),
+				v => Program.MyData.SetSetting("PomodoroFocus", v),
+				focus, focus.Select(m => m + " min").ToArray());
+			int[] pause = { 5, 10, 15 };
+			extrasView.AddChoice("", /* moon */ "opt.pomoBreak",
+				() => Program.MyData.GetSettingInt("PomodoroBreak", 5),
+				v => Program.MyData.SetSetting("PomodoroBreak", v),
+				pause, pause.Select(m => m + " min").ToArray());
+			extrasView.AddToggle("", /* heart */ "opt.vpet", () => VirtualPet.Enabled, on => VirtualPet.Enabled = on);
+			extrasView.AddToggle("", /* chart */ "opt.monitor", () => PcMonitor.Enabled, on => PcMonitor.Enabled = on);
+			extrasView.AddToggle("", /* emoji */ "opt.mood", () => Mood.Daily, on => Mood.Daily = on);
+			int[] hours = { 10, 13, 15, 17 };
+			extrasView.AddChoice("", /* clock */ "opt.moodHour", () => Mood.Hour, v => Mood.Hour = v, hours, hours.Select(h => h + "h").ToArray());
+			extrasView.AddAction("", /* history */ "opt.moodHistory", "opt.moodHistory.button", () =>
+				MessageBox.Show(this, Lang.T("mood.history", Mood.Recent(14)), Lang.T("opt.moodHistory.title"), MessageBoxButtons.OK, MessageBoxIcon.None));
+			extrasView.AddAction("", /* apps */ "opt.shortcuts", "opt.shortcuts.button", () => { using (var f = new FormLaunchers()) f.ShowDialog(this); });
+		}
+
 		// ================================================================== Reminders page
 
 		/// <summary>List of reminders: on/off, what and when, test, edit, delete; plus "remind me in N min".</summary>

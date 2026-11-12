@@ -129,6 +129,25 @@ namespace DesktopPet
 			Save();
 		}
 
+		/// <summary>A free setting (extras: pomodoro, virtual pet…), or <paramref name="def"/> when never saved.</summary>
+		public string GetSetting(string key, string def = "") => AppSettings?[key]?.Value ?? def;
+
+		public int GetSettingInt(string key, int def) => int.TryParse(GetSetting(key, ""), NumberStyles.Integer, CultureInfo.InvariantCulture, out int v) ? v : def;
+
+		public bool GetSettingBool(string key, bool def) { var s = GetSetting(key, ""); return s.Length == 0 ? def : s == "1"; }
+
+		public void SetSetting(string key, string value)
+		{
+			if (AppSettings == null) return;
+			if (AppSettings[key] == null) AppSettings.Add(key, value ?? "");
+			else AppSettings[key].Value = value ?? "";
+			Save();
+		}
+
+		public void SetSetting(string key, int value) => SetSetting(key, value.ToString(CultureInfo.InvariantCulture));
+
+		public void SetSetting(string key, bool value) => SetSetting(key, value ? "1" : "0");
+
 		/// <summary>Ctrl+Alt+P hides/shows the pets (on unless turned off).</summary>
 		public bool GetHotkeyEnabled() => (AppSettings?["HideHotkey"]?.Value ?? "1") != "0";
 

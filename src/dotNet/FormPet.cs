@@ -1617,6 +1617,11 @@ namespace DesktopPet
                 // Easter egg: middle-click (wheel button) opens the animation picker.
                 ShowAnimationPicker();
             }
+            else if (e.Button == MouseButtons.Right && !IsChildWindow)
+            {
+                // the pet menu: games, focus timer, reminders, shortcuts, needs…
+                PetMenu.Show(this, pictureBox1, e.Location, ShowAnimationPicker);
+            }
 #endif
         }
 
