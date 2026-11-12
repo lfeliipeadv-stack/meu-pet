@@ -18,11 +18,20 @@ $json = $entry.Replace($json, {
     $text = $m.Value
     if (-not (Test-Path $file)) { Write-Warning "missing $file"; return $text }
 
-    # size as GitHub serves it: the repository stores LF line endings (* text=auto)
-    $bytes = [IO.File]::ReadAllBytes($file)
-    $crlf = 0
-    for ($i = 1; $i -lt $bytes.Length; $i++) { if ($bytes[$i] -eq 10 -and $bytes[$i - 1] -eq 13) { $crlf++ } }
-    $size = $bytes.Length - $crlf
+    # size as GitHub serves it, i.e. the size of the file stored in git:
+    # - unchanged since the last commit: the stored size (some old pets are stored with CRLF)
+    # - new or changed: what git will store, LF line endings (* text=auto)
+    $rel = "Pets/$folder/animations.xml"
+    git -C $root diff --quiet HEAD -- $rel 2>$null
+    $unchanged = $LASTEXITCODE -eq 0 -and (git -C $root ls-files -- $rel)
+    if ($unchanged) { $size = [long](git -C $root cat-file -s "HEAD:$rel") }
+    else
+    {
+        $bytes = [IO.File]::ReadAllBytes($file)
+        $crlf = 0
+        for ($i = 1; $i -lt $bytes.Length; $i++) { if ($bytes[$i] -eq 10 -and $bytes[$i - 1] -eq 13) { $crlf++ } }
+        $size = $bytes.Length - $crlf
+    }
 
     $xml = New-Object Xml.XmlDocument
     $xml.Load($file)
