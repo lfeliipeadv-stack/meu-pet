@@ -17,10 +17,10 @@ namespace DesktopPet
 	/// Replaces the Windows95-style <see cref="FormOptions2"/> (which is kept for reference / legacy build).
 	/// All painting is custom (double buffered), colors come from <see cref="Theme"/> and follow the Windows light/dark mode.
 	/// </summary>
-	public sealed class FormSettings : Form
+	public sealed partial class FormSettings : Form
 	{
 		/// <summary>Pages of the window (sidebar entries).</summary>
-		public enum Page { Pets, Behaviour, Application, About }
+		public enum Page { Pets, Behaviour, Application, About, Reminders }
 
 		private static FormSettings openInstance;
 
@@ -82,7 +82,7 @@ namespace DesktopPet
 				save(System.IO.Path.Combine("details", pet.folder));
 			}
 			f.petsView.CloseDetail();
-			foreach (Page p in new[] { Page.Behaviour, Page.Application, Page.About }) { f.SelectPage(p); await Task.Delay(200); save(p.ToString().ToLowerInvariant()); }
+			foreach (Page p in new[] { Page.Behaviour, Page.Application, Page.About, Page.Reminders }) { f.SelectPage(p); await Task.Delay(200); save(p.ToString().ToLowerInvariant()); }
 			// color group card (gSheep) with the pink color selected
 			var group = f.WebPets.pets.FirstOrDefault(p => p.Variants != null);
 			if (group != null)
@@ -122,6 +122,37 @@ namespace DesktopPet
 			}
 			catch (Exception ex) { StartUp.AddDebugInfo(StartUp.DEBUG_TYPE.warning, "picker snapshot: " + ex.Message); }
 
+			// speech bubble of a reminder, and the reminder editor
+			try
+			{
+				await Task.Delay(1500);   // the pet is on screen
+				var sample = Reminders.All.FirstOrDefault() ?? new Reminder { Text = "Test" };
+				Reminders.Fire(sample);
+				await Task.Delay(400);
+				var bubble = Application.OpenForms.OfType<SpeechBubble>().FirstOrDefault();
+				if (bubble != null)
+				{
+					bubble.Refresh();
+					using (var bmp = new Bitmap(bubble.Width, bubble.Height))
+					{
+						bubble.DrawToBitmap(bmp, new Rectangle(Point.Empty, bubble.Size));
+						bmp.Save(System.IO.Path.Combine(folder, "bubble.png"), System.Drawing.Imaging.ImageFormat.Png);
+					}
+					bubble.Close();
+				}
+				using (var ed = new FormReminder(sample) { StartPosition = FormStartPosition.Manual, Location = new Point(-5000, -5000) })
+				{
+					ed.Show();
+					await Task.Delay(300);
+					using (var bmp = new Bitmap(ed.Width, ed.Height))
+					{
+						ed.DrawToBitmap(bmp, new Rectangle(Point.Empty, ed.Size));
+						bmp.Save(System.IO.Path.Combine(folder, "reminder-edit.png"), System.Drawing.Imaging.ImageFormat.Png);
+					}
+				}
+			}
+			catch (Exception ex) { StartUp.AddDebugInfo(StartUp.DEBUG_TYPE.warning, "bubble snapshot: " + ex.Message); }
+
 			// debug window, with a warning and an error in the log
 			StartUp.AddDebugInfo(StartUp.DEBUG_TYPE.warning, "snapshot: sample warning");
 			StartUp.AddDebugInfo(StartUp.DEBUG_TYPE.error, "snapshot: sample error");
@@ -154,6 +185,7 @@ namespace DesktopPet
 		private readonly OptionsView behaviourView;
 		private readonly OptionsView applicationView;
 		private readonly AboutView aboutView;
+		private readonly RemindersView remindersView;
 
 		private Font fontTitle, fontSubtitle, fontText, fontSmall, fontBold, fontNav, fontH2;
 
@@ -237,6 +269,7 @@ namespace DesktopPet
 			behaviourView = new OptionsView(this) { Dock = DockStyle.Fill };
 			applicationView = new OptionsView(this) { Dock = DockStyle.Fill };
 			aboutView = new AboutView(this) { Dock = DockStyle.Fill };
+			remindersView = new RemindersView(this) { Dock = DockStyle.Fill };
 			BuildBehaviourOptions();
 			BuildApplicationOptions();
 
@@ -289,7 +322,7 @@ namespace DesktopPet
 			header.BackColor = Theme.Background; content.BackColor = Theme.Background;
 			headerTitle.ForeColor = Theme.Text; headerSubtitle.ForeColor = Theme.TextMuted;
 			searchField.Recolor();
-			foreach (Control c in new Control[] { sidebar, petsView, behaviourView, applicationView, aboutView })
+			foreach (Control c in new Control[] { sidebar, petsView, behaviourView, applicationView, aboutView, remindersView })
 			{
 				c.BackColor = Theme.Background;
 				c.Invalidate();
@@ -307,7 +340,7 @@ namespace DesktopPet
 			searchBox.PlaceholderText = Lang.T("pets.search");
 			StatusText = Lang.T("status.available", WebPets.pets.Count);
 			SelectPage(page);
-			foreach (Control c in new Control[] { sidebar, petsView, behaviourView, applicationView, aboutView }) c.Invalidate();
+			foreach (Control c in new Control[] { sidebar, petsView, behaviourView, applicationView, aboutView, remindersView }) c.Invalidate();
 		}
 
 		private void CreateFonts()
@@ -367,6 +400,11 @@ namespace DesktopPet
 					headerTitle.Text = Lang.T("page.application.title");
 					headerSubtitle.Text = Lang.T("page.application.subtitle");
 					content.Controls.Add(applicationView);
+					break;
+				case Page.Reminders:
+					headerTitle.Text = Lang.T("page.reminders.title");
+					headerSubtitle.Text = Lang.T("page.reminders.subtitle");
+					content.Controls.Add(remindersView);
 					break;
 				case Page.About:
 					headerTitle.Text = Lang.T("page.about.title");
@@ -850,6 +888,10 @@ namespace DesktopPet
 				// Persist the adopted pet folder so the gallery badge survives restart.
 				Program.MyData.SetCurrentPetFolder(pet.folder);
 				ContextMenus.UpdateTexts();   // "Sounds of <pet>" follows the new pet
+				// the new pet says hello once it is on screen
+				var hello = new Timer { Interval = 1800 };
+				hello.Tick += (s, e) => { hello.Stop(); hello.Dispose(); SpeechBubble.Say(Lang.T("bubble.hello", pet.DisplayName), 6); };
+				hello.Start();
 			}
 			catch (Exception ex)
 			{
@@ -918,6 +960,7 @@ namespace DesktopPet
 			{
 				(Page.Pets, "nav.pets", ""),          // home-ish
 				(Page.Behaviour, "nav.behaviour", ""), // touch/pointer
+				(Page.Reminders, "nav.reminders", ""),      // clock
 				(Page.Application, "nav.application", ""), // settings
 				(Page.About, "nav.about", ""),         // info
 			};

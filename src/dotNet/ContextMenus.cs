@@ -97,6 +97,22 @@ namespace DesktopPet
             HideHotkey.Changed += UpdateTexts;
             HideHotkey.Apply();
 
+            // Item: Reminders (quick "remind me in…" and the reminders page).
+            remindersMenuItem = new ToolStripMenuItem();
+            foreach (int m in new[] { 5, 10, 15, 30, 60 })
+            {
+                int minutes = m;
+                var quick = new ToolStripMenuItem { Tag = minutes };
+                quick.Click += (s, e) => Reminders.In(minutes);
+                remindersMenuItem.DropDownItems.Add(quick);
+            }
+            remindersMenuItem.DropDownItems.Add(new ToolStripSeparator());
+            var manage = new ToolStripMenuItem { Tag = "manage" };
+            manage.Click += (s, e) => FormSettings.ShowPage(FormSettings.Page.Reminders);
+            remindersMenuItem.DropDownItems.Add(manage);
+            menu.Items.Add(remindersMenuItem);
+            Reminders.Start();
+
                 // Item: Separator.
             sep = new ToolStripSeparator();
             menu.Items.Add(sep);
@@ -172,7 +188,7 @@ namespace DesktopPet
             return menu;
         }
 
-        static ToolStripMenuItem hideMenuItem;
+        static ToolStripMenuItem hideMenuItem, remindersMenuItem;
         static ToolStripMenuItem optionsMenuItem, installMenuItem, soundMenuItem, aboutMenuItem, helpMenuItem;
         static string currentPetName;
 
@@ -189,6 +205,15 @@ namespace DesktopPet
             {
                 hideMenuItem.Text = HideHotkey.Hidden ? Lang.T("tray.showPets") : Lang.T("tray.hidePets");
                 hideMenuItem.ShortcutKeyDisplayString = Program.MyData.GetHotkeyEnabled() ? HideHotkey.Text : "";
+            }
+            if (remindersMenuItem != null)
+            {
+                remindersMenuItem.Text = Lang.T("tray.reminders");
+                foreach (ToolStripItem it in remindersMenuItem.DropDownItems)
+                {
+                    if (it.Tag is int m) it.Text = Lang.T("tray.remindIn", m);
+                    else if (Equals(it.Tag, "manage")) it.Text = Lang.T("tray.manageReminders");
+                }
             }
             int updates = PetUpdates.Outdated.Count;
             optionsMenuItem.Text = updates > 0 ? Lang.T(updates == 1 ? "tray.panelUpdateOne" : "tray.panelUpdates", updates) : Lang.T("tray.panel");

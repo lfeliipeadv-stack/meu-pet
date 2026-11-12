@@ -82,6 +82,9 @@
     <Compile Include="Portable\PetUpdates.cs" />
     <Compile Include="Portable\PetBackup.cs" />
     <Compile Include="Portable\HideHotkey.cs" />
+    <Compile Include="Portable\SpeechBubble.cs" />
+    <Compile Include="Portable\Reminders.cs" />
+    <Compile Include="Portable\FormSettings.Reminders.cs" />
     <Compile Include="Portable\FormDebugModern.cs" />
     <Compile Include="Portable\FormSettings.cs" />
     <Compile Include="Portable\BuiltInPets.cs" />

@@ -1627,6 +1627,28 @@ namespace DesktopPet
         /// Triggered by middle-clicking (wheel button) the pet sprite.
         /// </summary>
         private FormAnimPicker animPicker;
+
+        /// <summary>True for the extra windows a pet opens (balloons, planes…), false for a real pet.</summary>
+        public bool IsChildWindow => Name.IndexOf("child") >= 0;
+
+        /// <summary>
+        /// Play the first animation whose name is one of <paramref name="names"/> (e.g. "wave" when the pet talks).
+        /// Ignored while the pet is held or thrown. Returns false if the pet has none of them.
+        /// </summary>
+        public bool React(params string[] names)
+        {
+            if (IsDragging || IsTossing || IsLeaving || Animations?.SheepAnimations == null) return false;
+            foreach (var n in names)
+            {
+                var a = Animations.SheepAnimations.Values.FirstOrDefault(x => string.Equals(x.Name, n, StringComparison.OrdinalIgnoreCase));
+                if (a.Name == null) continue;
+                SetNewAnimation(a.ID);
+                timer1.Interval = 1;
+                timer1.Enabled = true;
+                return true;
+            }
+            return false;
+        }
         private void ShowAnimationPicker()
         {
             if (Animations?.SheepAnimations == null || Animations.SheepAnimations.Count == 0) return;
