@@ -1789,10 +1789,13 @@ namespace DesktopPet
                 foreach (var pet in Application.OpenForms.OfType<FormPet>().Where(p => !p.IsChildWindow).ToList()) pet.StopNow();
         }
 
+        /// <summary>Wholly inside its screen (a pet still walking in from the edge is not stopped half outside).</summary>
+        bool OnScreen => Left >= ScreenArea.Left && Right <= ScreenArea.Right;
+
         /// <summary>Stop walking at once (not while held by the mouse, falling or jumping: that ends first).</summary>
         void StopNow()
         {
-            if (Busy || StillAnimation < 0) return;
+            if (Busy || StillAnimation < 0 || !OnScreen) return;
             bool onGround = CurrentAnimation.Start.Y.Value == 0 && CurrentAnimation.End.Y.Value == 0;
             if (onGround && !IsStill(CurrentAnimation))
             {
@@ -1811,7 +1814,7 @@ namespace DesktopPet
         /// <summary>While talking, the next animation is the still one (not while falling or jumping).</summary>
         int WhileTalking(int next)
         {
-            if (!talking || afterDone != null || StillAnimation < 0) return next;
+            if (!talking || afterDone != null || StillAnimation < 0 || !OnScreen) return next;
             var n = Animations.GetAnimation(next);
             bool stays = n.Start.Y.Value == 0 && n.End.Y.Value == 0;
             // standing on the ground: never start going down (some pets dig or sink behind the taskbar); a falling pet keeps falling

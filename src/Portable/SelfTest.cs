@@ -330,7 +330,8 @@ namespace DesktopPet
 			for (int i = 0; i < 100 && !landed; i++) { await Task.Delay(150); landed = pet.OnGround && pet.Top > area.Top; }
 			Check("sky: it lands", landed, $"{pet.CurrentAnimationName} at {pet.Bounds}");
 			FormPet.Hold(true);
-			await Task.Delay(300);
+			// a landing bounce may still move it a little: once it stands, it must stay
+			for (int i = 0; i < 20 && !pet.StandingStill && pet.StillAnimation >= 0; i++) await Task.Delay(150);
 			int x = pet.Left, y = pet.Top;
 			await Task.Delay(1500);
 			Check("sky: held after landing, it neither walks nor sinks", pet.Left == x && pet.Top == y && (pet.StandingStill || pet.StillAnimation < 0), $"{pet.CurrentAnimationName}, moved {pet.Left - x},{pet.Top - y}");
@@ -519,6 +520,8 @@ namespace DesktopPet
 			Cursor.Position = new System.Drawing.Point(pet.Left > area.Left + 200 ? area.Left + 20 : area.Right - 20, area.Top + 20);
 			await Task.Delay(300);
 			Check("monitor: hidden while the mouse is away", !Application.OpenForms.Cast<Form>().Any(f => f.GetType().Name == "Hud" && f.Visible));
+			// a pet still walking in from the edge of the screen cannot be pointed at: let it come in first
+			for (int i = 0; i < 40 && !(pet.Left >= area.Left && pet.Right <= area.Right); i++) await Task.Delay(150);
 			bool plate = false;
 			for (int i = 0; i < 8 && !plate; i++)   // the pet may be walking or falling: follow it
 			{
@@ -1037,8 +1040,11 @@ namespace DesktopPet
 		static async Task ShortcutError()
 		{
 			Launchers.Open(new Launcher { Name = "nada", Target = @"C:\this\does\not\exist.txt" });
-			await Task.Delay(300);
-			Check("shortcut: a missing file only shows a message", Application.OpenForms.OfType<SpeechBubble>().Any());
+			bool shown = false;
+			for (int i = 0; i < 20 && !shown; i++) { await Task.Delay(100); shown = Application.OpenForms.OfType<SpeechBubble>().Any(); }
+			var p = Pet();
+			Check("shortcut: a missing file only shows a message", shown,
+				p == null ? "no pet on screen (the message went to the tray)" : $"pet {p.Bounds}, opacity {p.Opacity}, hidden {HideHotkey.Hidden}");
 			foreach (var b in Application.OpenForms.OfType<SpeechBubble>().ToList()) b.Close();
 		}
 	}
