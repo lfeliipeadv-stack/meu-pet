@@ -1643,6 +1643,9 @@ namespace DesktopPet
         /// <summary>Self-test: play an animation now.</summary>
         internal void TestPlay(int id) { SetNewAnimation(id); timer1.Interval = 1; timer1.Enabled = true; }
 
+        /// <summary>Held, thrown or leaving: not a good moment to play an animation.</summary>
+        public bool Busy => IsDragging || IsTossing || IsLeaving;
+
         /// <summary>True for the extra windows a pet opens (balloons, planes…), false for a real pet.</summary>
         public bool IsChildWindow => Name.IndexOf("child") >= 0;
 

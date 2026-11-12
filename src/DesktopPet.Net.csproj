@@ -85,6 +85,15 @@
     <Compile Include="Portable\SpeechBubble.cs" />
     <Compile Include="Portable\Reminders.cs" />
     <Compile Include="Portable\FormSettings.Reminders.cs" />
+    <Compile Include="Portable\FormSettings.Extras.cs" />
+    <Compile Include="Portable\FormSettings.Snapshots.cs" />
+    <Compile Include="Portable\FormSettings.Options.cs" />
+    <Compile Include="Portable\FormSettings.Pets.cs" />
+    <Compile Include="Portable\FormSettings.PetsView.cs" />
+    <Compile Include="Portable\FormSettings.Sidebar.cs" />
+    <Compile Include="Portable\FormSettings.About.cs" />
+    <Compile Include="Portable\FormSettings.Controls.cs" />
+    <Compile Include="Portable\PetStore.cs" />
     <Compile Include="Portable\Pomodoro.cs" />
     <Compile Include="Portable\Fun.cs" />
     <Compile Include="Portable\Launchers.cs" />
@@ -95,6 +104,8 @@
     <Compile Include="Portable\SelfTest.cs" />
     <Compile Include="Portable\AgentBridge.cs" />
     <Compile Include="Portable\ClaudeHooks.cs" />
+    <Compile Include="Portable\Companions.cs" />
+    <Compile Include="Portable\Agenda.cs" />
     <Compile Include="Portable\FormDebugModern.cs" />
     <Compile Include="Portable\FormSettings.cs" />
     <Compile Include="Portable\BuiltInPets.cs" />

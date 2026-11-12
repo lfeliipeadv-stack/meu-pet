@@ -54,6 +54,19 @@ namespace DesktopPet
 			await TryAsync("pet menu", Menu);
 			await TryAsync("pomodoro", PomodoroCycle);
 			await TryAsync("shortcut error", ShortcutError);
+			Try("agenda", AgendaParse);
+			Try("pets meet", () =>
+			{
+				Check("pets meet: side by side", PetsMeet.Close(new System.Drawing.Rectangle(100, 500, 80, 80), new System.Drawing.Rectangle(150, 502, 80, 80)));
+				Check("pets meet: far apart", !PetsMeet.Close(new System.Drawing.Rectangle(100, 500, 80, 80), new System.Drawing.Rectangle(400, 500, 80, 80)));
+				Check("pets meet: one on a window above", !PetsMeet.Close(new System.Drawing.Rectangle(100, 500, 80, 80), new System.Drawing.Rectangle(120, 300, 80, 80)));
+			});
+			Try("downloads", () =>
+			{
+				Check("downloads: unfinished files ignored", ComputerEvents.IsUnfinished("Unconfirmed 1234.crdownload") && ComputerEvents.IsUnfinished("video.mp4.part") && ComputerEvents.IsUnfinished("desktop.ini"));
+				Check("downloads: finished file noticed", !ComputerEvents.IsUnfinished("relatorio.pdf") && !ComputerEvents.IsUnfinished("setup.exe"));
+				Check("downloads: folder found", Directory.Exists(ComputerEvents.DownloadsFolder()), ComputerEvents.DownloadsFolder());
+			});
 			Try("claude hooks file", ClaudeHooksFile);
 			Try("claude events", ClaudeEvents);
 			await TryAsync("claude endpoint", ClaudeEndpoint);
@@ -333,6 +346,35 @@ namespace DesktopPet
 			Check("pomodoro: stopped", Pomodoro.Current == Pomodoro.Phase.Off);
 			await Task.Delay(300);
 			foreach (var b in Application.OpenForms.OfType<SpeechBubble>().ToList()) b.Close();
+		}
+
+		// ------------------------------------------------------------------ agenda
+
+		static void AgendaParse()
+		{
+			string ics = string.Join("\r\n", new[]
+			{
+				"BEGIN:VCALENDAR", "VERSION:2.0",
+				"BEGIN:VEVENT", "UID:utc", "DTSTART:20261116T130000Z", "SUMMARY:Café\\, conversa", "END:VEVENT",
+				"BEGIN:VEVENT", "UID:tz", "DTSTART;TZID=America/Sao_Paulo:20261117T100000", "SUMMARY:Reunião com", "  o time", "END:VEVENT",
+				"BEGIN:VEVENT", "UID:allday", "DTSTART;VALUE=DATE:20261118", "SUMMARY:Feriado", "END:VEVENT",
+				"BEGIN:VEVENT", "UID:weekly", "DTSTART:20261102T090000", "RRULE:FREQ=WEEKLY;BYDAY=MO,WE,FR", "EXDATE:20261118T090000", "SUMMARY:Daily", "END:VEVENT",
+				"BEGIN:VEVENT", "UID:weekly", "RECURRENCE-ID:20261120T090000", "DTSTART:20261120T110000", "SUMMARY:Daily (movida)", "END:VEVENT",
+				"BEGIN:VEVENT", "UID:cancel", "DTSTART:20261119T150000", "STATUS:CANCELLED", "SUMMARY:Cancelada", "END:VEVENT",
+				"BEGIN:VEVENT", "UID:count", "DTSTART:20261115T080000", "RRULE:FREQ=DAILY;COUNT=2", "SUMMARY:Duas vezes", "END:VEVENT",
+				"END:VCALENDAR",
+			});
+			var list = Agenda.Parse(ics, new DateTime(2026, 11, 16), new DateTime(2026, 11, 23));
+			string all = string.Join(" | ", list.Select(e => e.Start.ToString("ddd dd HH:mm", System.Globalization.CultureInfo.InvariantCulture) + " " + e.Title));
+			Check("agenda: 5 events (all-day, cancelled, removed and moved ones handled)", list.Count == 5, all);
+			Check("agenda: UTC time converted", list.Any(e => e.Uid == "utc" && e.Start == new DateTime(2026, 11, 16, 13, 0, 0, DateTimeKind.Utc).ToLocalTime()), all);
+			var sp = TimeZoneInfo.FindSystemTimeZoneById("America/Sao_Paulo");
+			Check("agenda: time zone converted", list.Any(e => e.Uid == "tz" && e.Start == TimeZoneInfo.ConvertTime(new DateTime(2026, 11, 17, 10, 0, 0), sp, TimeZoneInfo.Local)), all);
+			Check("agenda: long line joined, escapes removed", list.Any(e => e.Title == "Reunião com o time") && list.Any(e => e.Title == "Café, conversa"), all);
+			Check("agenda: weekly repeat, removed day skipped", list.Count(e => e.Uid == "weekly") == 2 && list.Any(e => e.Uid == "weekly" && e.Start == new DateTime(2026, 11, 16, 9, 0, 0)), all);
+			Check("agenda: moved occurrence at its new time", list.Any(e => e.Title == "Daily (movida)" && e.Start.Hour == 11) && !list.Any(e => e.Uid == "weekly" && e.Start == new DateTime(2026, 11, 20, 9, 0, 0)), all);
+			Check("agenda: COUNT respected", list.Count(e => e.Uid == "count") == 1, all);
+			Check("agenda: no all-day or cancelled events", !list.Any(e => e.Uid == "allday" || e.Uid == "cancel"), all);
 		}
 
 		// ------------------------------------------------------------------ Claude Code

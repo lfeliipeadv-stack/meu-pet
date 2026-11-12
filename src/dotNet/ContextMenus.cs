@@ -116,6 +116,9 @@ namespace DesktopPet
             Mood.Start();
             PcMonitor.Apply();
             AgentBridge.Apply();
+            PetsMeet.Start();
+            ComputerEvents.Apply();
+            Agenda.Start();
 
                 // Item: Separator.
             sep = new ToolStripSeparator();

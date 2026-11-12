@@ -59,6 +59,12 @@ namespace DesktopPet
 			if (Launchers.All.Count > 0) shortcuts.DropDownItems.Add(new ToolStripSeparator());
 			Item(shortcuts.DropDownItems, Lang.T("menu.shortcutsManage"), () => { using (var f = new FormLaunchers()) f.ShowDialog(); });
 
+			if (Agenda.Configured)
+			{
+				var next = Agenda.Next;
+				Item(cm.Items, next == null ? Lang.T("menu.agendaNone")
+					: Lang.T("menu.agendaNext", next.Start.ToString("t", System.Globalization.CultureInfo.CurrentCulture), next.Title.Length > 40 ? next.Title.Substring(0, 39) + "…" : next.Title), null, false);
+			}
 			Item(cm.Items, Lang.T("menu.mood"), Mood.Ask);
 			var mon = Item(cm.Items, Lang.T("menu.monitor"), () => PcMonitor.Enabled = !PcMonitor.Enabled);
 			mon.Checked = PcMonitor.Enabled;
