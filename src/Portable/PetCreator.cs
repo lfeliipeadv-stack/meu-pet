@@ -177,7 +177,7 @@ namespace DesktopPet
 		readonly PetCreator.Input input = new PetCreator.Input();
 		readonly Label status = new Label { AutoSize = true, MaximumSize = new Size(400, 0) };
 		/// <summary>The folder of the pet created (null until it is).</summary>
-		public string Created { get; private set; }
+		public string CreatedFolder { get; private set; }
 
 		public FormPetCreator()
 		{
@@ -239,7 +239,7 @@ namespace DesktopPet
 					check.LoadXml(xml);
 					string folder = PetCreator.FolderFor(input.Name);
 					PetStore.Save(folder, xml, "local");
-					Created = folder;
+					CreatedFolder = folder;
 					DialogResult = DialogResult.OK;
 				}
 				catch (Exception ex) { status.Text = ex.Message; status.ForeColor = Theme.Danger; }

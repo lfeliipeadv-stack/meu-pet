@@ -331,13 +331,13 @@ namespace DesktopPet
 		{
 			using (var f = new FormPetCreator())
 			{
-				if (f.ShowDialog(this) != DialogResult.OK || f.Created == null) return;
-				WebPets.pets.RemoveAll(p => string.Equals(p.folder, f.Created, StringComparison.OrdinalIgnoreCase));
-				AddLocalPet(f.Created);
+				if (f.ShowDialog(this) != DialogResult.OK || f.CreatedFolder == null) return;
+				WebPets.pets.RemoveAll(p => string.Equals(p.folder, f.CreatedFolder, StringComparison.OrdinalIgnoreCase));
+				AddLocalPet(f.CreatedFolder);
 				petsView.CurrentTab = PetsView.Tab.Mine;
 				petsView.PetsChanged();
-				var pet = WebPets.pets.FirstOrDefault(p => p.folder == f.Created);
-				StatusText = Lang.T("status.created", pet?.DisplayName ?? f.Created);
+				var pet = WebPets.pets.FirstOrDefault(p => p.folder == f.CreatedFolder);
+				StatusText = Lang.T("status.created", pet?.DisplayName ?? f.CreatedFolder);
 				if (pet != null && MessageBox.Show(this, Lang.T("dlg.createdAdopt", pet.DisplayName), Lang.T("create.title"), MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
 					AdoptPet(pet);
 			}
