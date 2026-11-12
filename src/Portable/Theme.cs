@@ -298,7 +298,7 @@ namespace DesktopPet
 			Color back = primary ? (hover ? ControlPaint.Light(Accent, 0.15f) : Accent) : (hover ? Hover : Surface);
 			FillRounded(g, back, r, 6);
 			if (!primary) DrawRounded(g, Border, r, 6);
-			TextRenderer.DrawText(g, text, font, r, primary ? AccentText : Text,
+			DrawText(g, text, font, r, primary ? AccentText : Text,
 				TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine | TextFormatFlags.EndEllipsis);
 		}
 
@@ -338,11 +338,18 @@ namespace DesktopPet
 		/// <summary>Draw text with GDI (crisp ClearType) inside a rectangle.</summary>
 		public static void DrawText(Graphics g, string text, Font font, Rectangle r, Color color, TextFormatFlags flags = TextFormatFlags.Left | TextFormatFlags.Top | TextFormatFlags.WordBreak)
 		{
+			// emoji in colour (DirectWrite); the rest stays GDI
+			if (ColorText.HasEmoji(text) && ColorText.Draw(g, text, font, r, color, flags)) return;
 			TextRenderer.DrawText(g, text ?? "", font, r, color, flags | TextFormatFlags.NoPrefix);
 		}
 
 		public static Size MeasureText(Graphics g, string text, Font font, int maxWidth = int.MaxValue, TextFormatFlags flags = TextFormatFlags.WordBreak)
 		{
+			if (ColorText.HasEmoji(text))
+			{
+				var s = ColorText.Measure(text, font, maxWidth, flags, g?.DpiY ?? 96f);
+				if (!s.IsEmpty) return s;
+			}
 			return TextRenderer.MeasureText(g, text ?? "", font, new Size(maxWidth, int.MaxValue), flags | TextFormatFlags.NoPrefix);
 		}
 
@@ -421,6 +428,12 @@ namespace DesktopPet
 			protected override void OnRenderItemText(ToolStripItemTextRenderEventArgs e)
 			{
 				e.TextColor = e.Item.Enabled ? Text : TextMuted;
+				// an item with an emoji: in colour (the "&" of the keyboard letter is not shown)
+				if (ColorText.HasEmoji(e.Text))
+				{
+					string plain = System.Text.RegularExpressions.Regex.Replace(e.Text, "&(.)", "$1");
+					if (ColorText.Draw(e.Graphics, plain, e.TextFont, e.TextRectangle, e.TextColor, e.TextFormat & ~TextFormatFlags.HidePrefix)) return;
+				}
 				base.OnRenderItemText(e);
 			}
 

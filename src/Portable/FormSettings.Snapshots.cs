@@ -1,4 +1,4 @@
-using DesktopPet.Properties;
+﻿using DesktopPet.Properties;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -103,7 +103,7 @@ namespace DesktopPet
 			try
 			{
 				await Task.Delay(1500);   // the pet is on screen
-				var sample = Reminders.All.FirstOrDefault() ?? new Reminder { Text = "Test" };
+				var sample = new Reminder { Text = Lang.T("rem.presetWater") };   // with an emoji: it must be in colour
 				Reminders.Fire(sample);
 				await Task.Delay(400);
 				var bubble = Application.OpenForms.OfType<SpeechBubble>().FirstOrDefault();

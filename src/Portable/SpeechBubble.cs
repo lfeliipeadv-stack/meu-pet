@@ -168,7 +168,7 @@ namespace DesktopPet
 		{
 			using (var g = CreateGraphics())
 			{
-				var ts = TextRenderer.MeasureText(g, text, font, new Size(MaxTextW, int.MaxValue), TextFormatFlags.WordBreak | TextFormatFlags.NoPrefix);
+				var ts = Theme.MeasureText(g, text, font, MaxTextW, TextFormatFlags.WordBreak);
 				int w = Math.Max(ts.Width, 120);
 				int y = Pad;
 				int nameH = PetName.Length > 0 ? 18 : 0;
@@ -182,7 +182,7 @@ namespace DesktopPet
 					int bx = Pad;
 					foreach (var c in choices)
 					{
-						int bw = TextRenderer.MeasureText(g, c.Text, fontBold).Width + 22;
+						int bw = Theme.MeasureText(g, c.Text, fontBold, int.MaxValue, TextFormatFlags.SingleLine).Width + 22;
 						buttonRects.Add((new Rectangle(bx, y, bw, 30), c));
 						bx += bw + 8;
 					}

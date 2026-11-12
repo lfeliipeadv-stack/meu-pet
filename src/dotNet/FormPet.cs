@@ -344,6 +344,14 @@ namespace DesktopPet
                 }
             }
 
+            // the very first time the program opens, the pet arrives from the sky (and the introduction waits for it to land)
+            bool fromSky = forceSpawn < 0 && !IsChildWindow && Onboarding.TakeSkyArrival();
+            if (fromSky)
+            {
+                int sky = Animations.SheepSpawn.Keys.ToList().FindIndex(k => Animations.SheepSpawn[k].Start.Y.GetValue(DisplayIndex) < 0);
+                if (sky >= 0) forceSpawn = sky;
+            }
+
             TSpawn spawn;
             if (forceSpawn < 0) spawn = Animations.GetRandomSpawn(); // Get a random SPAWN, to setting the form properties
             else
@@ -365,8 +373,18 @@ namespace DesktopPet
 			PositionY = Top;
 			OffsetY = 0.0;
             IsLeaving = false;
+            int firstAnimation = spawn.Next;
+            if (fromSky && spawn.Start.Y.GetValue(DisplayIndex) >= 0 && Animations.AnimationFall >= 0)
+            {
+                // this pet has no spawn above the screen: start it above the middle of the screen, falling
+                Top = ScreenBounds.Y - Height - 10;
+                Left = ScreenBounds.X + ScreenBounds.Width / 2 - Width / 2 + rand.Next(-150, 150);
+                PositionX = Left;
+                PositionY = Top;
+                firstAnimation = Animations.AnimationFall;
+            }
             ResetMotion();
-            SetNewAnimation(spawn.Next);                // Set next animation
+            SetNewAnimation(firstAnimation);                // Set next animation
             Visible = true;                             // Now we can show the form
             Opacity = 0.0;                              // do not show first frame (as it is undefined)
             timer1.Enabled = true;                      // Enable the timer (interval is well known now)
@@ -1724,7 +1742,9 @@ namespace DesktopPet
             get
             {
                 if (stillId != -2) return stillId;
-                stillId = FindAnimation("talk", "talking", "speak", "idle", "sit", "look around", "think", "blink", "look_down", "look down");
+                // the first of these names that really stays in place
+                stillId = FindAnimation(new[] { "talk", "talking", "speak", "idle", "sit", "look around", "think", "blink", "look_down", "look down" }
+                    .Where(n => { int i = FindAnimation(n); return i >= 0 && IsStill(Animations.GetAnimation(i)); }).ToArray());
                 if (stillId < 0 && Animations?.SheepAnimations != null)
                 {
                     string[] avoid = { "sleep", "drag", "fall", "kill", "toss", "sync", "poof", "teleport", "cat", "jump", "run", "walk", "climb", "fly" };
@@ -1737,8 +1757,14 @@ namespace DesktopPet
             }
         }
 
+        /// <summary>Does not move sideways or down, and does not sink (offset) behind the taskbar.</summary>
         static bool IsStill(TAnimation a) =>
-            a.Start.X.Value == 0 && a.End.X.Value == 0 && a.Start.Y.Value == 0 && a.End.Y.Value == 0 && !a.Start.X.IsDynamic && !a.End.X.IsDynamic;
+            a.Start.X.Value == 0 && a.End.X.Value == 0 && a.Start.Y.Value == 0 && a.End.Y.Value == 0 && !a.Start.X.IsDynamic && !a.End.X.IsDynamic
+            && !a.Start.Y.IsDynamic && !a.End.Y.IsDynamic && a.Start.OffsetY == 0 && a.End.OffsetY == 0;
+
+        /// <summary>On the ground (or on a window): not falling, not jumping.</summary>
+        internal bool OnGround => Opacity > 0 && !Busy && CurrentAnimation.Start.Y.Value == 0 && CurrentAnimation.End.Y.Value == 0
+            && CurrentAnimation.ID != Animations.AnimationFall && (CurrentAnimation.Name ?? "").IndexOf("fall", StringComparison.OrdinalIgnoreCase) < 0;
 
         /// <summary>Self-test: name of the animation playing and whether it stands still.</summary>
         internal string CurrentAnimationName => CurrentAnimation.Name;
@@ -1788,7 +1814,9 @@ namespace DesktopPet
             if (!talking || afterDone != null || StillAnimation < 0) return next;
             var n = Animations.GetAnimation(next);
             bool stays = n.Start.Y.Value == 0 && n.End.Y.Value == 0;
-            return stays ? StillAnimation : next;
+            // standing on the ground: never start going down (some pets dig or sink behind the taskbar); a falling pet keeps falling
+            bool grounded = CurrentAnimation.Start.Y.Value == 0 && CurrentAnimation.End.Y.Value == 0 && CurrentAnimation.ID != Animations.AnimationFall;
+            return stays || grounded ? StillAnimation : next;
         }
         private void ShowAnimationPicker()
         {

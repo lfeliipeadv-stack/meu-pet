@@ -63,7 +63,7 @@ namespace DesktopPet
 				ShowInTaskbar = false; StartPosition = FormStartPosition.Manual; DoubleBuffered = true;
 				Cursor = Cursors.Hand;
 				using (var g = CreateGraphics())
-					Size = new Size(TextRenderer.MeasureText(g, Text2, font).Width + 30, 30);
+					Size = new Size(Theme.MeasureText(g, Text2, font, int.MaxValue, TextFormatFlags.SingleLine).Width + 30, 30);
 				Theme.ApplyWindowChrome(this);
 			}
 
@@ -97,7 +97,7 @@ namespace DesktopPet
 				var g = e.Graphics;
 				Theme.Prepare(g);
 				g.Clear(hover ? ControlPaint.Light(Theme.Accent, 0.15f) : Theme.Accent);
-				TextRenderer.DrawText(g, Text2, font, ClientRectangle, Theme.AccentText, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine);
+				Theme.DrawText(g, Text2, font, ClientRectangle, Theme.AccentText, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine);
 			}
 
 			protected override void OnMouseEnter(EventArgs e) { base.OnMouseEnter(e); hover = true; Invalidate(); }

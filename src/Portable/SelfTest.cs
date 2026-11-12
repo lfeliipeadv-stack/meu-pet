@@ -22,6 +22,7 @@ namespace DesktopPet
 
 		static readonly List<string> lines = new List<string>();
 		static int failures;
+		static string resultFile = "";
 
 		static void Check(string name, bool ok, string detail = "")
 		{
@@ -37,6 +38,7 @@ namespace DesktopPet
 
 		public static async void Run(string outFile)
 		{
+			resultFile = outFile;
 			await Task.Delay(3000);   // pets on screen, menus created
 
 			Try("reminder schedule", Reminders_Next);
@@ -71,7 +73,9 @@ namespace DesktopPet
 			Try("pet actions", PetActionNames);
 			Try("create pet", PetCreatorBuild);
 			await TryAsync("dialogs hold the pets", DialogsHold);
-			Try("tour", Onboard);
+			Try("colour emoji", ColorEmoji);
+			await TryAsync("sky arrival", SkyArrival);
+			await TryAsync("tour", Onboard);
 			await TryAsync("talking pet", TalkingPet);
 			await TryAsync("quiet time", QuietTime);
 			Try("outlook", () =>
@@ -286,14 +290,67 @@ namespace DesktopPet
 		/// <summary>Falling from a window that went away: a pet in the air cannot stand still until it lands.</summary>
 		static bool InAir(FormPet pet) => (pet.CurrentAnimationName ?? "").IndexOf("fall", StringComparison.OrdinalIgnoreCase) >= 0;
 
-		static void Onboard()
+		/// <summary>Emoji in colour: the same drawing call as the bubbles and the panel, on a picture; saved next to the result.</summary>
+		static void ColorEmoji()
+		{
+			Check("emoji: found in text", ColorText.HasEmoji("Hora de beber água! 💧") && ColorText.HasEmoji("Novo e-mail ✉️") && !ColorText.HasEmoji("Fechar ✕") && !ColorText.HasEmoji("Olá"));
+			using (var font = Theme.CreateFont(16f, System.Drawing.FontStyle.Regular))
+			using (var bmp = new System.Drawing.Bitmap(360, 120))
+			using (var g = System.Drawing.Graphics.FromImage(bmp))
+			{
+				g.Clear(System.Drawing.Color.White);
+				string text = "Mandou bem! 🎉 Hora de beber água 💧 ❤️ ☀️ ✅";
+				var size = Theme.MeasureText(g, text, font, 340, TextFormatFlags.WordBreak);
+				Check("emoji: text measured", size.Width > 50 && size.Height > 10, size.ToString());
+				Theme.DrawText(g, text, font, new System.Drawing.Rectangle(10, 10, 340, size.Height), System.Drawing.Color.Black, TextFormatFlags.WordBreak);
+				Theme.DrawButton(g, new System.Drawing.Rectangle(10, 70, 160, 34), "😄 Ótimo", font, true, false);
+				int colourful = 0;
+				for (int y = 0; y < bmp.Height; y++)
+					for (int x = 0; x < bmp.Width; x++)
+					{
+						var c = bmp.GetPixel(x, y);
+						if (Math.Max(c.R, Math.Max(c.G, c.B)) - Math.Min(c.R, Math.Min(c.G, c.B)) > 80 && y < 60) colourful++;
+					}
+				Check("emoji: drawn in colour", colourful > 100, colourful + " coloured pixels");
+				try { bmp.Save(Path.Combine(Path.GetDirectoryName(Path.GetFullPath(resultFile)) ?? ".", "emoji.png")); } catch (Exception) { }
+			}
+		}
+
+		/// <summary>The first run: the pet comes down from the sky and lands, then the introduction can start.</summary>
+		static async Task SkyArrival()
+		{
+			var before = Program.Mainthread.sheeps.Where(p => p != null && !p.IsDisposed).ToList();
+			Onboarding.ForceSky = true;
+			Program.Mainthread.AddSheep();
+			var pet = Program.Mainthread.sheeps.FirstOrDefault(p => p != null && !p.IsDisposed && !before.Contains(p));
+			if (pet == null) { lines.Add("SKIP  sky: no room for one more pet"); Onboarding.ForceSky = false; return; }
+			var area = Screen.FromControl(pet).WorkingArea;
+			Check("sky: the new pet starts above the screen", pet.Top < area.Top, $"top {pet.Top}, screen top {area.Top}");
+			bool landed = false;
+			for (int i = 0; i < 100 && !landed; i++) { await Task.Delay(150); landed = pet.OnGround && pet.Top > area.Top; }
+			Check("sky: it lands", landed, $"{pet.CurrentAnimationName} at {pet.Bounds}");
+			FormPet.Hold(true);
+			await Task.Delay(300);
+			int x = pet.Left, y = pet.Top;
+			await Task.Delay(1500);
+			Check("sky: held after landing, it neither walks nor sinks", pet.Left == x && pet.Top == y && (pet.StandingStill || pet.StillAnimation < 0), $"{pet.CurrentAnimationName}, moved {pet.Left - x},{pet.Top - y}");
+			FormPet.Hold(false);
+			if (!Program.Mainthread.KillSheep(pet)) pet.Close();
+			await Task.Delay(1500);
+		}
+
+		static async Task Onboard()
 		{
 			bool done = Program.MyData.GetSettingBool("TourDone", false);
 			foreach (var b in Application.OpenForms.OfType<SpeechBubble>().ToList()) b.Close();
 			Onboarding.Tour();
 			Check("tour: the pet offers to show what it does", Application.OpenForms.OfType<SpeechBubble>().Any(b => b.Visible));
+			Check("tour: the pets stay still during the tour", Onboarding.Holding && FormPet.Held);
 			foreach (var b in Application.OpenForms.OfType<SpeechBubble>().ToList()) b.Close();
 			Check("tour: closing it does not mark it as seen", Program.MyData.GetSettingBool("TourDone", false) == done);
+			await Task.Delay(2600);
+			Check("tour: bubbles gone, the pets are let go", !Onboarding.Holding);
+			Onboarding.StopHolding();
 			// the text of this version, or of the next one (the version number goes up when it is released)
 			var cur = Updater.CurrentVersion;
 			Check("what's new: text for this (or the next) version", Lang.Keys.Any(k => k.StartsWith("whatsnew.") && Version.TryParse(k.Substring(9), out var v) && v >= new Version(cur.Major, cur.Minor, cur.Build)), cur.ToString(3));
