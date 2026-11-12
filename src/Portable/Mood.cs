@@ -14,8 +14,9 @@ namespace DesktopPet
 	public static class Mood
 	{
 		public static readonly string[] Faces = { "😄", "🙂", "😐", "😕", "😢" };
-		static string FilePath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DesktopPet", "mood.json");
+		internal static string FilePath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DesktopPet", "mood.json");
 		static Dictionary<string, int> history;
+		internal static void Reload() => history = null;
 		static Timer timer;
 
 		public static bool Daily
@@ -49,7 +50,7 @@ namespace DesktopPet
 			timer = new Timer { Interval = 60000 };
 			timer.Tick += (s, e) =>
 			{
-				if (Daily && DateTime.Now.Hour >= Hour && !History.ContainsKey(Today)
+				if (Daily && !SpeechBubble.QuietNow && DateTime.Now.Hour >= Hour && !History.ContainsKey(Today)
 					&& Program.MyData.GetSetting("MoodAsked") != Today)
 				{
 					Program.MyData.SetSetting("MoodAsked", Today);

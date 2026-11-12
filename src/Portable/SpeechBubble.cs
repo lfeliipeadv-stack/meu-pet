@@ -40,7 +40,68 @@ namespace DesktopPet
 			if (current != null && !current.IsDisposed) current.Close();
 			current = new SpeechBubble(pet, text, seconds, choices ?? new Choice[0]);
 			current.Show();
-			pet.React("wave", "hello", "waving", "greet", "talk");
+			// the pet stops and stays still while it talks (an action it just started, like sleeping, finishes first)
+			// every pet stays still while a bubble is open (each bubble holds once and lets go when it closes)
+			FormPet.Hold(true);
+			current.FormClosed += (s, e) => FormPet.Hold(false);
+		}
+
+		// ------------------------------------------------------------------ quiet time
+
+		/// <summary>Focus time (Pomodoro running, not paused) or pets hidden with Ctrl+Alt+P: no bubbles, no sounds.</summary>
+		public static bool QuietNow => HideHotkey.Hidden || (Pomodoro.Current == Pomodoro.Phase.Focus && !Pomodoro.Paused);
+
+		static readonly List<(string text, Choice[] choices)> held = new List<(string, Choice[])>();
+		static Timer releaseTimer;
+
+		/// <summary>Number of notices waiting for the quiet time to end.</summary>
+		public static int HeldCount => held.Count;
+
+		/// <summary>
+		/// A notice the pet gives on its own (reminder, meeting, battery, download…). During quiet time it waits,
+		/// and when the quiet time ends the pet tells how many arrived and can show them one by one.
+		/// Things the user asked for right now (games, menu actions) use <see cref="Say"/> instead.
+		/// </summary>
+		public static void Notify(string text, int seconds = 12, params Choice[] choices)
+		{
+			if (QuietNow)
+			{
+				held.Add((text, choices ?? new Choice[0]));
+				if (held.Count > 30) held.RemoveAt(0);
+				return;
+			}
+			Say(text, seconds, choices);
+		}
+
+		/// <summary>Call when the quiet time may have ended (focus over, pets shown again).</summary>
+		public static void QuietChanged()
+		{
+			if (QuietNow || held.Count == 0) return;
+			// a few seconds later: the "break time!" bubble of the focus timer comes first
+			if (releaseTimer == null)
+			{
+				releaseTimer = new Timer { Interval = 7000 };
+				releaseTimer.Tick += (s, e) =>
+				{
+					releaseTimer.Stop();
+					if (QuietNow || held.Count == 0) return;
+					Say(Lang.T(held.Count == 1 ? "quiet.heldOne" : "quiet.heldMany", held.Count), 0,
+						new Choice(Lang.T("quiet.show"), ShowNextHeld, true),
+						new Choice(Lang.T("quiet.dismiss"), () => held.Clear()));
+				};
+			}
+			releaseTimer.Stop();
+			releaseTimer.Start();
+		}
+
+		static void ShowNextHeld()
+		{
+			if (held.Count == 0) return;
+			var (text, choices) = held[0];
+			held.RemoveAt(0);
+			var list = new List<Choice>(choices);
+			if (held.Count > 0) list.Add(new Choice(Lang.T("quiet.next", held.Count), ShowNextHeld, list.Count == 0));
+			Say(text, 0, list.ToArray());
 		}
 
 		/// <summary>The first real pet that is visible on screen (not a balloon or other child window).</summary>

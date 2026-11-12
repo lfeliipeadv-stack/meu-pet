@@ -178,7 +178,7 @@ namespace DesktopPet
 	}
 
 	/// <summary>Create or edit a reminder: what the pet says and when.</summary>
-	internal sealed class FormReminder : Form
+	internal sealed class FormReminder : PetDialog
 	{
 		public Reminder Result { get; private set; }
 		readonly Reminder editing;

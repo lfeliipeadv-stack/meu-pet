@@ -112,6 +112,8 @@ namespace DesktopPet
             remindersMenuItem.DropDownItems.Add(manage);
             menu.Items.Add(remindersMenuItem);
             Reminders.Start();
+            Pomodoro.Changed += SpeechBubble.QuietChanged;   // notices held during focus or Ctrl+Alt+P
+            HideHotkey.Changed += SpeechBubble.QuietChanged;
             VirtualPet.Start();
             Mood.Start();
             PcMonitor.Apply();
@@ -119,6 +121,9 @@ namespace DesktopPet
             PetsMeet.Start();
             ComputerEvents.Apply();
             Agenda.Start();
+            OutlookMail.Start();
+            HoverAsk.Start();
+            Onboarding.Start();
 
                 // Item: Separator.
             sep = new ToolStripSeparator();

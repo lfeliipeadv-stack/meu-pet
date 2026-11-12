@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace DesktopPet
@@ -23,8 +24,9 @@ namespace DesktopPet
 	/// </summary>
 	public static class VirtualPet
 	{
-		static string FilePath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DesktopPet", "needs.json");
+		internal static string FilePath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DesktopPet", "needs.json");
 		static Dictionary<string, PetNeeds> all;
+		internal static void Reload() => all = null;
 		static Timer timer;
 
 		public static bool Enabled
@@ -104,10 +106,15 @@ namespace DesktopPet
 			if (key == "vpet.lonely") actions.Add(new SpeechBubble.Choice(Lang.T("vpet.pet"), Pet, true));
 			if (key == "vpet.sleepy") actions.Add(new SpeechBubble.Choice(Lang.T("vpet.sleep"), Sleep, true));
 			actions.Add(new SpeechBubble.Choice(Lang.T("vpet.later"), null));
-			SpeechBubble.Say(Lang.T(key), 0, actions.ToArray());
+			SpeechBubble.Notify(Lang.T(key), 0, actions.ToArray());
 		}
 
-		static void Change(Action<PetNeeds> change, string sayKey, params string[] anims)
+		/// <summary>
+		/// Apply an action: the pet on screen plays the animation that fits it (see <see cref="PetActions"/>).
+		/// Its bubble comes while it eats, gets petted or plays — or only after the whole animation (sleeping:
+		/// "what a nice nap" makes sense once it wakes up).
+		/// </summary>
+		static void Change(Action<PetNeeds> change, string sayKey, PetActions.Act act, bool bubbleAfter = false)
 		{
 			var n = Current;
 			change(n);
@@ -116,14 +123,34 @@ namespace DesktopPet
 			n.Energy = Math.Min(100, Math.Max(0, n.Energy));
 			Save();
 			Changed?.Invoke();
-			Program.Mainthread?.ReactAll(anims);
-			SpeechBubble.Say(Lang.T(sayKey) + "\n" + Bars(n), 6);
+
+			string text = Lang.T(sayKey) + "\n" + Bars(n);
+			var names = PetActions.Names(act);
+			var main = System.Windows.Forms.Application.OpenForms.OfType<FormPet>().FirstOrDefault(p => p.Visible && !p.IsChildWindow);
+			// the other pets on screen do it too
+			foreach (var other in System.Windows.Forms.Application.OpenForms.OfType<FormPet>().Where(p => p != main && p.Visible && !p.IsChildWindow).ToList())
+				other.React(names);
+			if (bubbleAfter && main != null)
+			{
+				bool said = false;
+				void SayIt() { if (said) return; said = true; SpeechBubble.Say(text, 6); }
+				if (main.ReactThen(SayIt, names))
+				{
+					// a very long animation (or one interrupted oddly): say it anyway after a while
+					var late = new Timer { Interval = 45000 };
+					late.Tick += (s, e) => { late.Stop(); late.Dispose(); SayIt(); };
+					late.Start();
+					return;
+				}
+			}
+			else main?.React(names);
+			SpeechBubble.Say(text, 6);
 		}
 
-		public static void Feed() => Change(n => { n.Food += 35; n.Energy += 5; }, "vpet.fed", "eat", "eat fish", "eat meat", "pizza", "happy");
-		public static void Pet() => Change(n => n.Love += 30, "vpet.petted", "love", "in love", "hearts", "happy", "wave");
-		public static void Play() => Change(n => { n.Love += 15; n.Energy -= 12; n.Food -= 5; }, "vpet.played", "dance", "jump", "juggle", "spin", "cheer");
-		public static void Sleep() => Change(n => n.Energy += 45, "vpet.slept", "sleep", "yawn");
+		public static void Feed() => Change(n => { n.Food += 35; n.Energy += 5; }, "vpet.fed", PetActions.Act.Feed);
+		public static void Pet() => Change(n => n.Love += 30, "vpet.petted", PetActions.Act.Pet);
+		public static void Play() => Change(n => { n.Love += 15; n.Energy -= 12; n.Food -= 5; }, "vpet.played", PetActions.Act.Play);
+		public static void Sleep() => Change(n => n.Energy += 45, "vpet.slept", PetActions.Act.Sleep, bubbleAfter: true);
 
 		/// <summary>"🍖 80%  ❤ 65%  ⚡ 40%"</summary>
 		public static string Bars(PetNeeds n) =>

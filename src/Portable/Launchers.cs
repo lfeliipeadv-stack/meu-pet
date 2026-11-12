@@ -18,8 +18,9 @@ namespace DesktopPet
 	/// <summary>Shortcuts kept in %LocalAppData%\DesktopPet\launchers.json and opened from the pet menu.</summary>
 	public static class Launchers
 	{
-		static string FilePath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DesktopPet", "launchers.json");
+		internal static string FilePath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DesktopPet", "launchers.json");
 		static List<Launcher> list;
+		internal static void Reload() => list = null;
 
 		public static List<Launcher> All
 		{
@@ -62,7 +63,7 @@ namespace DesktopPet
 	}
 
 	/// <summary>Add and remove shortcuts.</summary>
-	internal sealed class FormLaunchers : Form
+	internal sealed class FormLaunchers : PetDialog
 	{
 		readonly ListBox items = new ListBox { Width = 420, Height = 200, IntegralHeight = false };
 
@@ -133,7 +134,7 @@ namespace DesktopPet
 		/// <summary>A one-line question.</summary>
 		internal static string Prompt(string question, string value)
 		{
-			using (var f = new Form
+			using (var f = new PetDialog
 			{
 				Text = "desktopPet", FormBorderStyle = FormBorderStyle.FixedDialog, MaximizeBox = false, MinimizeBox = false,
 				ShowInTaskbar = false, StartPosition = FormStartPosition.CenterParent, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, Padding = new Padding(16),

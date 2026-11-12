@@ -76,15 +76,14 @@ namespace DesktopPet
 				lastComment = DateTime.Now;
 				busySeconds = 0;
 				Program.Mainthread?.ReactAll("tired", "dizzy", "hot", "sweat");
-				SpeechBubble.Say(Lang.T("mon.busy", Cpu), 8);
+				SpeechBubble.Notify(Lang.T("mon.busy", Cpu), 8);
 			}
 
 			var pet = Application.OpenForms.OfType<FormPet>().FirstOrDefault(p => p.Visible && !p.IsChildWindow && p.Opacity > 0);
 			if (pet == null || HideHotkey.Hidden) { hud?.Hide(); return; }
 			if (hud == null || hud.IsDisposed) hud = new Hud();
-			hud.Follow(pet);
+			hud.Follow(pet);   // shown only while the mouse is on the pet (see Hud)
 			hud.Invalidate();
-			if (!hud.Visible) hud.Show();
 		}
 
 		/// <summary>The little plate beside the pet.</summary>
@@ -100,7 +99,7 @@ namespace DesktopPet
 				ShowInTaskbar = false; StartPosition = FormStartPosition.Manual; DoubleBuffered = true;
 				Size = new Size(150, 70);
 				Theme.ApplyWindowChrome(this);
-				follow.Tick += (s, e) => { if (pet != null && !pet.IsDisposed && pet.Visible) Place(); };
+				follow.Tick += (s, e) => HoverCheck();
 				follow.Start();
 				FormClosed += (s, e) => { follow.Stop(); follow.Dispose(); };
 			}
@@ -117,7 +116,23 @@ namespace DesktopPet
 				}
 			}
 
-			public void Follow(FormPet p) { pet = p; Place(); }
+			public void Follow(FormPet p) { pet = p; Place(); HoverCheck(); }
+
+			/// <summary>The plate shows while the mouse is over the pet (it is click-through, so the pet stays usable).</summary>
+			void HoverCheck()
+			{
+				if (pet == null || pet.IsDisposed || !pet.Visible || HideHotkey.Hidden) { if (Visible) Hide(); return; }
+				bool over = Rectangle.Inflate(pet.Bounds, 6, 6).Contains(Cursor.Position);
+				if (over)
+				{
+					Place();
+					if (!Visible) { Show(); Invalidate(); }
+				}
+				else if (Visible) Hide();
+			}
+
+			/// <summary>Self-test: is the plate on screen.</summary>
+			internal bool Showing => Visible;
 
 			void Place()
 			{

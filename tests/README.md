@@ -104,3 +104,6 @@ src/bin/Release/net10.0-windows/win-x64/DesktopPet.exe --selftest=$env:TEMP\self
 The program writes one `PASS`/`FAIL` line per check, closes by itself and returns the
 number of failures as exit code. The user's reminders, needs, mood and shortcuts files are
 not changed; settings changed by a check are put back. Close a running DesktopPet first.
+
+On GitHub, `.github/workflows/build.yml` builds the program and runs this self-test on every push
+to master; the result file is kept as the `autoteste` artifact of the run.

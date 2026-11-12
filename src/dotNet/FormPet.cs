@@ -496,6 +496,8 @@ namespace DesktopPet
 			// Explicit actions (drag, sync, kill or respawn) replace a queued transition.
 			pendingTransition = false;
             if (CurrentAnimation.ID == Animations.AnimationKill) return;
+            // a reaction with something waiting for it was cut short (the pet fell, was picked up…): run it now
+            if (afterDone != null && CurrentAnimation.ID == afterId && id != afterId) AnimationFinished(afterId);
             // Settle the outgoing endpoint while its animation is still current.
             // This also owns endpoint commitment for a completed pending transition.
             if (!IsDragging && !IsTossing && !IsLeaving && motion.Initialized)
@@ -930,6 +932,10 @@ namespace DesktopPet
                 }
                 else if (iNextAni >= 0)
                 {
+#if NETCORE
+                    AnimationFinished(CurrentAnimation.ID);
+                    iNextAni = WhileTalking(iNextAni);
+#endif
                     nextAnimation = iNextAni;
                     bNewAnimation = true;
                 }
@@ -1624,7 +1630,7 @@ namespace DesktopPet
             else if (e.Button == MouseButtons.Right && !IsChildWindow)
             {
                 // the pet menu: games, focus timer, reminders, shortcuts, needs…
-                PetMenu.Show(this, pictureBox1, e.Location, ShowAnimationPicker);
+                PetMenu.Show(this, pictureBox1, e.Location);
             }
 #endif
         }
@@ -1656,16 +1662,133 @@ namespace DesktopPet
         public bool React(params string[] names)
         {
             if (IsDragging || IsTossing || IsLeaving || Animations?.SheepAnimations == null) return false;
+            int id = FindAnimation(names);
+            // held still (bubble, menu or window open): only reactions that stay in place
+            if (id >= 0 && Held && !IsChildWindow && !IsStill(Animations.GetAnimation(id)))
+                id = FindAnimation(names.Where(n => { int i = FindAnimation(n); return i >= 0 && IsStill(Animations.GetAnimation(i)); }).ToArray());
+            if (id < 0) return false;
+            SetNewAnimation(id);
+            timer1.Interval = 1;
+            timer1.Enabled = true;
+            lastReaction = DateTime.Now;
+            return true;
+        }
+
+        /// <summary>The first animation of this pet with one of these names, or -1.</summary>
+        public int FindAnimation(params string[] names)
+        {
+            if (Animations?.SheepAnimations == null) return -1;
             foreach (var n in names)
             {
                 var a = Animations.SheepAnimations.Values.FirstOrDefault(x => string.Equals(x.Name, n, StringComparison.OrdinalIgnoreCase));
-                if (a.Name == null) continue;
-                SetNewAnimation(a.ID);
+                if (a.Name != null) return a.ID;
+            }
+            return -1;
+        }
+
+        DateTime lastReaction = DateTime.MinValue;
+        int afterId = -1;
+        Action afterDone;
+
+        /// <summary>
+        /// Play the first animation found and run <paramref name="done"/> when it is over (or replaced, e.g. the pet is
+        /// picked up). Returns false — and runs nothing — if the pet has none of them.
+        /// </summary>
+        public bool ReactThen(Action done, params string[] names)
+        {
+            if (!React(names)) return false;
+            afterId = CurrentAnimation.ID;
+            afterDone = done;
+            return true;
+        }
+
+        /// <summary>The animation <paramref name="id"/> ended: run what was waiting for it.</summary>
+        void AnimationFinished(int id)
+        {
+            if (afterDone == null || id != afterId) return;
+            var a = afterDone;
+            afterDone = null; afterId = -1;
+            BeginInvoke(a);
+        }
+
+        // ------------------------------------------------------------------ standing still while talking
+
+        int stillId = -2;   // -2: not looked for yet
+
+        /// <summary>
+        /// The animation the pet uses while a speech bubble is open: one that does not move ("talk", "sit", "idle"…,
+        /// or any animation without movement). -1 if the pet has none.
+        /// </summary>
+        public int StillAnimation
+        {
+            get
+            {
+                if (stillId != -2) return stillId;
+                stillId = FindAnimation("talk", "talking", "speak", "idle", "sit", "look around", "think", "blink", "look_down", "look down");
+                if (stillId < 0 && Animations?.SheepAnimations != null)
+                {
+                    string[] avoid = { "sleep", "drag", "fall", "kill", "toss", "sync", "poof", "teleport", "cat", "jump", "run", "walk", "climb", "fly" };
+                    var a = Animations.SheepAnimations.Values.FirstOrDefault(x => x.Name != null
+                        && !avoid.Any(w => x.Name.IndexOf(w, StringComparison.OrdinalIgnoreCase) >= 0)
+                        && !Animations.HasAnimationChild(x.ID) && IsStill(x));
+                    stillId = a.Name != null ? a.ID : -1;
+                }
+                return stillId;
+            }
+        }
+
+        static bool IsStill(TAnimation a) =>
+            a.Start.X.Value == 0 && a.End.X.Value == 0 && a.Start.Y.Value == 0 && a.End.Y.Value == 0 && !a.Start.X.IsDynamic && !a.End.X.IsDynamic;
+
+        /// <summary>Self-test: name of the animation playing and whether it stands still.</summary>
+        internal string CurrentAnimationName => CurrentAnimation.Name;
+        internal bool StandingStill => IsStill(CurrentAnimation);
+
+        // ------------------------------------------------------------------ holding every pet still
+
+        /// <summary>Bubbles, the pet menu and the pet's little windows that are open now: while any is, every pet stands still.</summary>
+        static int holds;
+
+        /// <summary>True while a bubble, the pet menu or a pet window is open.</summary>
+        public static bool Held => holds > 0;
+
+        /// <summary>
+        /// A bubble, the pet menu or a pet window opens (<paramref name="on"/> = true) or closes. While at least one is
+        /// open, every pet stops where it is and only plays animations that stay in place.
+        /// </summary>
+        public static void Hold(bool on)
+        {
+            holds = Math.Max(0, holds + (on ? 1 : -1));
+            if (on && holds == 1)
+                foreach (var pet in Application.OpenForms.OfType<FormPet>().Where(p => !p.IsChildWindow).ToList()) pet.StopNow();
+        }
+
+        /// <summary>Stop walking at once (not while held by the mouse, falling or jumping: that ends first).</summary>
+        void StopNow()
+        {
+            if (Busy || StillAnimation < 0) return;
+            bool onGround = CurrentAnimation.Start.Y.Value == 0 && CurrentAnimation.End.Y.Value == 0;
+            if (onGround && !IsStill(CurrentAnimation))
+            {
+                SetNewAnimation(StillAnimation);
                 timer1.Interval = 1;
                 timer1.Enabled = true;
-                return true;
             }
-            return false;
+        }
+
+        /// <summary>Kept for the bubble: same as <see cref="Hold"/>(true) / (false).</summary>
+        public void StartTalking() => Hold(true);
+        public void StopTalking() => Hold(false);
+
+        bool talking => Held;
+
+        /// <summary>While talking, the next animation is the still one (not while falling or jumping).</summary>
+        int WhileTalking(int next)
+        {
+            if (!talking || afterDone != null || StillAnimation < 0) return next;
+            var n = Animations.GetAnimation(next);
+            bool stays = n.Start.Y.Value == 0 && n.End.Y.Value == 0;
+            return stays ? StillAnimation : next;
         }
         private void ShowAnimationPicker()
         {

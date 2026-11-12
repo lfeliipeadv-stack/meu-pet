@@ -59,7 +59,7 @@ namespace DesktopPet
 				save(System.IO.Path.Combine("details", pet.folder));
 			}
 			f.petsView.CloseDetail();
-			foreach (Page p in new[] { Page.Behaviour, Page.Application, Page.About, Page.Reminders, Page.Extras }) { f.SelectPage(p); await Task.Delay(200); save(p.ToString().ToLowerInvariant()); }
+			foreach (Page p in new[] { Page.Behaviour, Page.Application, Page.About, Page.Reminders, Page.Extras, Page.Ai }) { f.SelectPage(p); await Task.Delay(200); save(p.ToString().ToLowerInvariant()); }
 			// color group card (gSheep) with the pink color selected
 			var group = f.WebPets.pets.FirstOrDefault(p => p.Variants != null);
 			if (group != null)
@@ -146,7 +146,7 @@ namespace DesktopPet
 							bmp.Save(System.IO.Path.Combine(folder, "monitor.png"), System.Drawing.Imaging.ImageFormat.Png);
 						}
 					PcMonitor.Enabled = monitorWas;
-					var menu = PetMenu.Show(pet, pet, new Point(0, 0), () => { });
+					var menu = PetMenu.Show(pet, pet, new Point(0, 0));
 					await Task.Delay(500);
 					if (menu != null)
 					{
@@ -160,6 +160,22 @@ namespace DesktopPet
 				}
 			}
 			catch (Exception ex) { StartUp.AddDebugInfo(StartUp.DEBUG_TYPE.warning, "pet menu snapshot: " + ex.Message); }
+
+			// AI settings window
+			try
+			{
+				using (var ai = new FormAiSettings { StartPosition = FormStartPosition.Manual, Location = new Point(-5000, -5000) })
+				{
+					ai.Show();
+					await Task.Delay(300);
+					using (var bmp = new Bitmap(ai.Width, ai.Height))
+					{
+						ai.DrawToBitmap(bmp, new Rectangle(Point.Empty, ai.Size));
+						bmp.Save(System.IO.Path.Combine(folder, "ai-settings.png"), System.Drawing.Imaging.ImageFormat.Png);
+					}
+				}
+			}
+			catch (Exception ex) { StartUp.AddDebugInfo(StartUp.DEBUG_TYPE.warning, "ai snapshot: " + ex.Message); }
 
 			// debug window, with a warning and an error in the log
 			StartUp.AddDebugInfo(StartUp.DEBUG_TYPE.warning, "snapshot: sample warning");

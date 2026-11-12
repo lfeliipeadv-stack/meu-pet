@@ -85,7 +85,14 @@ namespace DesktopPet
 			});
 			applicationView.AddAction("", /* export */ "opt.export", "opt.export.button", ExportPets);
 			applicationView.AddAction("", /* import */ "opt.import", "opt.import.button", ImportPets);
+			applicationView.AddAction("", /* create */ "opt.create", "opt.create.button", CreatePet);
 			applicationView.AddAction("", /* bug */ "opt.debug", "opt.debug.button", FormDebugModern.ShowWindow);
+			applicationView.AddAction("", /* tour */ "opt.tour", "opt.tour.button", Onboarding.Tour);
+			applicationView.AddAction("", /* folder */ "opt.logs", "opt.logs.button", () =>
+			{
+				System.IO.Directory.CreateDirectory(LogFile.Folder);
+				System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("explorer.exe", "\"" + LogFile.Folder + "\"") { UseShellExecute = false });
+			});
 #if PORTABLE
 			applicationView.AddAction("", /* download */ Program.IsApplicationInstalled() ? "opt.install.titleInstalled" : "opt.install", "opt.install.button",
 				() => ContextMenus.OpenInstaller(), "opt.install.desc");

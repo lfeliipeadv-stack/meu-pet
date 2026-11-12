@@ -20,7 +20,7 @@ namespace DesktopPet
 	public sealed partial class FormSettings : Form
 	{
 		/// <summary>Pages of the window (sidebar entries).</summary>
-		public enum Page { Pets, Behaviour, Application, About, Reminders, Extras }
+		public enum Page { Pets, Behaviour, Application, About, Reminders, Extras, Ai }
 
 		private static FormSettings openInstance;
 
@@ -56,6 +56,7 @@ namespace DesktopPet
 		private readonly AboutView aboutView;
 		private readonly RemindersView remindersView;
 		private readonly OptionsView extrasView;
+		private readonly OptionsView aiView;
 
 		private Font fontTitle, fontSubtitle, fontText, fontSmall, fontBold, fontNav, fontH2;
 
@@ -141,9 +142,11 @@ namespace DesktopPet
 			aboutView = new AboutView(this) { Dock = DockStyle.Fill };
 			remindersView = new RemindersView(this) { Dock = DockStyle.Fill };
 			extrasView = new OptionsView(this) { Dock = DockStyle.Fill };
+			aiView = new OptionsView(this) { Dock = DockStyle.Fill };
 			BuildBehaviourOptions();
 			BuildApplicationOptions();
 			BuildExtrasOptions();
+			BuildAiOptions();
 
 			searchBox.TextChanged += (s, e) => petsView.Filter = searchBox.Text;
 
@@ -194,7 +197,7 @@ namespace DesktopPet
 			header.BackColor = Theme.Background; content.BackColor = Theme.Background;
 			headerTitle.ForeColor = Theme.Text; headerSubtitle.ForeColor = Theme.TextMuted;
 			searchField.Recolor();
-			foreach (Control c in new Control[] { sidebar, petsView, behaviourView, applicationView, aboutView, remindersView, extrasView })
+			foreach (Control c in new Control[] { sidebar, petsView, behaviourView, applicationView, aboutView, remindersView, extrasView, aiView })
 			{
 				c.BackColor = Theme.Background;
 				c.Invalidate();
@@ -212,7 +215,7 @@ namespace DesktopPet
 			searchBox.PlaceholderText = Lang.T("pets.search");
 			StatusText = Lang.T("status.available", WebPets.pets.Count);
 			SelectPage(page);
-			foreach (Control c in new Control[] { sidebar, petsView, behaviourView, applicationView, aboutView, remindersView, extrasView }) c.Invalidate();
+			foreach (Control c in new Control[] { sidebar, petsView, behaviourView, applicationView, aboutView, remindersView, extrasView, aiView }) c.Invalidate();
 		}
 
 		private void CreateFonts()
@@ -272,6 +275,11 @@ namespace DesktopPet
 					headerTitle.Text = Lang.T("page.application.title");
 					headerSubtitle.Text = Lang.T("page.application.subtitle");
 					content.Controls.Add(applicationView);
+					break;
+				case Page.Ai:
+					headerTitle.Text = Lang.T("page.ai.title");
+					headerSubtitle.Text = Lang.T("page.ai.subtitle");
+					content.Controls.Add(aiView);
 					break;
 				case Page.Extras:
 					headerTitle.Text = Lang.T("page.extras.title");

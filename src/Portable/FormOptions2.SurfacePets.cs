@@ -646,6 +646,11 @@ namespace DesktopPet
 		/// </summary>
 		[JsonIgnore]
 		public Image Image { get; set; } = null;
+		/// <summary>The pet moving (Pets/&lt;folder&gt;/preview.gif), shown in the detail before downloading. Null until loaded.</summary>
+		[JsonIgnore]
+		public Image Preview { get; set; }
+		[JsonIgnore]
+		public bool PreviewTried { get; set; }
 		/// <summary>
 		/// Readme to parse and show on the page
 		/// </summary>
@@ -693,7 +698,7 @@ namespace DesktopPet
 			if (v == null) return;
 			folder = v.folder; name = v.name; author = v.author; lastupdate = v.lastupdate;
 			size = v.size; animations = v.animations; sounds = v.sounds;
-			Image = v.Image; Readme = v.Readme; ReadmeLang = v.ReadmeLang; Detail = v.Detail;
+			Image = v.Image; Preview = v.Preview; PreviewTried = v.PreviewTried; Readme = v.Readme; ReadmeLang = v.ReadmeLang; Detail = v.Detail;
 		}
 	}
 	/// <summary>

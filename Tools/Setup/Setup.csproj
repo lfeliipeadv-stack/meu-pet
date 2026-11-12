@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    DesktopPet-Instalador.exe: the setup for people who do not have the .NET 10 Desktop Runtime yet.
+    It is built for the .NET Framework 4.8 that comes with every Windows 10/11, so it always opens.
+    It checks the .NET 10 Desktop Runtime, offers Microsoft's official installer when it is missing (Install stays
+    disabled until it is there), then installs DesktopPet.exe (embedded) like the program's own installer does.
+    Build: dotnet build Tools\Setup\Setup.csproj -c Release -p:AppExe=<path of DesktopPet.exe>   (Tools\release.ps1 does it)
+  -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <AssemblyName>DesktopPet-Instalador</AssemblyName>
+    <RootNamespace>DesktopPetSetup</RootNamespace>
+    <ApplicationIcon>..\..\src\icon.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- the published single-file DesktopPet.exe (Tools\release.ps1 passes it) -->
+    <AppExe Condition="'$(AppExe)' == ''">..\..\publish\DesktopPet.exe</AppExe>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <Product>desktopPet</Product>
+    <AssemblyTitle>Instalador do desktopPet</AssemblyTitle>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+    <EmbeddedResource Include="$(AppExe)" LogicalName="DesktopPet.exe" />
+    <EmbeddedResource Include="..\..\src\Images\logo.png" LogicalName="logo.png" />
+    <!-- the same uninstall.cmd as the program's own installer -->
+    <Compile Include="..\..\src\Portable\UninstallScript.cs" Link="UninstallScript.cs" />
+  </ItemGroup>
+
+</Project>

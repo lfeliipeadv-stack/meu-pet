@@ -85,6 +85,14 @@ namespace DesktopPet
 				}
 			}
 			catch (Exception) { }
+			// languages inside the exe that the folder does not have
+			foreach (var code in EmbeddedCodes())
+			{
+				if (list.Any(e => e.Code.Equals(code, StringComparison.OrdinalIgnoreCase))) continue;
+				string name = code;
+				try { var d = Read(EmbeddedPrefix + code); if (d != null && d.TryGetValue("language.name", out string n) && !string.IsNullOrWhiteSpace(n)) name = n; } catch (Exception) { }
+				list.Add(new Entry { Code = code, Name = name });
+			}
 			return list;
 		}
 
@@ -137,6 +145,11 @@ namespace DesktopPet
 				string shortCode = code.Split('-')[0];
 				file = Path.Combine(Folder, shortCode + ".json");
 				if (File.Exists(file)) { resolved = shortCode; return file; }
+				// no lang folder (only the exe was downloaded): the copy inside the exe
+				var embedded = EmbeddedCodes();
+				string match = embedded.FirstOrDefault(c => c.Equals(code, StringComparison.OrdinalIgnoreCase))
+					?? embedded.FirstOrDefault(c => c.Split('-')[0].Equals(shortCode, StringComparison.OrdinalIgnoreCase));
+				if (match != null) { resolved = match; return EmbeddedPrefix + match; }
 			}
 			catch (Exception) { }
 			return null;
@@ -161,8 +174,18 @@ namespace DesktopPet
 		private static Dictionary<string, string> Read(string file)
 		{
 			// The file is data, never code: a bad or hostile file can only give us strings.
+			if (file.StartsWith(EmbeddedPrefix, StringComparison.Ordinal))
+				using (var s = typeof(Lang).Assembly.GetManifestResourceStream("lang/" + file.Substring(EmbeddedPrefix.Length) + ".json"))
+				using (var r = new StreamReader(s, System.Text.Encoding.UTF8))
+					return JsonText.Deserialize<Dictionary<string, string>>(r.ReadToEnd());
 			return JsonText.Deserialize<Dictionary<string, string>>(File.ReadAllText(file, System.Text.Encoding.UTF8));
 		}
+
+		/// <summary>Languages inside the exe ("embedded:pt-BR"): used when the lang folder does not have them.</summary>
+		private const string EmbeddedPrefix = "embedded:";
+
+		private static List<string> EmbeddedCodes() => typeof(Lang).Assembly.GetManifestResourceNames()
+			.Where(n => n.StartsWith("lang/") && n.EndsWith(".json")).Select(n => n.Substring(5, n.Length - 10)).ToList();
 
 		/// <summary>Translated text for a key. Unknown keys return the key itself (visible, easy to spot).</summary>
 		public static string T(string key)
@@ -257,6 +280,101 @@ namespace DesktopPet
 				["rem.save"] = "Save",
 				["rem.cancel"] = "Cancel",
 				["nav.extras"] = "Extras",
+				["nav.ai"] = "AI",
+				["hover.ask"] = "Ask",
+				["tour.hello"] = "Hi! I'm {0}. Can I show you what I can do? It takes one minute.",
+				["tour.show"] = "Show me",
+				["tour.later"] = "Not now",
+				["tour.next"] = "Next ({0}/{1})",
+				["tour.skip"] = "Skip",
+				["tour.finish"] = "Got it!",
+				["tour.menu"] = "Right-click me to open my menu: games, focus timer, reminders, shortcuts and more.",
+				["tour.drag"] = "You can drag me with the mouse and let go. The middle button (wheel) chooses one of my animations.",
+				["tour.focus"] = "I remind you to drink water and take breaks (Reminders), and keep you company while you focus (Pomodoro).",
+				["tour.hide"] = "In a meeting? Ctrl+Alt+P hides me and keeps me quiet. Press it again to bring me back.",
+				["tour.ai"] = "Want to ask me things? Set up the AI (it's free) and a button shows up when you hover over me.",
+				["tour.aiReady"] = "Hover over me and click \"Ask\" (or press Ctrl+Alt+Space) to ask me anything.",
+				["tour.openAi"] = "Set up the AI",
+				["opt.tour.title"] = "Introduction",
+				["opt.tour.desc"] = "The pet shows again what it can do.",
+				["opt.tour.button"] = "Show",
+				["whatsnew.title"] = "What's new in version {0}:",
+				["whatsnew.more"] = "See everything",
+				["whatsnew.2.5.0"] = "ask me anything (AI), hover button, quiet focus time, Outlook e-mails, I stand still when talking, create your own pet, Spanish and an installer that checks .NET.",
+				["opt.aiStyle.title"] = "Personality",
+				["opt.aiStyle.desc"] = "How the pet answers.",
+				["opt.aiStyle.friendly"] = "Friendly",
+				["opt.aiStyle.direct"] = "Direct",
+				["opt.aiStyle.kids"] = "For kids",
+				["opt.aiStyle.funny"] = "Funny",
+				["opt.hoverAsk.title"] = "\"Ask\" button on the pet",
+				["opt.hoverAsk.desc"] = "When the mouse is over the pet, a button appears to ask a question with one click.",
+				["opt.askHotkey.title"] = "Ask with Ctrl+Alt+Space",
+				["opt.askHotkey.desc"] = "The shortcut opens the question box from any program.",
+				["ask.voice"] = "Speak",
+				["ask.continuing"] = "The pet remembers this conversation (\"and then?\" works).",
+				["ask.newChat"] = "New conversation",
+				["page.ai.title"] = "AI",
+				["page.ai.subtitle"] = "Connect an AI service and ask your pet anything. Free options ready to use.",
+				["opt.ai.title"] = "AI service",
+				["opt.ai.desc"] = "Choose Ollama (on this computer, free and private), Google Gemini, Groq, OpenRouter or another compatible service. The key is kept encrypted, only for your Windows user.",
+				["opt.ai.button"] = "Set up…",
+				["opt.aiAsk.title"] = "Ask the pet",
+				["opt.aiAsk.desc"] = "Write a question and the pet answers in its bubble. Also in the pet menu (right click), once the AI is set up.",
+				["opt.aiAsk.button"] = "Ask…",
+				["menu.ask"] = "Ask the pet…",
+				["ai.title"] = "AI of the pet",
+				["ai.intro"] = "The pet answers your questions with an AI service. Ollama runs on this computer (free, private, nothing leaves it). The others are on the internet with free plans: you only need a free key.",
+				["ai.service"] = "Service",
+				["ai.address"] = "Address",
+				["ai.key"] = "Key (API key)",
+				["ai.model"] = "Model",
+				["ai.custom"] = "Other (OpenAI compatible)",
+				["ai.test"] = "Test",
+				["ai.save"] = "Save",
+				["ai.remove"] = "Remove",
+				["ai.getKey"] = "Get a free key",
+				["ai.getOllama"] = "Download Ollama",
+				["ai.infoLocal"] = "Install Ollama, then run in a terminal: ollama pull llama3.2 — and click Test.",
+				["ai.infoCloud"] = "Your questions are sent to {0}. Create a free key, paste it above and click Test.",
+				["ai.testing"] = "Connecting…",
+				["ai.testOk"] = "Connected! {0} model(s) available. Using: {1}",
+				["ai.testFail"] = "It did not work: {0}",
+				["ai.needKey"] = "paste the key first",
+				["ai.noModels"] = "the service did not list any model",
+				["ai.noModelsOllama"] = "Ollama has no model yet. Run in a terminal: ollama pull llama3.2",
+				["ai.ollamaOff"] = "Ollama is not running on this computer. Install it from ollama.com (or open it) and try again.",
+				["ai.timeout"] = "the service took too long to answer",
+				["ai.httpsOnly"] = "the address must start with https:// (or be on this computer)",
+				["ai.errKey"] = "the key was refused: check it",
+				["ai.errModel"] = "this model does not exist there",
+				["ai.errLimit"] = "the free limit of the service was reached for now: try again later",
+				["ai.errBusy"] = "the service is overloaded right now: try again in a moment",
+				["ai.testingModels"] = "Connected! Finding a model that answers…",
+				["ai.saved"] = "AI set up: {0} ({1}).",
+				["ai.removed"] = "AI removed.",
+				["ai.ready"] = "Now you can ask me things! Right-click me → Ask the pet. 🤓",
+				["ask.title"] = "Ask {0}",
+				["ask.prompt"] = "What do you want to ask {0}?",
+				["ask.send"] = "Ask",
+				["ask.thinking"] = "Hmm, let me think… 🤔",
+				["ask.empty"] = "Hmm… I have no answer for that.",
+				["ask.seeAll"] = "See all",
+				["ask.again"] = "Ask again",
+				["ask.settings"] = "AI settings",
+				["ask.error"] = "I couldn't answer: {0}",
+				["ask.privacy"] = "Your questions will be sent to {0} to be answered.\n\nDo not write passwords or private data. Continue?",
+				["opt.mail.title"] = "New e-mails (Outlook)",
+				["opt.mail.desc"] = "While the classic Outlook is open, the pet tells you when a new e-mail arrives. Only the number of messages is read, never the sender or the text. The new Outlook is not supported.",
+				["mail.newOne"] = "You have a new e-mail in Outlook. Open it? ✉️",
+				["mail.newMany"] = "You have {0} new e-mails in Outlook. Open them? ✉️",
+				["mail.open"] = "Open",
+				["mail.later"] = "Later",
+				["quiet.heldOne"] = "While you were busy, 1 notice arrived.",
+				["quiet.heldMany"] = "While you were busy, {0} notices arrived.",
+				["quiet.show"] = "Show",
+				["quiet.dismiss"] = "Dismiss",
+				["quiet.next"] = "Next ({0})",
 				["opt.petsMeet.title"] = "Pets greet each other",
 				["opt.petsMeet.desc"] = "When two pets meet on the screen they wave, dance or show some love.",
 				["opt.pcEvents.title"] = "Reactions to the computer",
@@ -306,6 +424,12 @@ namespace DesktopPet
 				["opt.claudeTest.title"] = "Test the Claude Code reactions",
 				["opt.claudeTest.desc"] = "Plays a short example: thinking, editing, running and done.",
 				["opt.claudeTest.button"] = "Test",
+				["opt.claudeMcp.title"] = "Let Claude talk through the pet (MCP)",
+				["opt.claudeMcp.desc"] = "Adds the \"desktoppet\" tools to Claude Code: Claude can send you a short message in the pet's bubble (for example when a long task ends). Paths, links and code are never shown.",
+				["mcp.on"] = "Done! Claude can now talk through the pet (in new Claude Code sessions).",
+				["mcp.off"] = "Claude Code no longer talks through the pet.",
+				["mcp.error"] = "Claude Code answered with an error: {0}",
+				["mcp.manual"] = "Claude Code was not found on this computer. Run this command in a terminal (it is already copied):\n\n{0}",
 				["claude.confirmOn"] = "This adds hooks to your Claude Code settings:\n{0}\n\nA copy of the file is saved first ({1}). The hooks only tell this program which kind of thing Claude is doing; nothing of your code or messages is shown.\n\nNew Claude Code sessions will use it. Continue?",
 				["claude.on"] = "Done! The pet now reacts to Claude Code (open a new Claude Code session).",
 				["claude.off"] = "The Claude Code hooks were removed.",
@@ -320,7 +444,7 @@ namespace DesktopPet
 				["opt.vpet.title"] = "Virtual pet",
 				["opt.vpet.desc"] = "Your pet gets hungry, wants affection and gets tired. Feed it, pet it, play and let it sleep from the pet menu.",
 				["opt.monitor.title"] = "PC monitor",
-				["opt.monitor.desc"] = "Shows CPU, memory and free disk space next to the pet, and the pet comments when the computer is very busy.",
+				["opt.monitor.desc"] = "Hover the mouse over the pet to see CPU, memory and free disk space. The pet also comments when the computer is very busy.",
 				["opt.mood.title"] = "Daily mood check-in",
 				["opt.mood.desc"] = "Once a day the pet asks how you are doing.",
 				["opt.moodHour.title"] = "Mood check-in time",
@@ -344,7 +468,6 @@ namespace DesktopPet
 				["menu.shortcutsManage"] = "Manage shortcuts…",
 				["menu.mood"] = "How am I today?",
 				["menu.monitor"] = "Show CPU and memory",
-				["menu.animations"] = "Choose an animation…",
 				["menu.sendAway"] = "Send this pet away",
 				["pomo.startFocus"] = "Focus time! {0} minutes. I'll keep quiet. 🤫",
 				["pomo.stopped"] = "Focus timer stopped.",
@@ -495,12 +618,40 @@ namespace DesktopPet
 				["dlg.importAdopt"] = "\"{0}\" was the pet in use on the other computer. Adopt it now?",
 				["opt.hotkey.title"] = "Hide pets with Ctrl+Alt+P",
 				["opt.hotkey.desc"] = "The shortcut hides every pet (and its sounds) or shows them again, from any program. Handy in meetings.",
-				["opt.export.title"] = "Export my pets",
-				["opt.export.desc"] = "Save your downloaded pets in one file, to take them to another computer.",
+				["opt.export.title"] = "Back up my pets and settings",
+				["opt.export.desc"] = "One file with your pets, reminders, shortcuts, mood history and settings, to take them to another computer. It also has your calendar link: keep it private.",
+				["dlg.importMyThings"] = "This file also has reminders, shortcuts, mood history and settings.\n\nReplace the ones of this computer with them?",
+				["status.restoredMyThings"] = "{0} pets and {1} items restored.",
+				["opt.logs.title"] = "Log files",
+				["opt.logs.desc"] = "Warnings and errors of the last 7 days. If something goes wrong, send the latest file to whoever helps you.",
+				["opt.logs.button"] = "Open folder",
 				["opt.export.button"] = "Export…",
 				["opt.import.title"] = "Import pets",
 				["opt.import.desc"] = "Bring the pets of an exported file to this computer.",
 				["opt.import.button"] = "Import…",
+				["opt.create.title"] = "Create my pet",
+				["opt.create.desc"] = "Turn your own pictures (PNG, GIF, JPG) into a pet that walks, sleeps and falls like the others.",
+				["opt.create.button"] = "Create…",
+				["create.title"] = "Create my pet",
+				["create.intro"] = "Choose the pictures of each movement, in order (frame_01, frame_02…). Only \"Walking\" is needed; the others use it when missing. Pictures with a transparent background look best.",
+				["create.name"] = "Pet name",
+				["create.walk"] = "Walking",
+				["create.idle"] = "Standing still",
+				["create.sleep"] = "Sleeping",
+				["create.fall"] = "Falling",
+				["create.drag"] = "Being dragged",
+				["create.none"] = "none",
+				["create.count"] = "{0} pictures",
+				["create.pick"] = "Choose…",
+				["create.images"] = "Pictures",
+				["create.facingRight"] = "My pictures look to the right",
+				["create.create"] = "Create pet",
+				["create.needName"] = "Give your pet a name.",
+				["create.needWalk"] = "Choose at least one picture for \"Walking\".",
+				["create.info"] = "Created on this computer with Desktop Pet.",
+				["pets.createdHere"] = "You created this pet on this computer. It is kept in your backups.",
+				["status.created"] = "\"{0}\" was created and is in My pets.",
+				["dlg.createdAdopt"] = "\"{0}\" is ready. Adopt it now?",
 				["opt.debug.title"] = "Debug window",
 				["opt.debug.desc"] = "See what the pet is doing, live. It also opens if you hold CTRL while the program starts.",
 				["opt.debug.button"] = "Open",

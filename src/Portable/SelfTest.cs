@@ -67,6 +67,29 @@ namespace DesktopPet
 				Check("downloads: finished file noticed", !ComputerEvents.IsUnfinished("relatorio.pdf") && !ComputerEvents.IsUnfinished("setup.exe"));
 				Check("downloads: folder found", Directory.Exists(ComputerEvents.DownloadsFolder()), ComputerEvents.DownloadsFolder());
 			});
+			await TryAsync("ask the pet", AskThePet);
+			Try("pet actions", PetActionNames);
+			Try("create pet", PetCreatorBuild);
+			await TryAsync("dialogs hold the pets", DialogsHold);
+			Try("tour", Onboard);
+			await TryAsync("talking pet", TalkingPet);
+			await TryAsync("quiet time", QuietTime);
+			Try("outlook", () =>
+			{
+				var c = OutlookMail.Counts();
+				if (c == null) lines.Add("SKIP  outlook: the classic Outlook is not open (the check did not start it)");
+				else Check("outlook: inbox numbers read", c.Value.total >= 0 && c.Value.unread >= 0, c.ToString());
+				Check("outlook: never started by the pet", c != null || !System.Diagnostics.Process.GetProcessesByName("OUTLOOK").Any());
+			});
+			await TryAsync("agenda online", AgendaOnline);
+			await TryAsync("downloads watcher", DownloadsWatcher);
+			Try("mcp", Mcp);
+			Try("backup of my things", BackupMyThings);
+			Try("log file", () =>
+			{
+				StartUp.AddDebugInfo(StartUp.DEBUG_TYPE.warning, "selftest log line");
+				Check("log: warnings saved to disk", File.Exists(LogFile.Today) && File.ReadAllText(LogFile.Today).Contains("selftest log line"), LogFile.Today);
+			});
 			Try("claude hooks file", ClaudeHooksFile);
 			Try("claude events", ClaudeEvents);
 			await TryAsync("claude endpoint", ClaudeEndpoint);
@@ -74,6 +97,34 @@ namespace DesktopPet
 			lines.Insert(0, $"DesktopPet self-test {DateTime.Now:yyyy-MM-dd HH:mm:ss}  —  {failures} failure(s)");
 			try { File.WriteAllLines(outFile, lines, new UTF8Encoding(false)); } catch (Exception) { }
 			Environment.Exit(failures);
+		}
+
+		/// <summary>
+		/// Developer: "--ai-check=result.txt" with the key in the environment variable DESKTOPPET_AI_KEY (never in a file)
+		/// and the service in DESKTOPPET_AI_PROVIDER (default gemini): the real service, the real code, no settings changed.
+		/// </summary>
+		public static async void AiCheck(string outFile)
+		{
+			var o = new List<string>();
+			try
+			{
+				string key = Environment.GetEnvironmentVariable("DESKTOPPET_AI_KEY") ?? "";
+				var p = AiAssistant.Preset(Environment.GetEnvironmentVariable("DESKTOPPET_AI_PROVIDER") ?? "gemini");
+				var models = await AiAssistant.ListModels(p.BaseUrl, key);
+				o.Add($"models: {models.Count}");
+				var sw = System.Diagnostics.Stopwatch.StartNew();
+				string m = await AiAssistant.FindWorkingModel(p, p.BaseUrl, key, p.Model, models);
+				o.Add($"working model: {m} ({sw.ElapsedMilliseconds} ms)");
+				// what happened before the fix: an old saved model the service no longer serves
+				string old = await AiAssistant.FindWorkingModel(p, p.BaseUrl, key, "gemini-2.5-flash", models);
+				o.Add($"from an old saved model it moves to: {old}");
+				sw.Restart();
+				string answer = await AiAssistant.Ask(p.BaseUrl, m, key, "Em uma frase: por que o céu é azul?", "Rex");
+				o.Add($"answer ({sw.ElapsedMilliseconds} ms): {answer}");
+			}
+			catch (Exception ex) { o.Add("ERROR " + ex.GetType().Name + ": " + ex.Message); }
+			try { File.WriteAllLines(outFile, o, new UTF8Encoding(false)); } catch (Exception) { }
+			Environment.Exit(0);
 		}
 
 		static async Task TryAsync(string name, Func<Task> test)
@@ -152,15 +203,103 @@ namespace DesktopPet
 
 		static void Languages()
 		{
-			string file = Path.Combine(Lang.Folder, "pt-BR.json");
-			var pt = JsonText.Deserialize<Dictionary<string, string>>(File.ReadAllText(file));
-			var missing = Lang.Keys.Where(k => !pt.ContainsKey(k)).ToList();
-			Check("pt-BR has every text", missing.Count == 0, string.Join(", ", missing.Take(15)) + (missing.Count > 15 ? $" … ({missing.Count})" : ""));
-			var extra = pt.Keys.Where(k => !Lang.Keys.Contains(k)).ToList();
-			Check("pt-BR has no unknown text", extra.Count == 0, string.Join(", ", extra.Take(15)));
-			// placeholders: the same {n} in both languages
-			var bad = Lang.Keys.Where(pt.ContainsKey).Where(k => Placeholders(pt[k]) != Placeholders(Lang.English(k))).ToList();
-			Check("pt-BR placeholders match", bad.Count == 0, string.Join(", ", bad.Take(10)));
+			foreach (string code in new[] { "pt-BR", "es" })
+			{
+				string file = Path.Combine(Lang.Folder, code + ".json");
+				if (!File.Exists(file)) { Check($"{code}: file next to the program", false, file); continue; }
+				var pt = JsonText.Deserialize<Dictionary<string, string>>(File.ReadAllText(file));
+				var missing = Lang.Keys.Where(k => !pt.ContainsKey(k)).ToList();
+				Check($"{code} has every text", missing.Count == 0, string.Join(", ", missing.Take(15)) + (missing.Count > 15 ? $" … ({missing.Count})" : ""));
+				var extra = pt.Keys.Where(k => !Lang.Keys.Contains(k)).ToList();
+				Check($"{code} has no unknown text", extra.Count == 0, string.Join(", ", extra.Take(15)));
+				// placeholders: the same {n} in both languages
+				var bad = Lang.Keys.Where(pt.ContainsKey).Where(k => Placeholders(pt[k]) != Placeholders(Lang.English(k))).ToList();
+				Check($"{code} placeholders match", bad.Count == 0, string.Join(", ", bad.Take(10)));
+			}
+			Check("es: listed among the languages", Lang.Available().Any(a => a.Code == "es"));
+		}
+
+		/// <summary>"Create my pet": a few drawn pictures become a pet the program can read, with every frame in the sheet.</summary>
+		static void PetCreatorBuild()
+		{
+			System.Drawing.Bitmap Frame(System.Drawing.Color c, int w, int h)
+			{
+				var b = new System.Drawing.Bitmap(w, h);
+				using (var g = System.Drawing.Graphics.FromImage(b)) { g.Clear(System.Drawing.Color.Transparent); using (var br = new System.Drawing.SolidBrush(c)) g.FillEllipse(br, 0, 0, w, h); }
+				return b;
+			}
+			var input = new PetCreator.Input { Name = "Teste Ção", FacingRight = true };
+			for (int i = 0; i < 4; i++) input.Walk.Add(Frame(System.Drawing.Color.Orange, 60 + i, 50));
+			input.Sleep.Add(Frame(System.Drawing.Color.Blue, 300, 240));   // bigger than the rest: reduced
+			input.Sleep.Add(Frame(System.Drawing.Color.Navy, 60, 40));
+			string xml = PetCreator.Build(input);
+			var ser = new System.Xml.Serialization.XmlSerializer(typeof(XmlData.RootNode));
+			XmlData.RootNode root;
+			using (var r = new StringReader(xml)) root = (XmlData.RootNode)ser.Deserialize(r);
+			Check("create pet: readable by the program", root?.Animations?.Animation?.Length >= 10, root?.Animations?.Animation?.Length.ToString());
+			int cells = root.Image.TilesX * root.Image.TilesY;
+			Check("create pet: every frame is in the picture", root.Animations.Animation.All(a => a.Sequence.Frame.All(f => f >= 0 && f < cells)), cells.ToString());
+			var ids = root.Animations.Animation.Select(a => a.Id).ToHashSet();
+			Check("create pet: every 'next' exists", root.Animations.Animation.All(a => a.Sequence.Next == null || a.Sequence.Next.All(n => ids.Contains(n.Value))));
+			Check("create pet: walk, fall, drag, sleep and kill", new[] { "walk", "fall", "drag", "sleep", "kill" }.All(n => root.Animations.Animation.Any(a => a.Name == n)));
+			Check("create pet: spawns", root.Spawns?.Spawn?.Length >= 1);
+			using (var ms = new MemoryStream(Convert.FromBase64String(root.Image.Png)))
+			using (var sheet = System.Drawing.Image.FromStream(ms))
+				Check("create pet: picture at most 160 px per row", sheet.Height / root.Image.TilesY <= 160 && sheet.Width % root.Image.TilesX == 0, $"{sheet.Width}x{sheet.Height}");
+			using (var ms = new MemoryStream(Convert.FromBase64String(root.Header.Icon)))
+			using (var ico = new System.Drawing.Icon(ms, 64, 64))
+				Check("create pet: icon", ico.Width == 64);
+			Check("create pet: folder name", PetCreator.FolderFor("Teste Ção!") == "meu-teste-cao", PetCreator.FolderFor("Teste Ção!"));
+			bool refused = false;
+			try { PetCreator.Build(new PetCreator.Input { Name = "x" }); } catch (ArgumentException) { refused = true; }
+			Check("create pet: walking pictures needed", refused);
+			foreach (var img in input.Walk.Concat(input.Sleep)) img.Dispose();
+		}
+
+		/// <summary>Every window with a text box keeps the pets still while it is open.</summary>
+		static async Task DialogsHold()
+		{
+			foreach (var t in new[] { typeof(FormAsk), typeof(FormAiSettings), typeof(FormLaunchers), typeof(FormReminder), typeof(FormPetCreator) })
+				Check($"dialog holds the pets: {t.Name}", typeof(PetDialog).IsAssignableFrom(t));
+			var pet = Pet();
+			foreach (var b in Application.OpenForms.OfType<SpeechBubble>().ToList()) b.Close();
+			await Task.Delay(200);
+			pet?.React("walk");
+			await Task.Delay(1700);
+			using (var d = new FormPetCreator())
+			{
+				d.Show();
+				await Task.Delay(600);
+				Check("dialog open: pets held", FormPet.Held);
+				if (pet != null)
+				{
+					int x1 = pet.Left;
+					await Task.Delay(500);
+					Check("dialog open: the pet does not walk", pet.Left == x1 || pet.StillAnimation < 0, $"{pet.CurrentAnimationName}, moved {pet.Left - x1}px");
+				}
+				d.Close();
+			}
+			await Task.Delay(200);
+			Check("dialog closed: pets free again", !FormPet.Held);
+		}
+
+		/// <summary>Falling from a window that went away: a pet in the air cannot stand still until it lands.</summary>
+		static bool InAir(FormPet pet) => (pet.CurrentAnimationName ?? "").IndexOf("fall", StringComparison.OrdinalIgnoreCase) >= 0;
+
+		static void Onboard()
+		{
+			bool done = Program.MyData.GetSettingBool("TourDone", false);
+			foreach (var b in Application.OpenForms.OfType<SpeechBubble>().ToList()) b.Close();
+			Onboarding.Tour();
+			Check("tour: the pet offers to show what it does", Application.OpenForms.OfType<SpeechBubble>().Any(b => b.Visible));
+			foreach (var b in Application.OpenForms.OfType<SpeechBubble>().ToList()) b.Close();
+			Check("tour: closing it does not mark it as seen", Program.MyData.GetSettingBool("TourDone", false) == done);
+			// the text of this version, or of the next one (the version number goes up when it is released)
+			var cur = Updater.CurrentVersion;
+			Check("what's new: text for this (or the next) version", Lang.Keys.Any(k => k.StartsWith("whatsnew.") && Version.TryParse(k.Substring(9), out var v) && v >= new Version(cur.Major, cur.Minor, cur.Build)), cur.ToString(3));
+			if (!HideHotkey.AskEnabled) lines.Add("SKIP  hotkey: Ctrl+Alt+Space turned off");
+			else if (HideHotkey.ApplyAsk()) Check("hotkey: Ctrl+Alt+Space registered", true);
+			else lines.Add("SKIP  hotkey: Ctrl+Alt+Space is taken by another program on this computer (the pet says so in its settings)");
 		}
 
 		static string Placeholders(string s) => string.Join(",", System.Text.RegularExpressions.Regex.Matches(s ?? "", @"\{(\d+)").Select(m => m.Groups[1].Value).Distinct().OrderBy(x => x));
@@ -265,7 +404,7 @@ namespace DesktopPet
 		{
 			var pet = Pet();
 			if (pet == null) { Check("menu: a pet is on screen", false); return; }
-			var cm = PetMenu.Show(pet, pet, new System.Drawing.Point(0, 0), () => { });
+			var cm = PetMenu.Show(pet, pet, new System.Drawing.Point(0, 0));
 			await Task.Delay(200);
 			var texts = cm.Items.OfType<ToolStripMenuItem>().Select(i => i.Text).ToList();
 			foreach (var key in new[] { "menu.games", "tray.reminders", "menu.shortcuts", "menu.mood", "menu.monitor", "menu.sendAway" })
@@ -278,7 +417,7 @@ namespace DesktopPet
 			// click every game: each one makes the pet say something
 			foreach (var key in new[] { "menu.fortune", "menu.ball", "menu.joke" })
 			{
-				var menu = PetMenu.Show(pet, pet, new System.Drawing.Point(0, 0), () => { });
+				var menu = PetMenu.Show(pet, pet, new System.Drawing.Point(0, 0));
 				var g = menu.Items.OfType<ToolStripMenuItem>().First(i => i.Text == Lang.T("menu.games"));
 				var item = g.DropDownItems.OfType<ToolStripMenuItem>().First(i => i.Text == Lang.T(key));
 				menu.Close();
@@ -292,13 +431,13 @@ namespace DesktopPet
 			ball?.Close();
 
 			// focus from the menu
-			var m2 = PetMenu.Show(pet, pet, new System.Drawing.Point(0, 0), () => { });
+			var m2 = PetMenu.Show(pet, pet, new System.Drawing.Point(0, 0));
 			var focusItem = m2.Items.OfType<ToolStripMenuItem>().First(i => i.Text == Lang.T("menu.focus"));
 			var start = focusItem.DropDownItems.OfType<ToolStripMenuItem>().First();
 			m2.Close();
 			start.PerformClick();
 			Check("menu click: start focusing", Pomodoro.Current == Pomodoro.Phase.Focus);
-			var m3 = PetMenu.Show(pet, pet, new System.Drawing.Point(0, 0), () => { });
+			var m3 = PetMenu.Show(pet, pet, new System.Drawing.Point(0, 0));
 			var running = m3.Items.OfType<ToolStripMenuItem>().FirstOrDefault(i => i.Text == Pomodoro.Status());
 			Check("menu: shows the time left while focusing", running != null, string.Join(" | ", m3.Items.OfType<ToolStripMenuItem>().Select(i => i.Text)));
 			var stop = running?.DropDownItems.OfType<ToolStripMenuItem>().FirstOrDefault(i => i.Text == Lang.T("menu.focusStop"));
@@ -317,7 +456,21 @@ namespace DesktopPet
 			bool monitorWas = PcMonitor.Enabled;
 			PcMonitor.Enabled = true;
 			await Task.Delay(2500);
-			Check("monitor: plate next to the pet", Application.OpenForms.Cast<Form>().Any(f => f.GetType().Name == "Hud" && f.Visible));
+			// shown only with the mouse on the pet: move the mouse away, then onto the pet, then back where it was
+			var mouse = Cursor.Position;
+			var area = Screen.FromControl(pet).WorkingArea;
+			Cursor.Position = new System.Drawing.Point(pet.Left > area.Left + 200 ? area.Left + 20 : area.Right - 20, area.Top + 20);
+			await Task.Delay(300);
+			Check("monitor: hidden while the mouse is away", !Application.OpenForms.Cast<Form>().Any(f => f.GetType().Name == "Hud" && f.Visible));
+			bool plate = false;
+			for (int i = 0; i < 8 && !plate; i++)   // the pet may be walking or falling: follow it
+			{
+				Cursor.Position = new System.Drawing.Point(pet.Left + pet.Width / 2, pet.Top + pet.Height / 2);
+				await Task.Delay(150);
+				plate = Application.OpenForms.Cast<Form>().Any(f => f.GetType().Name == "Hud" && f.Visible);
+			}
+			Check("monitor: plate when the mouse is on the pet", plate, $"pet at {pet.Bounds}, mouse at {Cursor.Position}");
+			Cursor.Position = mouse;
 			Check("monitor: real numbers", PcMonitor.Cpu >= 0 && PcMonitor.Cpu <= 100 && PcMonitor.Ram > 0 && PcMonitor.Ram <= 100, $"CPU {PcMonitor.Cpu} RAM {PcMonitor.Ram}");
 			PcMonitor.Enabled = false;
 			Check("monitor: plate gone when off", !Application.OpenForms.Cast<Form>().Any(f => f.GetType().Name == "Hud" && f.Visible));
@@ -375,6 +528,335 @@ namespace DesktopPet
 			Check("agenda: moved occurrence at its new time", list.Any(e => e.Title == "Daily (movida)" && e.Start.Hour == 11) && !list.Any(e => e.Uid == "weekly" && e.Start == new DateTime(2026, 11, 20, 9, 0, 0)), all);
 			Check("agenda: COUNT respected", list.Count(e => e.Uid == "count") == 1, all);
 			Check("agenda: no all-day or cancelled events", !list.Any(e => e.Uid == "allday" || e.Uid == "cancel"), all);
+		}
+
+		/// <summary>
+		/// "Ask the pet" against a fake AI service on this computer that speaks the OpenAI format (like Ollama,
+		/// Gemini, Groq and OpenRouter do): models, the right and the wrong key, the answer in the bubble.
+		/// The real AI settings are put back afterwards.
+		/// </summary>
+		static async Task AskThePet()
+		{
+			var listener = new System.Net.Sockets.TcpListener(System.Net.IPAddress.Loopback, 0);
+			listener.Start();
+			int port = ((System.Net.IPEndPoint)listener.LocalEndpoint).Port;
+			string lastBody = "";
+			var cts = new System.Threading.CancellationTokenSource();
+			_ = Task.Run(async () =>
+			{
+				while (!cts.IsCancellationRequested)
+				{
+					System.Net.Sockets.TcpClient c;
+					try { c = await listener.AcceptTcpClientAsync(cts.Token); } catch (Exception) { return; }
+					using (c)
+					{
+						var s = c.GetStream();
+						var buf = new byte[65536];
+						int n = await s.ReadAsync(buf, 0, buf.Length);
+						string req = Encoding.UTF8.GetString(buf, 0, n);
+						int headEnd = req.IndexOf("\r\n\r\n");
+						var len = System.Text.RegularExpressions.Regex.Match(req, @"Content-Length: (\d+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+						int want = len.Success ? int.Parse(len.Groups[1].Value) : 0;
+						while (headEnd >= 0 && Encoding.UTF8.GetByteCount(req) - (headEnd + 4) < want)
+						{
+							int m = await s.ReadAsync(buf, 0, buf.Length);
+							if (m == 0) break;
+							req += Encoding.UTF8.GetString(buf, 0, m);
+						}
+						bool keyOk = req.Contains("Authorization: Bearer chave-certa");
+						string status = "200 OK", body;
+						if (!keyOk) { status = "401 Unauthorized"; body = "{\"error\":{\"message\":\"invalid key\"}}"; }
+						else if (req.StartsWith("GET /v1/models")) body = "{\"data\":[{\"id\":\"modelo-a\"},{\"id\":\"llama3.2\"}]}";
+						else { lastBody = req.Substring(headEnd + 4); body = "{\"choices\":[{\"message\":{\"role\":\"assistant\",\"content\":\"<think>hmm</think>**Oi!** Eu sou o pet de teste.\\n# Fim\"}}]}"; }
+						var bytes = Encoding.UTF8.GetBytes(body);
+						var head = Encoding.ASCII.GetBytes($"HTTP/1.1 {status}\r\nContent-Type: application/json\r\nContent-Length: {bytes.Length}\r\nConnection: close\r\n\r\n");
+						await s.WriteAsync(head, 0, head.Length);
+						await s.WriteAsync(bytes, 0, bytes.Length);
+					}
+				}
+			});
+
+			string url = $"http://127.0.0.1:{port}/v1";
+			// keep the real settings
+			string pId = AiAssistant.ProviderId, pUrl = AiAssistant.BaseUrl, pModel = AiAssistant.Model, pKey = AiAssistant.Key;
+			try
+			{
+				var models = await AiAssistant.ListModels(url, "chave-certa");
+				Check("ai: models listed", models.Count == 2, string.Join(",", models));
+				Check("ai: preferred model chosen (llama3.2 for Ollama)", AiAssistant.PickModel(AiAssistant.Preset("ollama"), "nao-existe", models) == "llama3.2");
+				Check("ai: saved model kept when it exists", AiAssistant.PickModel(AiAssistant.Preset("ollama"), "modelo-a", models) == "modelo-a");
+
+				string answer = await AiAssistant.Ask(url, "modelo-a", "chave-certa", "quem é você?", "Rex");
+				Check("ai: answer cleaned for the bubble", answer == "Oi! Eu sou o pet de teste.\nFim", answer);
+				var sent = System.Text.Json.Nodes.JsonNode.Parse(lastBody);
+				Check("ai: the pet's name and language go in the instructions",
+					sent?["messages"]?[0]?["content"]?.GetValue<string>().Contains("Rex") == true && sent?["model"]?.GetValue<string>() == "modelo-a", lastBody.Length.ToString());
+
+				bool refused = false;
+				try { await AiAssistant.Ask(url, "modelo-a", "chave-errada", "oi", "Rex"); }
+				catch (InvalidOperationException ex) { refused = ex.Message == Lang.T("ai.errKey"); }
+				Check("ai: a wrong key gives a clear message", refused);
+
+				bool https = false;
+				try { await AiAssistant.ListModels("http://example.com/v1", "x"); } catch (ArgumentException) { https = true; }
+				Check("ai: internet services only over https", https);
+
+				// the key is stored encrypted, never in plain text
+				AiAssistant.Key = "minha-chave-secreta";
+				Check("ai: key stored encrypted", AiAssistant.Key == "minha-chave-secreta" && !Program.MyData.GetSetting("AiKey").Contains("minha-chave"));
+
+				// the whole flow: menu item, thinking, answer in the bubble
+				AiAssistant.ProviderId = "custom"; AiAssistant.BaseUrl = url; AiAssistant.Model = "modelo-a"; AiAssistant.Key = "chave-certa";
+				Check("ai: configured", AiAssistant.Configured);
+				var pet = Pet();
+				if (pet != null)
+				{
+					var cm = PetMenu.Show(pet, pet, new System.Drawing.Point(0, 0));
+					Check("ai: 'Ask the pet' in the pet menu once set up", cm.Items.OfType<ToolStripMenuItem>().Any(i => i.Text == Lang.T("menu.ask")));
+					cm.Close();
+				}
+				foreach (var b in Application.OpenForms.OfType<SpeechBubble>().ToList()) b.Close();
+				await FormAsk.AskNow("quem é você?");
+				await Task.Delay(300);
+				Check("ai: the answer appears in the pet's bubble", Application.OpenForms.OfType<SpeechBubble>().Any(b => b.Visible));
+				foreach (var b in Application.OpenForms.OfType<SpeechBubble>().ToList()) b.Close();
+
+				// the conversation: the second question carries the first one and its answer
+				AiAssistant.NewConversation();
+				await AiAssistant.Ask("primeira pergunta");
+				await AiAssistant.Ask("e depois?");
+				var conv = System.Text.Json.Nodes.JsonNode.Parse(lastBody)?["messages"]?.AsArray();
+				Check("ai: remembers the conversation", conv != null && conv.Count == 4 && conv[1]?["content"]?.GetValue<string>() == "primeira pergunta", conv?.Count.ToString());
+				AiAssistant.NewConversation();
+				await AiAssistant.Ask("outra conversa");
+				conv = System.Text.Json.Nodes.JsonNode.Parse(lastBody)?["messages"]?.AsArray();
+				Check("ai: 'new conversation' forgets it", conv != null && conv.Count == 2, conv?.Count.ToString());
+				AiAssistant.NewConversation();
+
+				// hovering the pet shows the "Ask" button (like the CPU plate); leaving hides it
+				if (pet != null && HoverAsk.Enabled)
+				{
+					var mouse = Cursor.Position;
+					pet.React("walk");
+					await Task.Delay(300);
+					bool shown = false;
+					for (int i = 0; i < 8 && !shown; i++)
+					{
+						Cursor.Position = new System.Drawing.Point(pet.Left + pet.Width / 2, pet.Top + pet.Height / 2);
+						await Task.Delay(150);
+						shown = HoverAsk.Showing;
+					}
+					Check("hover ask: the button appears over the pet", shown, $"pet at {pet.Bounds}, mouse at {Cursor.Position}, busy {pet.Busy}");
+					Cursor.Position = new System.Drawing.Point(pet.Left - 400 < 0 ? pet.Right + 400 : pet.Left - 400, Math.Max(0, pet.Top - 300));
+					await Task.Delay(1200);
+					Check("hover ask: it goes away when the mouse leaves", !HoverAsk.Showing);
+					Cursor.Position = mouse;
+				}
+			}
+			finally
+			{
+				AiAssistant.ProviderId = pId; AiAssistant.BaseUrl = pUrl; AiAssistant.Model = pModel; AiAssistant.Key = pKey;
+				cts.Cancel();
+				listener.Stop();
+			}
+		}
+
+		/// <summary>Every name of the action lists exists in that pet's animations (Pets folder of the repository).</summary>
+		static void PetActionNames()
+		{
+			string dir = AppContext.BaseDirectory;
+			while (dir != null && !File.Exists(Path.Combine(dir, "Pets", "pets.json"))) dir = Path.GetDirectoryName(dir);
+			if (dir == null) { lines.Add("SKIP  pet actions: Pets folder not found"); return; }
+			foreach (var folder in PetActions.KnownPets)
+			{
+				string file = Path.Combine(dir, "Pets", folder, "animations.xml");
+				if (!File.Exists(file)) { Check("pet actions: " + folder + " exists", false); continue; }
+				var doc = new System.Xml.XmlDocument();
+				doc.Load(file);
+				var names = new HashSet<string>(doc.SelectNodes("//*[local-name()='animation']/*[local-name()='name']").Cast<System.Xml.XmlNode>().Select(n => n.InnerText), StringComparer.OrdinalIgnoreCase);
+				foreach (PetActions.Act act in Enum.GetValues(typeof(PetActions.Act)))
+				{
+					var own = PetActions.Own(folder, act);
+					var missing = own.Where(n => !names.Contains(n)).ToList();
+					Check($"pet actions: {folder} {act}", own.Length > 0 && own.Any(names.Contains) && missing.Count == 0, "missing: " + string.Join(", ", missing));
+				}
+			}
+		}
+
+		static async Task TalkingPet()
+		{
+			var pet = Pet();
+			if (pet == null) { Check("talk: a pet is on screen", false); return; }
+			void CloseBubbles() { foreach (var b in Application.OpenForms.OfType<SpeechBubble>().ToList()) b.Close(); }
+			CloseBubbles();
+
+			// the bug: the sleep animation was replaced by a wave as soon as the bubble opened
+			int sleep = pet.FindAnimation(PetActions.Names(PetActions.Act.Sleep));
+			if (sleep >= 0)
+			{
+				pet.React(PetActions.Names(PetActions.Act.Sleep));
+				string sleeping = pet.CurrentAnimationName;
+				SpeechBubble.Say("teste", 3);
+				await Task.Delay(400);
+				Check("talk: a bubble does not cut the sleep animation", pet.CurrentAnimationName == sleeping, pet.CurrentAnimationName);
+				CloseBubbles();
+			}
+
+			// talking: the pet stops walking
+			pet.React("walk");
+			await Task.Delay(1700);   // walking on its own (not an action that just started, which would finish first)
+			SpeechBubble.Say("parado enquanto falo", 4);
+			await Task.Delay(500);
+			Check("talk: the pet stands still while talking", pet.StillAnimation < 0 || pet.StandingStill || pet.Busy || InAir(pet), pet.CurrentAnimationName);
+			CloseBubbles();
+
+			// the games of the pet menu: the pet stays in place while it says the fortune / answer / joke
+			foreach (var (name, game) in new (string, Action)[] { ("fortune cookie", Fun.FortuneCookie), ("joke", Fun.Joke), ("magic ball", Fun.MagicBall) })
+			{
+				pet.React("walk");
+				await Task.Delay(1700);
+				game();
+				await Task.Delay(700);
+				var x1 = pet.Left;
+				await Task.Delay(600);
+				Check($"talk: {name} — the pet does not walk away", pet.Left == x1 && (pet.StandingStill || pet.StillAnimation < 0 || InAir(pet)), $"{pet.CurrentAnimationName}, moved {pet.Left - x1}px");
+				CloseBubbles();
+			}
+
+			// the pet menu open: every pet stays still; closed: back to normal
+			pet.React("walk");
+			await Task.Delay(1700);
+			var menu = PetMenu.Show(pet, pet, new System.Drawing.Point(0, 0));
+			Check("menu open: pets held", FormPet.Held);
+			await Task.Delay(300);
+			// (in a test the menu may close by itself, as it has no focus; then the pet simply goes on)
+			if (menu.Visible) Check("menu open: the pet stops", pet.StandingStill || pet.StillAnimation < 0, pet.CurrentAnimationName);
+			else Check("menu open: the pet stopped when the menu opened", pet.StandingStill || pet.StillAnimation < 0, pet.CurrentAnimationName);
+			menu.Close();
+			await Task.Delay(200);
+			CloseBubbles();
+			await Task.Delay(200);
+			Check("all closed: nothing keeps the pets still", !FormPet.Held);
+
+			// bubble after the animation: not at once, but when it is over
+			bool done = false;
+			var start = DateTime.Now;
+			double after = -1;
+			if (pet.ReactThen(() => { done = true; after = (DateTime.Now - start).TotalSeconds; }, "turn", "wave", "blink", "jump", "rotate1a"))
+			{
+				Check("after animation: not at once", !done);
+				for (int i = 0; i < 100 && !done; i++) await Task.Delay(100);
+				Check("after animation: runs when the animation ends", done && after > 0.1, after.ToString("0.0") + " s");
+			}
+			else lines.Add("SKIP  after animation: the pet in use has no short animation to try");
+		}
+
+		static async Task QuietTime()
+		{
+			void CloseBubbles() { foreach (var b in Application.OpenForms.OfType<SpeechBubble>().ToList()) b.Close(); }
+			bool AnyBubble() => Application.OpenForms.OfType<SpeechBubble>().Any(b => b.Visible);
+
+			// focus: notices wait
+			Pomodoro.StartFocus();
+			await Task.Delay(200);
+			CloseBubbles();
+			SpeechBubble.Notify("lembrete de teste", 5);
+			SpeechBubble.Notify("reunião de teste", 5);
+			await Task.Delay(300);
+			Check("focus: notices wait (no bubble)", !AnyBubble() && SpeechBubble.HeldCount == 2, SpeechBubble.HeldCount.ToString());
+			Check("focus: pet sounds off", SpeechBubble.QuietNow);
+			SpeechBubble.Say("pedido do usuário", 3);
+			await Task.Delay(200);
+			Check("focus: what the user asks still answers", AnyBubble());
+			CloseBubbles();
+			Pomodoro.Stop();
+			await Task.Delay(300);
+			CloseBubbles();
+			await Task.Delay(7500);
+			var summary = Application.OpenForms.OfType<SpeechBubble>().FirstOrDefault(b => b.Visible);
+			Check("focus over: summary of what arrived", summary != null);
+			CloseBubbles();
+
+			// Ctrl+Alt+P: silent too (before: the notices became Windows notifications)
+			HideHotkey.SetHidden(true);
+			SpeechBubble.Notify("aviso escondido", 5);
+			await Task.Delay(200);
+			Check("hidden: notices wait, nothing on screen", SpeechBubble.HeldCount >= 1 && !AnyBubble());
+			HideHotkey.SetHidden(false);
+			await Task.Delay(7600);
+			Check("shown again: summary of what arrived", AnyBubble());
+			CloseBubbles();
+		}
+
+		static async Task AgendaOnline()
+		{
+			// a real public Google calendar (Brazilian holidays): only all-day events, so nothing to warn about
+			const string url = "https://calendar.google.com/calendar/ical/pt.brazilian%23holiday%40group.v.calendar.google.com/public/basic.ics";
+			try
+			{
+				var list = await Agenda.Load(url);
+				Check("agenda online: a real Google calendar is read", list != null && list.All(e => e.Title.Length > 0), list?.Count.ToString());
+			}
+			catch (System.Net.Http.HttpRequestException ex) { lines.Add("SKIP  agenda online: no internet (" + ex.Message + ")"); }
+			bool refused = false;
+			try { await Agenda.Load("http://example.com/cal.ics"); } catch (ArgumentException) { refused = true; }
+			Check("agenda: plain http refused", refused);
+		}
+
+		static async Task DownloadsWatcher()
+		{
+			string dir = Path.Combine(Path.GetTempPath(), "selftest-downloads");
+			if (Directory.Exists(dir)) Directory.Delete(dir, true);
+			Directory.CreateDirectory(dir);
+			try
+			{
+				ComputerEvents.TestWatch(dir);
+				foreach (var b in Application.OpenForms.OfType<SpeechBubble>().ToList()) b.Close();
+				// like a browser: first the unfinished file, then renamed to the final name
+				File.WriteAllText(Path.Combine(dir, "relatorio.pdf.crdownload"), "x");
+				await Task.Delay(300);
+				File.Move(Path.Combine(dir, "relatorio.pdf.crdownload"), Path.Combine(dir, "relatorio.pdf"));
+				await Task.Delay(4600);
+				ComputerEvents.TestCheckDownloads();
+				await Task.Delay(300);
+				Check("downloads: finished file announced", Application.OpenForms.OfType<SpeechBubble>().Any(b => b.Visible));
+				foreach (var b in Application.OpenForms.OfType<SpeechBubble>().ToList()) b.Close();
+			}
+			finally
+			{
+				ComputerEvents.TestWatch(null);
+				try { Directory.Delete(dir, true); } catch (Exception) { }
+			}
+		}
+
+		static void Mcp()
+		{
+			System.Text.Json.Nodes.JsonNode Ask(string json) => McpServer.Handle(System.Text.Json.Nodes.JsonNode.Parse(json) as System.Text.Json.Nodes.JsonObject);
+			var init = Ask("{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"initialize\",\"params\":{\"protocolVersion\":\"2025-06-18\"}}");
+			Check("mcp: initialize", init?["result"]?["serverInfo"]?["name"]?.GetValue<string>() == "desktoppet");
+			Check("mcp: notification gets no answer", Ask("{\"jsonrpc\":\"2.0\",\"method\":\"notifications/initialized\"}") == null);
+			var tools = Ask("{\"jsonrpc\":\"2.0\",\"id\":2,\"method\":\"tools/list\"}")?["result"]?["tools"]?.AsArray();
+			Check("mcp: 3 tools", tools != null && tools.Count == 3 && tools.Any(t => t["name"]?.GetValue<string>() == "pet_say"));
+			var bad = Ask("{\"jsonrpc\":\"2.0\",\"id\":3,\"method\":\"tools/call\",\"params\":{\"name\":\"pet_say\",\"arguments\":{\"text\":\"veja C:\\\\Users\\\\x\\\\senha.txt\"}}}");
+			Check("mcp: a path is never said", bad?["result"]?["isError"]?.GetValue<bool>() == true);
+			Check("mcp: unknown method", Ask("{\"jsonrpc\":\"2.0\",\"id\":4,\"method\":\"nada\"}")?["error"] != null);
+			Check("say filter: normal sentence ok", AgentBridge.IsSafeToSay("Terminei os testes, 2 falharam."));
+			Check("say filter: link and key refused", !AgentBridge.IsSafeToSay("veja https://x.com") && !AgentBridge.IsSafeToSay("token sk_" + "live_" + "abcdefghijklmnopqrstuvwxyz123456"));
+		}
+
+		static void BackupMyThings()
+		{
+			string file = Path.Combine(Path.GetTempPath(), "selftest-full" + PetBackup.Extension);
+			PetBackup.Export(file);
+			using (var zip = ZipFile.OpenRead(file))
+			{
+				var settings = new StreamReader(zip.GetEntry("settings.txt").Open()).ReadToEnd();
+				Check("backup: settings inside", settings.Contains("set."), settings.Length.ToString());
+				Check("backup: no Claude Code secret", !settings.Contains("AgentToken") && !settings.Contains(AgentBridge.Token));
+				Check("backup: reminders inside (when there are any)", !File.Exists(Reminders.FilePath) || zip.GetEntry("data/reminders.json") != null);
+			}
+			Check("backup: recognized as full", PetBackup.HasMyThings(file));
+			File.Delete(file);
 		}
 
 		// ------------------------------------------------------------------ Claude Code

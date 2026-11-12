@@ -26,6 +26,7 @@ namespace DesktopPet
 				(Page.Behaviour, "nav.behaviour", ""), // touch/pointer
 				(Page.Reminders, "nav.reminders", ""),      // clock
 				(Page.Extras, "nav.extras", ""),      // star
+				(Page.Ai, "nav.ai", ""),      // chat
 				(Page.Application, "nav.application", ""), // settings
 				(Page.About, "nav.about", ""),         // info
 			};

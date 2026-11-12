@@ -72,7 +72,7 @@ namespace DesktopPet
 				{
 					int min = Math.Max(0, (int)Math.Round(before.TotalMinutes));
 					Program.Mainthread?.ReactAll("wave", "look around", "think");
-					SpeechBubble.Say(min == 0 ? Lang.T("agenda.now", e.Title) : Lang.T("agenda.soon", min, e.Title, e.Start.ToString("t", CultureInfo.CurrentCulture)), 0,
+					SpeechBubble.Notify(min == 0 ? Lang.T("agenda.now", e.Title) : Lang.T("agenda.soon", min, e.Title, e.Start.ToString("t", CultureInfo.CurrentCulture)), 0,
 						new SpeechBubble.Choice("OK", null, true));
 				}
 			}

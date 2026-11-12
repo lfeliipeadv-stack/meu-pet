@@ -25,7 +25,12 @@ namespace DesktopPet
     /// </summary>
     internal static class Updater
     {
+#if SELFCONTAINED
+        // the "full" exe (no .NET needed) updates to the full exe, never to the one that needs .NET
+        private const string ExeAsset = "DesktopPet-completo.exe";
+#else
         private const string ExeAsset = "DesktopPet.exe";
+#endif
         private const string LangAsset = "lang.zip";
         private const string SumsAsset = "SHA256SUMS";
 

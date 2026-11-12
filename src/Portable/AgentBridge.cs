@@ -68,7 +68,7 @@ namespace DesktopPet
 		public static void Apply()
 		{
 			ui = SynchronizationContext.Current ?? ui;
-			if (Enabled && listener == null)
+			if ((Enabled || DevListen) && listener == null)
 			{
 				try
 				{
@@ -77,6 +77,7 @@ namespace DesktopPet
 					cancel = new CancellationTokenSource();
 					_ = AcceptLoop(listener, cancel.Token);
 					StartUp.AddDebugInfo(StartUp.DEBUG_TYPE.info, "agent bridge on 127.0.0.1:" + Port);
+					WriteConnectionFile();
 				}
 				catch (Exception ex)
 				{
@@ -84,7 +85,7 @@ namespace DesktopPet
 					StartUp.AddDebugInfo(StartUp.DEBUG_TYPE.error, "agent bridge: " + ex.Message);
 				}
 			}
-			else if (!Enabled && listener != null)
+			else if (!Enabled && !DevListen && listener != null)
 			{
 				cancel?.Cancel();
 				try { listener.Stop(); } catch (Exception) { }
@@ -138,7 +139,8 @@ namespace DesktopPet
 					string body = await ReadBody(stream, Math.Min(length, 2 * 1024 * 1024));
 					await Reply(stream, "204 No Content");
 					if (path.StartsWith("/hook/", StringComparison.Ordinal)) OnHook(path.Substring(6), body);
-					else if (path == "/say") Post(() => Say(body));
+					else if (path == "/say") { if (DevListen) DevNote("say " + body); Post(() => Say(body)); }
+					else if (path == "/react") { var a = ReactionByName(body); if (a != Activity.None) Post(() => React(a)); }
 				}
 				catch (Exception) { }
 			}
@@ -247,6 +249,7 @@ namespace DesktopPet
 
 		static void OnHook(string hookPath, string json)
 		{
+			if (DevListen) DevNote("hook " + hookPath);
 			var a = ClassifyPath(hookPath, json);
 			if (a == Activity.None) return;
 			Post(() => React(a));
@@ -289,19 +292,72 @@ namespace DesktopPet
 			Program.Mainthread?.ReactAll(anims);
 
 			string key = "agent." + a.ToString().ToLowerInvariant();
-			if (a == Activity.Done) SpeechBubble.Say(Lang.T(key), 8);
-			else if (a == Activity.Waiting) SpeechBubble.Say(Lang.T(key), 15);
-			else if (ProgressBubbles && changed) SpeechBubble.Say(Lang.T(key), a == Activity.Error ? 6 : 4);
+			if (a == Activity.Done) SpeechBubble.Notify(Lang.T(key), 8);
+			else if (a == Activity.Waiting) SpeechBubble.Notify(Lang.T(key), 15);
+			else if (ProgressBubbles && changed && !SpeechBubble.QuietNow) SpeechBubble.Say(Lang.T(key), a == Activity.Error ? 6 : 4);
 		}
 
 		/// <summary>"/say": a short line from a local tool (one line, at most 140 characters, no paths or links).</summary>
 		static void Say(string text)
 		{
-			text = (text ?? "").Replace("\r", " ").Replace("\n", " ").Trim();
-			if (text.Length == 0) return;
+			if (!IsSafeToSay(text)) return;
+			text = text.Replace("\r", " ").Replace("\n", " ").Trim();
 			if (text.Length > 140) text = text.Substring(0, 137) + "…";
-			if (text.Contains(":\\") || text.Contains("://") || text.Contains("/home/") || text.Contains("/Users/")) return;
-			SpeechBubble.Say(text, 8);
+			SpeechBubble.Notify(text, 8);
+		}
+
+		/// <summary>Never paths, links, code or secrets in the bubble: what someone looking at the screen could read.</summary>
+		public static bool IsSafeToSay(string text)
+		{
+			text = (text ?? "").Trim();
+			if (text.Length == 0) return false;
+			if (text.Contains(":\\") || text.Contains("://") || text.Contains("/home/") || text.Contains("/Users/") || text.Contains("\\\\")) return false;
+			if (text.Contains("```") || text.Contains("{") && text.Contains("}") && text.Contains(";")) return false;
+			// long runs of letters/digits look like keys or tokens
+			if (System.Text.RegularExpressions.Regex.IsMatch(text, @"[A-Za-z0-9_\-]{32,}")) return false;
+			return true;
+		}
+
+		/// <summary>Developer ("--listen"): listen without changing the saved setting, and note every request in %TEMP%desktoppet-agent.log.</summary>
+		public static bool DevListen;
+
+		static void DevNote(string text)
+		{
+			try { File.AppendAllText(Path.Combine(Path.GetTempPath(), "desktoppet-agent.log"), DateTime.Now.ToString("HH:mm:ss.fff") + " " + text + Environment.NewLine); } catch (Exception) { }
+		}
+
+		/// <summary>Reactions a local tool (the MCP server) may ask for.</summary>
+		public static readonly string[] ReactionNames = { "thinking", "working", "editing", "running", "reading", "searching", "waiting", "success", "error", "celebrating", "waving" };
+
+		public static Activity ReactionByName(string name)
+		{
+			switch ((name ?? "").Trim().ToLowerInvariant())
+			{
+				case "thinking": return Activity.Thinking;
+				case "working": return Activity.Working;
+				case "editing": return Activity.Editing;
+				case "running": return Activity.Running;
+				case "reading": return Activity.Reading;
+				case "searching": return Activity.Searching;
+				case "waiting": return Activity.Waiting;
+				case "success": case "celebrating": return Activity.Done;
+				case "error": return Activity.Error;
+				case "waving": return Activity.Hello;
+				default: return Activity.None;
+			}
+		}
+
+		/// <summary>Where the MCP server (DesktopPet.exe --mcp, another process) finds the port and the secret.</summary>
+		public static string ConnectionFile => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DesktopPet", "agent.json");
+
+		static void WriteConnectionFile()
+		{
+			try
+			{
+				Directory.CreateDirectory(Path.GetDirectoryName(ConnectionFile));
+				File.WriteAllText(ConnectionFile, JsonSerializer.Serialize(new { port = Port, token = Token }));
+			}
+			catch (Exception) { }
 		}
 
 		/// <summary>Send events to ourselves through the real endpoint (the "Test" button and the self-test).</summary>

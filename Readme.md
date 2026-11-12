@@ -62,10 +62,30 @@ Na galeria também estão pets da comunidade do eSheep, como as ovelhas colorida
 - Tema claro, escuro ou automático, vários monitores e tamanho 1×, 2× ou 4×
 - Opção de iniciar com o Windows
 
+**Pergunte ao pet (IA)**
+- Passe o mouse sobre o pet e clique em **Perguntar** (ou aperte **Ctrl + Alt + Espaço**): a resposta aparece no balão
+- Funciona com serviços gratuitos: Ollama (no seu computador, privado), Google Gemini, Groq, OpenRouter ou outro compatível
+- Lembra a conversa ("e depois?" funciona), tem personalidade (simpático, direto, para crianças, divertido) e aceita ditado por voz
+- A chave fica criptografada só para o seu usuário do Windows
+
+**Companhia no trabalho**
+- **Lembretes** de água, alongamento e pausa, e **Pomodoro**: durante o foco o pet fica em silêncio e guarda os avisos para depois
+- **Agenda** do Google ou do Outlook (link iCal): o pet avisa antes de cada reunião
+- **E-mails novos** do Outlook clássico (só a quantidade, nunca o conteúdo)
+- **Pet virtual**: ele sente fome, quer carinho e sono; brincadeiras como biscoito da sorte, piadas e bola 8
+- Monitor de CPU e memória ao passar o mouse, atalhos para pastas e sites, "como estou hoje"
+- Reage ao **Claude Code** (pensando, editando, pronto) e o Claude pode mandar recados pelo balão (MCP)
+- O pet para de andar sempre que fala ou que uma janela dele está aberta
+
+**Crie o seu pet**
+- Em Configurações → **Criar meu pet**, escolha as imagens (PNG, GIF, JPG) de andar, ficar parado, dormir, cair e ser arrastado
+- O pet anda, vira, dorme, cai e pode ser arremessado como os outros, e vai junto no backup
+
 **Por baixo**
-- Executável de cerca de 2 MB, atualização automática com verificação SHA-256
-- Os pets vêm direto deste repositório (pasta [`Pets`](Pets)), sem precisar de um exe novo
-- Tradução em arquivos simples (`src/lang`), fácil de editar
+- Executável de cerca de 2 MB, atualização automática com verificação SHA-256, usa pouca CPU (menos de 1%) e cerca de 50 MB de memória
+- Os pets vêm direto deste repositório (pasta [`Pets`](Pets)), com prévia animada no painel, sem precisar de um exe novo
+- Português, inglês e espanhol, em arquivos simples (`src/lang`) fáceis de editar
+- Na primeira vez o pet se apresenta; depois de cada atualização, conta as novidades
 
 ## Telas
 
@@ -82,11 +102,15 @@ Na galeria também estão pets da comunidade do eSheep, como as ovelhas colorida
 
 ## Instalar
 
-1. Instale o [.NET 10 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/10.0), se ainda não tiver.
-2. Baixe o [`DesktopPet.exe`](https://github.com/lfeliipeadv-stack/meu-pet/releases/latest/download/DesktopPet.exe) e abra.
-3. O ícone aparece perto do relógio: clique com o botão direito e escolha **Abrir Painel** para adotar um pet.
+O jeito mais fácil: baixe o [`DesktopPet-Instalador.exe`](https://github.com/lfeliipeadv-stack/meu-pet/releases/latest/download/DesktopPet-Instalador.exe). Ele confere se o .NET 10 está no computador, oferece o instalador oficial da Microsoft quando falta e cria os atalhos.
 
-Para deixar instalado (atalhos no menu Iniciar e atualização automática), use **Instalar** no menu da bandeja.
+Outras opções:
+
+- [`DesktopPet.exe`](https://github.com/lfeliipeadv-stack/meu-pet/releases/latest/download/DesktopPet.exe): só o programa (precisa do [.NET 10 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/10.0))
+- [`DesktopPet-completo.exe`](https://github.com/lfeliipeadv-stack/meu-pet/releases/latest/download/DesktopPet-completo.exe): já traz o .NET dentro, maior, mas abre em qualquer Windows 10/11
+
+O ícone aparece perto do relógio: clique com o botão direito e escolha **Abrir Painel** para adotar um pet.
+Para desinstalar, use **Aplicativos** nas Configurações do Windows: ele pergunta se você quer apagar também seus pets, lembretes e configurações (sem resposta, eles ficam guardados).
 
 ## Para desenvolvedores
 
@@ -108,7 +132,15 @@ Os pets próprios são gerados por estas ferramentas:
 | [`Tools/PetGen`](Tools/PetGen) | Desenha Rex, Pingo, Boo, Mago, Nuvi e Claude pixel a pixel e sintetiza os sons (`Sfx.cs`) |
 | [`Tools/PetPack`](Tools/PetPack) | Monta pets a partir de quadros PNG (Sábio) |
 | [`Tools/update-pets-json.ps1`](Tools/update-pets-json.ps1) | Atualiza tamanho, animações e sons de cada pet no `Pets/pets.json` |
-| [`Tools/release.ps1`](Tools/release.ps1) | Gera versão, exe, `lang.zip` e `SHA256SUMS` e publica o release |
+| [`Tools/make-previews.ps1`](Tools/make-previews.ps1) | Gera a prévia animada (`preview.gif`) de cada pet com o ffmpeg |
+| [`Tools/Setup`](Tools/Setup) | O instalador (.NET Framework 4.8, confere o .NET 10) |
+| [`Tools/release.ps1`](Tools/release.ps1) | Gera versão, exe, exe completo, instalador, `lang.zip` e `SHA256SUMS` e publica o release |
+
+Autoteste com o código de verdade (o resultado vai para o arquivo; o código de saída é o número de falhas):
+
+```bash
+DesktopPet.exe --selftest=resultado.txt
+```
 
 ```bash
 dotnet run --project Tools/PetGen/PetGen.csproj -- Pets

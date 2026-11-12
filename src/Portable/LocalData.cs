@@ -138,6 +138,7 @@ namespace DesktopPet
 
 		public void SetSetting(string key, string value)
 		{
+			if (key == "MutedPets") mutedPets = null;   // read again from the setting
 			if (AppSettings == null) return;
 			if (AppSettings[key] == null) AppSettings.Add(key, value ?? "");
 			else AppSettings[key].Value = value ?? "";

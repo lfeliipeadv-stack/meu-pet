@@ -439,6 +439,7 @@ namespace DesktopPet
             }
 #if NETCORE
             FormDebugModern.Poke();
+            LogFile.Write(type, text);
 #endif
             if(debug != null)
             {

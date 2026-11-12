@@ -55,12 +55,26 @@ $exe = Join-Path $out 'DesktopPet.exe'
 $built = (Get-Item $exe).VersionInfo.FileVersion
 if ($built -ne "$Version.0") { throw "The exe reports version $built instead of $Version.0" }
 
+# 2b. "full" exe: .NET inside, nothing to install (bigger). It updates itself to the full exe of the next release.
+$fullDir = Join-Path $out 'full'
+dotnet publish (Join-Path $src 'DesktopPet.Net.csproj') -c Release -o $fullDir --nologo -p:SelfContained=true
+if ($LASTEXITCODE -ne 0) { throw "dotnet publish (full) failed" }
+$fullExe = Join-Path $out 'DesktopPet-completo.exe'
+Copy-Item (Join-Path $fullDir 'DesktopPet.exe') $fullExe -Force
+Remove-Item $fullDir -Recurse -Force
+
+# 2c. installer (.NET Framework 4.8, comes with Windows): checks the .NET 10 Desktop Runtime, then installs DesktopPet.exe
+dotnet build (Join-Path $root 'Tools\Setup\Setup.csproj') -c Release --nologo "-p:AppExe=$exe" "-p:Version=$Version"
+if ($LASTEXITCODE -ne 0) { throw "installer build failed" }
+$setupExe = Join-Path $out 'DesktopPet-Instalador.exe'
+Copy-Item (Join-Path $root 'Tools\Setup\bin\Release\net48\DesktopPet-Instalador.exe') $setupExe -Force
+
 # 3. languages
 $langZip = Join-Path $out 'lang.zip'
 Compress-Archive -Path (Join-Path $src 'lang\*.json') -DestinationPath $langZip -Force
 
 # 4. hashes ("hash  name", LF, like sha256sum)
-$sums = foreach ($f in @($exe, $langZip)) {
+$sums = foreach ($f in @($exe, $fullExe, $setupExe, $langZip)) {
     (Get-FileHash $f -Algorithm SHA256).Hash.ToLowerInvariant() + '  ' + (Split-Path $f -Leaf)
 }
 $sumsFile = Join-Path $out 'SHA256SUMS'
@@ -69,15 +83,16 @@ Write-Output ""
 Write-Output ($sums -join "`n")
 Write-Output ""
 Write-Output ("DesktopPet.exe: {0:N0} KB" -f ((Get-Item $exe).Length / 1KB))
+Write-Output ("DesktopPet-completo.exe: {0:N0} KB" -f ((Get-Item $fullExe).Length / 1KB))
 
 if ($NoUpload) { Write-Output "Built in $out (not uploaded)."; return }
 
 # 5. GitHub release
 if (-not $Notes) { $Notes = "DesktopPet $Version" }
-$Notes += "`n`nRequires the .NET 10 Desktop Runtime: https://dotnet.microsoft.com/download/dotnet/10.0"
+$Notes += "`n`n**Qual baixar?**`n- ``DesktopPet-Instalador.exe`` (recomendado): verifica se o .NET 10 está no computador, instala se faltar e cria os atalhos.`n- ``DesktopPet-completo.exe``: funciona direto, sem instalar nada (arquivo maior).`n- ``DesktopPet.exe``: só o programa, precisa do [.NET 10 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/10.0)."
 # notes go through a file: quotes or line breaks in the text would break the command line
 $notesFile = Join-Path $out 'NOTES.md'
 [IO.File]::WriteAllText($notesFile, $Notes, $utf8)
-gh release create "v$Version" $exe $langZip $sumsFile --repo $Repo --title "DesktopPet $Version" --notes-file $notesFile --target master
+gh release create "v$Version" $setupExe $fullExe $exe $langZip $sumsFile --repo $Repo --title "DesktopPet $Version" --notes-file $notesFile --target master
 if ($LASTEXITCODE -ne 0) { throw "gh release create failed" }
 Write-Output "Release v$Version published on https://github.com/$Repo/releases"

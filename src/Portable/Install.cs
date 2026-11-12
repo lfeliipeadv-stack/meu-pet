@@ -261,25 +261,9 @@ IconIndex=0
             string UninstallKey = @"Software\Microsoft\Windows\CurrentVersion\Uninstall";
             string keyName = $@"{UninstallKey}\{appName}";
 
-            // Generate the commands to remove the shortcuts
-            var deletions = $@"del ""{Path.Combine(startMenuPath, $"{appName}.url")}""{Environment.NewLine}";
-            deletions += $@"del ""{Path.Combine(desktopPath, $"{appName}.url")}""{Environment.NewLine}";
-            deletions += $@"del ""{Path.Combine(autostartPath, $"{appName}.url")}""{Environment.NewLine}";
-            string script = $@"
-@echo on 
-setlocal 
-cd %~dp0\.. 
-:: Remove running application
-taskkill /IM {appName}.exe /f
-:: Delete the shortcuts 
-{deletions} 
-:: Use start to finish before we're deleted 
-start /min """" cmd /c
-%= Use reg to delete the app key =%
-reg delete ""HKCU\{keyName}"" /f
-%= Remove the app's root folder =%
-rd /s /q ""{appName}""
-            ";
+            // uninstall.cmd: removes the shortcuts and the program, and asks before deleting the user's pets and settings
+            string script = UninstallScript.Build(appName, new[] { Path.Combine(startMenuPath, $"{appName}.url"), Path.Combine(desktopPath, $"{appName}.url"), Path.Combine(autostartPath, $"{appName}.url") },
+                keyName, Lang.Current.StartsWith("pt", StringComparison.OrdinalIgnoreCase));
 
             string scriptPath = Path.Combine(installPath, uninstallBatch);
             File.WriteAllText(scriptPath, script);

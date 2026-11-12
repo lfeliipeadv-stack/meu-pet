@@ -97,8 +97,9 @@ namespace DesktopPet
 	/// </summary>
 	public static class Reminders
 	{
-		static string FilePath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DesktopPet", "reminders.json");
+		internal static string FilePath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DesktopPet", "reminders.json");
 		static List<Reminder> list;
+		internal static void Reload() { list = null; Changed?.Invoke(); }
 		static Timer timer;
 		static readonly DateTime started = DateTime.Now;
 
@@ -188,22 +189,29 @@ namespace DesktopPet
 				r.SnoozedUntil = DateTime.MinValue;
 				if (r.Kind == Reminder.Kinds.Once) r.Enabled = false;
 				changed = true;
-				Fire(r);
+				Fire(r, true);
 			}
 			if (changed) Save();
 		}
 
 		/// <summary>Say the reminder now (also the "Test" button of the settings page).</summary>
-		public static void Fire(Reminder r)
+		public static void Fire(Reminder r) => Fire(r, false);
+
+		/// <summary>Say the reminder; when it came by itself (automatic) it waits during quiet time.</summary>
+		public static void Fire(Reminder r, bool automatic)
 		{
-			SpeechBubble.Say(r.Text, 0,
+			var choices = new[]
+			{
 				new SpeechBubble.Choice(Lang.T("rem.done"), null, true),
 				new SpeechBubble.Choice(Lang.T("rem.snooze"), () =>
 				{
 					r.SnoozedUntil = DateTime.Now.AddMinutes(10);
 					if (r.Kind == Reminder.Kinds.Once) { r.Enabled = true; r.At = r.SnoozedUntil; }
 					Save();
-				}));
+				}),
+			};
+			if (automatic) SpeechBubble.Notify(r.Text, 0, choices);
+			else SpeechBubble.Say(r.Text, 0, choices);
 		}
 	}
 }

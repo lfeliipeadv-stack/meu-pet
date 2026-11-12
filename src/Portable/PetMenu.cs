@@ -10,9 +10,10 @@ namespace DesktopPet
 	/// </summary>
 	public static class PetMenu
 	{
-		public static ContextMenuStrip Show(FormPet pet, Control anchor, Point at, Action pickAnimation)
+		public static ContextMenuStrip Show(FormPet pet, Control anchor, Point at)
 		{
 			var cm = new ContextMenuStrip();
+			FormPet.Hold(true);   // every pet stands still while the menu is open
 			Theme.ApplyTo(cm);
 			ToolStripMenuItem Item(ToolStripItemCollection to, string text, Action run, bool enabled = true)
 			{
@@ -34,6 +35,13 @@ namespace DesktopPet
 				Item(cm.Items, Lang.T("vpet.sleep"), VirtualPet.Sleep);
 			}
 			cm.Items.Add(new ToolStripSeparator());
+
+			// only once an AI service is set up (Settings → AI)
+			if (AiAssistant.Configured)
+			{
+				var ask = Item(cm.Items, Lang.T("menu.ask"), FormAsk.Open);
+				ask.Font = new Font(ask.Font, FontStyle.Bold);
+			}
 
 			var games = Item(cm.Items, Lang.T("menu.games"), null);
 			Item(games.DropDownItems, Lang.T("menu.fortune"), Fun.FortuneCookie);
@@ -57,7 +65,7 @@ namespace DesktopPet
 			var shortcuts = Item(cm.Items, Lang.T("menu.shortcuts"), null);
 			foreach (var l in Launchers.All) { var launcher = l; Item(shortcuts.DropDownItems, l.Name, () => Launchers.Open(launcher)); }
 			if (Launchers.All.Count > 0) shortcuts.DropDownItems.Add(new ToolStripSeparator());
-			Item(shortcuts.DropDownItems, Lang.T("menu.shortcutsManage"), () => { using (var f = new FormLaunchers()) f.ShowDialog(); });
+			Item(shortcuts.DropDownItems, Lang.T("menu.shortcutsManage"), () => { FormPet.Hold(true); try { using (var f = new FormLaunchers()) f.ShowDialog(); } finally { FormPet.Hold(false); } });
 
 			if (Agenda.Configured)
 			{
@@ -70,11 +78,10 @@ namespace DesktopPet
 			mon.Checked = PcMonitor.Enabled;
 
 			cm.Items.Add(new ToolStripSeparator());
-			if (pickAnimation != null) Item(cm.Items, Lang.T("menu.animations"), pickAnimation);
 			Item(cm.Items, Lang.T("tray.panel").Replace("&", ""), () => FormSettings.ShowPage(FormSettings.Page.Pets));
 			Item(cm.Items, Lang.T("menu.sendAway"), () => { if (!Program.Mainthread.KillSheep(pet)) pet.Close(); });
 
-			cm.Closed += (s, e) => cm.BeginInvoke(new MethodInvoker(cm.Dispose));
+			cm.Closed += (s, e) => { FormPet.Hold(false); cm.BeginInvoke(new MethodInvoker(cm.Dispose)); };
 			cm.Show(anchor, at);
 			return cm;
 		}

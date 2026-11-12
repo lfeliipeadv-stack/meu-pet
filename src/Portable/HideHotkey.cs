@@ -28,9 +28,31 @@ namespace DesktopPet
         public static event Action Changed;
 
         /// <summary>Register or release the shortcut, following the setting. Returns false if another program has it.</summary>
+        const int AskId = 0x5046;
+        public const string AskText = "Ctrl+Alt+Space";
+        static bool askRegistered;
+
+        /// <summary>Ctrl+Alt+Space opens "Ask the pet" (when the AI is set up). On unless turned off.</summary>
+        public static bool AskEnabled
+        {
+            get => Program.MyData.GetSettingBool("AskHotkey", true);
+            set { Program.MyData.SetSetting("AskHotkey", value); ApplyAsk(); }
+        }
+
+        public static bool ApplyAsk()
+        {
+            if (window == null) window = new Receiver();
+            if (askRegistered) { UnregisterHotKey(window.Handle, AskId); askRegistered = false; }
+            if (!AskEnabled) return true;
+            askRegistered = RegisterHotKey(window.Handle, AskId, MOD_CONTROL | MOD_ALT | MOD_NOREPEAT, (uint)Keys.Space);
+            if (!askRegistered) StartUp.AddDebugInfo(StartUp.DEBUG_TYPE.warning, AskText + " is used by another program");
+            return askRegistered;
+        }
+
         public static bool Apply()
         {
             if (window == null) window = new Receiver();
+            ApplyAsk();
             if (registered) { UnregisterHotKey(window.Handle, Id); registered = false; }
             if (!Program.MyData.GetHotkeyEnabled()) return true;
             registered = RegisterHotKey(window.Handle, Id, MOD_CONTROL | MOD_ALT | MOD_NOREPEAT, (uint)Keys.P);
@@ -59,6 +81,7 @@ namespace DesktopPet
             {
                 const int WM_HOTKEY = 0x0312;
                 if (m.Msg == WM_HOTKEY && (int)m.WParam == Id) Toggle();
+                if (m.Msg == WM_HOTKEY && (int)m.WParam == AskId && !(Form.ActiveForm is FormAsk)) FormAsk.Open();
                 base.WndProc(ref m);
             }
         }

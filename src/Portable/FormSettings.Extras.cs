@@ -37,6 +37,9 @@ namespace DesktopPet
 			extrasView.AddToggle("", /* people */ "opt.petsMeet", () => PetsMeet.Enabled, on => PetsMeet.Enabled = on);
 			extrasView.AddToggle("", /* monitor */ "opt.pcEvents", () => ComputerEvents.Enabled, on => ComputerEvents.Enabled = on);
 
+			// new e-mails in the classic Outlook
+			extrasView.AddToggle("", /* mail */ "opt.mail", () => OutlookMail.Enabled, on => OutlookMail.Enabled = on);
+
 			// calendar (private iCal link of Google or Outlook)
 			extrasView.AddAction("", /* calendar */ "opt.agenda", "opt.agenda.button", ConfigureAgenda);
 			int[] lead = { 5, 10, 15 };
@@ -46,6 +49,32 @@ namespace DesktopPet
 			extrasView.AddToggle("", /* code */ "opt.claude", () => AgentBridge.Enabled && ClaudeHooks.IsInstalled(), SetClaude);
 			extrasView.AddToggle("", /* message */ "opt.claudeBubbles", () => AgentBridge.ProgressBubbles, on => AgentBridge.ProgressBubbles = on);
 			extrasView.AddAction("", /* play */ "opt.claudeTest", "opt.claudeTest.button", TestClaude);
+			extrasView.AddToggle("", /* chat */ "opt.claudeMcp", ClaudeMcp.IsRegistered, SetClaudeMcp);
+		}
+
+		/// <summary>AI page: set up the AI service, and ask the pet.</summary>
+		private void BuildAiOptions()
+		{
+			aiView.AddAction("", /* sparkle */ "opt.ai", "opt.ai.button", () =>
+			{
+				using (var f = new FormAiSettings())
+					if (f.ShowDialog(this) == DialogResult.OK)
+					{
+						StatusText = AiAssistant.Configured ? Lang.T("ai.saved", AiAssistant.Preset(AiAssistant.ProviderId).Name, AiAssistant.Model) : Lang.T("ai.removed");
+						if (AiAssistant.Configured) SpeechBubble.Say(Lang.T("ai.ready"), 8);
+					}
+				aiView.Invalidate();
+			});
+			aiView.AddAction("", /* chat */ "opt.aiAsk", "opt.aiAsk.button", FormAsk.Open);
+			int[] styles = { 0, 1, 2, 3 };
+			aiView.AddChoice("", /* emoji */ "opt.aiStyle", () => AiAssistant.Style, v => AiAssistant.Style = v, styles,
+				new[] { "opt.aiStyle.friendly", "opt.aiStyle.direct", "opt.aiStyle.kids", "opt.aiStyle.funny" });
+			aiView.AddToggle("", /* cursor */ "opt.hoverAsk", () => HoverAsk.Enabled, on => HoverAsk.Enabled = on);
+			aiView.AddToggle("", /* keyboard */ "opt.askHotkey", () => HideHotkey.AskEnabled, on =>
+			{
+				HideHotkey.AskEnabled = on;
+				if (on && !HideHotkey.ApplyAsk()) StatusText = Lang.T("status.hotkeyBusy", HideHotkey.AskText);
+			});
 		}
 
 		/// <summary>Paste (or clear) the private iCal link of the calendar, then check it.</summary>
@@ -86,11 +115,37 @@ namespace DesktopPet
 				else
 				{
 					ClaudeHooks.Uninstall();
-					AgentBridge.Enabled = false;
+					if (!ClaudeMcp.IsRegistered()) AgentBridge.Enabled = false;   // the MCP server still needs the channel
 					StatusText = Lang.T("claude.off");
 				}
 			}
 			catch (Exception ex) { StatusText = Lang.T("claude.error", ex.Message); }
+		}
+
+		/// <summary>Let Claude talk through the pet: register (or remove) the MCP server in Claude Code.</summary>
+		private async void SetClaudeMcp(bool on)
+		{
+			try
+			{
+				if (on && !AgentBridge.Enabled)
+				{
+					// the MCP server talks to the pet through the same local channel
+					AgentBridge.Enabled = true;
+					if (!AgentBridge.Listening) { AgentBridge.Enabled = false; StatusText = Lang.T("claude.portBusy", AgentBridge.Port); return; }
+				}
+				var (ok, output) = on ? await ClaudeMcp.Register() : await ClaudeMcp.Unregister();
+				if (output == null)
+				{
+					// Claude Code not found: give the command to paste
+					try { Clipboard.SetText(ClaudeMcp.ManualCommand); } catch (Exception) { }
+					MessageBox.Show(this, Lang.T("mcp.manual", ClaudeMcp.ManualCommand), Lang.T("opt.claudeMcp.title"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+					return;
+				}
+				StatusText = ok ? Lang.T(on ? "mcp.on" : "mcp.off") : Lang.T("mcp.error", output.Length > 160 ? output.Substring(0, 160) + "…" : output);
+				if (ok && on) SpeechBubble.Say(Lang.T("mcp.on"), 8);
+				extrasView.Invalidate();
+			}
+			catch (Exception ex) { StatusText = Lang.T("mcp.error", ex.Message); }
 		}
 
 		/// <summary>A short example, through the real local endpoint when it is on.</summary>

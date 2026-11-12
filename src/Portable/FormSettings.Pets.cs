@@ -146,6 +146,9 @@ namespace DesktopPet
 			{
 				try { PetStore.Save(current, Program.MyData.GetXml(), ""); } catch (Exception) { }
 			}
+			// --- pets created on this computer ("Criar meu pet")
+			foreach (var folder in PetStore.Folders())
+				if (folder.StartsWith(PetCreator.Prefix, StringComparison.OrdinalIgnoreCase)) AddLocalPet(folder);
 			petsView.PetsChanged();
 
 			// --- online gallery (GitHub) -------------------------------------------
@@ -192,6 +195,7 @@ namespace DesktopPet
 			foreach (var folder in PetStore.Folders())
 			{
 				if (listed.Contains(folder) || BuiltInPets.IsBuiltIn(folder)) continue;
+				if (folder.StartsWith(PetCreator.Prefix, StringComparison.OrdinalIgnoreCase)) continue;   // made on this computer
 				if (string.Equals(folder, petsView.CurrentPet, StringComparison.OrdinalIgnoreCase)) { AddLocalPet(folder); continue; }
 				try { PetStore.Delete(folder); } catch (Exception) { }
 			}
@@ -213,7 +217,7 @@ namespace DesktopPet
 					author = header?.SelectSingleNode("*[local-name()='author']")?.InnerText ?? "",
 					lastupdate = PetStore.SavedVersion(folder),
 					Detail = doc,
-					Readme = new List<string> { Lang.T("pets.notInGallery") },
+					Readme = new List<string> { Lang.T(folder.StartsWith(PetCreator.Prefix, StringComparison.OrdinalIgnoreCase) ? "pets.createdHere" : "pets.notInGallery") },
 				};
 				try
 				{
@@ -322,6 +326,23 @@ namespace DesktopPet
 			}
 		}
 
+		/// <summary>"Criar meu pet": pictures become a pet, kept in "Meus pets" and offered for adoption.</summary>
+		private void CreatePet()
+		{
+			using (var f = new FormPetCreator())
+			{
+				if (f.ShowDialog(this) != DialogResult.OK || f.Created == null) return;
+				WebPets.pets.RemoveAll(p => string.Equals(p.folder, f.Created, StringComparison.OrdinalIgnoreCase));
+				AddLocalPet(f.Created);
+				petsView.CurrentTab = PetsView.Tab.Mine;
+				petsView.PetsChanged();
+				var pet = WebPets.pets.FirstOrDefault(p => p.folder == f.Created);
+				StatusText = Lang.T("status.created", pet?.DisplayName ?? f.Created);
+				if (pet != null && MessageBox.Show(this, Lang.T("dlg.createdAdopt", pet.DisplayName), Lang.T("create.title"), MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+					AdoptPet(pet);
+			}
+		}
+
 		/// <summary>Bring the pets of an exported file to this computer.</summary>
 		private void ImportPets()
 		{
@@ -336,6 +357,17 @@ namespace DesktopPet
 				{
 					var (imported, current) = PetBackup.Import(dlg.FileName);
 					StatusText = imported.Count == 0 ? Lang.T("status.importNone") : Lang.T("status.imported", imported.Count);
+					// reminders, shortcuts, mood, needs and settings (they replace the ones of this computer: ask)
+					if (PetBackup.HasMyThings(dlg.FileName) &&
+						MessageBox.Show(this, Lang.T("dlg.importMyThings"), Lang.T("opt.import.title"), MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
+					{
+						int n = PetBackup.RestoreMyThings(dlg.FileName);
+						Theme.Mode = Program.MyData.GetTheme();
+						Lang.Use(Program.MyData.GetLanguage());
+						PcMonitor.Apply(); ComputerEvents.Apply(); HideHotkey.Apply();
+						ContextMenus.UpdateTexts();
+						StatusText = Lang.T("status.restoredMyThings", imported.Count, n);
+					}
 					PetUpdates.Recount();
 					// show them in "My pets"
 					foreach (var pet in WebPets.pets) pet.Detail = null;
@@ -444,6 +476,13 @@ namespace DesktopPet
 					else
 						pet.Readme = await Task.Run(() => OptionsGit.GetReadMe(pet.folder));
 					pet.ReadmeLang = lang;
+				}
+				// the pet moving, for the detail (also before downloading)
+				if (!pet.PreviewTried)
+				{
+					pet.PreviewTried = true;
+					string folder = pet.folder;
+					pet.Preview = await Task.Run(() => OptionsGit.GetPreview(folder));
 				}
 			}
 			catch (Exception ex) { StatusText = "README: " + ex.Message; }

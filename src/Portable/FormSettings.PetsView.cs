@@ -280,6 +280,40 @@ namespace DesktopPet
 				}
 			}
 
+			Image animating;
+
+			/// <summary>The pet moving: the GIF advances on its own and repaints the panel; only the open pet animates.</summary>
+			private void DrawPreview(Graphics g, Image gif, Rectangle box)
+			{
+				if (animating != gif)
+				{
+					if (animating != null) ImageAnimator.StopAnimate(animating, OnFrame);
+					animating = gif;
+					if (ImageAnimator.CanAnimate(gif)) ImageAnimator.Animate(gif, OnFrame);
+				}
+				ImageAnimator.UpdateFrames(gif);
+				float s = Math.Min(box.Width / (float)gif.Width, box.Height / (float)gif.Height);
+				int w = (int)(gif.Width * s), h = (int)(gif.Height * s);
+				var r = new Rectangle(box.X + (box.Width - w) / 2, box.Bottom - h, w, h);
+				var mode = g.InterpolationMode;
+				g.InterpolationMode = s >= 1 ? System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor : System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+				g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.Half;
+				g.DrawImage(gif, r);
+				g.InterpolationMode = mode;
+			}
+
+			void OnFrame(object sender, EventArgs e)
+			{
+				if (IsDisposed || !IsHandleCreated) return;
+				try { BeginInvoke(new Action(() => { if (selected?.Preview == animating) Invalidate(); else StopPreview(); })); } catch (Exception) { }
+			}
+
+			void StopPreview()
+			{
+				if (animating != null) ImageAnimator.StopAnimate(animating, OnFrame);
+				animating = null;
+			}
+
 			private void DrawDetail(Graphics g)
 			{
 				links.Clear();
@@ -296,7 +330,8 @@ namespace DesktopPet
 				// big preview
 				var iconBack = new Rectangle(x, y, 96, 96);
 				Theme.FillRounded(g, Theme.SurfaceAlt, iconBack, 12);
-				if (pet.Image != null) Theme.DrawPixelImage(g, pet.Image, new Rectangle(x + 8, y + 8, 80, 80));
+				if (pet.Preview != null) DrawPreview(g, pet.Preview, Rectangle.Inflate(iconBack, -4, -4));
+				else if (pet.Image != null) Theme.DrawPixelImage(g, pet.Image, new Rectangle(x + 8, y + 8, 80, 80));
 				Theme.DrawText(g, pet.DisplayName, form.fontH2, new Rectangle(x + 110, y + 10, w - 140, 48), Theme.Text, TextFormatFlags.WordBreak | TextFormatFlags.EndEllipsis);
 				Theme.DrawText(g, Lang.T("pets.by", pet.author), form.fontSmall, new Rectangle(x + 110, y + 60, w - 110, 18), Theme.TextMuted, TextFormatFlags.SingleLine | TextFormatFlags.EndEllipsis);
 				Theme.DrawText(g, Lang.T("pets.updated", pet.lastupdate), form.fontSmall, new Rectangle(x + 110, y + 78, w - 110, 18), Theme.TextMuted, TextFormatFlags.SingleLine);

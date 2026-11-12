@@ -71,6 +71,16 @@ namespace DesktopPet
         [STAThread]
         static void Main(string[] args)
         {
+#if NETCORE
+            // "DesktopPet.exe --mcp": MCP server on stdin/stdout for Claude Code (no window, no pet; talks to the running one)
+            if (args.Length > 0 && args[0] == "--mcp")
+            {
+                var stdin = new StreamReader(Console.OpenStandardInput(), new System.Text.UTF8Encoding(false));
+                var stdout = new StreamWriter(Console.OpenStandardOutput(), new System.Text.UTF8Encoding(false));
+                Environment.Exit(McpServer.Run(stdin, stdout));
+                return;
+            }
+#endif
             int iMutexIndex = 0;
 
 #if NETCORE
@@ -78,7 +88,15 @@ namespace DesktopPet
             ApplicationConfiguration.Initialize();
             Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
             Application.ThreadException += (s, e) =>
-                StartUp.AddDebugInfo(StartUp.DEBUG_TYPE.error, "Unhandled: " + e.Exception.Message);
+                StartUp.AddDebugInfo(StartUp.DEBUG_TYPE.error, "Unhandled: " + e.Exception);
+            AppDomain.CurrentDomain.UnhandledException += (s, e) =>
+                LogFile.Important("CRASH " + e.ExceptionObject);
+            System.Threading.Tasks.TaskScheduler.UnobservedTaskException += (s, e) =>
+            {
+                StartUp.AddDebugInfo(StartUp.DEBUG_TYPE.error, "Background task: " + e.Exception?.GetBaseException());
+                e.SetObserved();
+            };
+            LogFile.Important($"start {Application.ProductVersion} on {Environment.OSVersion}, args: {string.Join(" ", args)}");
 
             // Interface language: saved preference, or the Windows language ("auto").
             Lang.Use(MyData.GetLanguage());
@@ -91,6 +109,14 @@ namespace DesktopPet
                 if (s.StartsWith("--export-lang=", StringComparison.OrdinalIgnoreCase))
                 {
                     Lang.ExportEnglish(s.Substring("--export-lang=".Length));
+                    return;
+                }
+                // developer: listen for Claude Code without changing the saved setting (events noted in %TEMP%\desktoppet-agent.log)
+                if (s.Equals("--listen", StringComparison.OrdinalIgnoreCase)) AgentBridge.DevListen = true;
+                // developer: write the hooks into another settings file (claude --settings <file>), not the user's one
+                if (s.StartsWith("--write-hooks=", StringComparison.OrdinalIgnoreCase))
+                {
+                    ClaudeHooks.Install(s.Substring("--write-hooks=".Length));
                     return;
                 }
             }
@@ -197,13 +223,20 @@ namespace DesktopPet
                         continue;
                     }
                     // developer: check the features and write PASS/FAIL lines ("--selftest=C:\folder\result.txt")
+                    if (s.StartsWith("--ai-check=", StringComparison.OrdinalIgnoreCase))
+                    {
+                        SelfTest.AiCheck(s.Substring("--ai-check=".Length));
+                        continue;
+                    }
                     if (s.StartsWith("--selftest=", StringComparison.OrdinalIgnoreCase))
                     {
+                        Onboarding.Disabled = true;
                         SelfTest.Run(s.Substring("--selftest=".Length));
                         continue;
                     }
                     if (s.StartsWith("--snapshot=", StringComparison.OrdinalIgnoreCase))
                     {
+                        Onboarding.Disabled = true;
                         FormSettings.SaveSnapshots(s.Substring("--snapshot=".Length));
                         continue;
                     }

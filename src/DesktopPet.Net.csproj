@@ -106,6 +106,18 @@
     <Compile Include="Portable\ClaudeHooks.cs" />
     <Compile Include="Portable\Companions.cs" />
     <Compile Include="Portable\Agenda.cs" />
+    <Compile Include="Portable\LogFile.cs" />
+    <Compile Include="Portable\McpServer.cs" />
+    <Compile Include="Portable\ClaudeMcp.cs" />
+    <Compile Include="Portable\OutlookMail.cs" />
+    <Compile Include="Portable\PetActions.cs" />
+    <Compile Include="Portable\AiAssistant.cs" />
+    <Compile Include="Portable\FormAi.cs" />
+    <Compile Include="Portable\HoverAsk.cs" />
+    <Compile Include="Portable\PetDialog.cs" />
+    <Compile Include="Portable\Onboarding.cs" />
+    <Compile Include="Portable\PetCreator.cs" />
+    <Compile Include="Portable\UninstallScript.cs" />
     <Compile Include="Portable\FormDebugModern.cs" />
     <Compile Include="Portable\FormSettings.cs" />
     <Compile Include="Portable\BuiltInPets.cs" />
@@ -119,7 +131,15 @@
   <!-- Language files stay outside the exe: anybody can edit them or add a language without recompiling. -->
   <ItemGroup>
     <None Include="lang\*.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" ExcludeFromSingleFile="true" />
+    <!-- …and a copy inside the exe, used when the lang folder is missing (only the exe was downloaded). -->
+    <EmbeddedResource Include="lang\*.json" LogicalName="lang/%(Filename)%(Extension)" />
   </ItemGroup>
+
+  <!-- "Full" build that needs no .NET installed: dotnet publish -p:SelfContained=true (see Tools\release.ps1). -->
+  <PropertyGroup Condition="'$(SelfContained)' == 'true'">
+    <DefineConstants>$(DefineConstants);SELFCONTAINED</DefineConstants>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+  </PropertyGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="dotNet\FormPet.resx" DependentUpon="FormPet.cs" />

@@ -955,7 +955,7 @@ namespace DesktopPet
 						foreach (var lp in local)
 						{
 							if (!online.Any(op => op.folder == lp.folder && op.lastupdate != lp.lastupdate)) continue;
-							foreach (var ext in new[] { ".png", ".xml", ".md", ".pt-BR.md", ".pt-BR.none" })
+							foreach (var ext in new[] { ".png", ".xml", ".md", ".gif", ".pt-BR.md", ".pt-BR.none" })
 								File.Delete(Path.Combine(BaseLocalPath, lp.folder + ext));
 						}
 					}
@@ -990,6 +990,22 @@ namespace DesktopPet
 		/// </summary>
 		/// <param name="folder">folder on Github or name of the pet</param>
 		/// <returns>list of lines, markdown formatted</returns>
+		/// <summary>The animated preview of a pet (preview.gif next to its animations), or null when it has none.</summary>
+		public static Image GetPreview(string folder)
+		{
+			try
+			{
+				using (var s = GetOrDownload(folder, "preview.gif"))
+				{
+					var ms = new MemoryStream();
+					s.CopyTo(ms);
+					ms.Position = 0;
+					return Image.FromStream(ms);   // the stream stays open: an animated GIF reads its frames from it
+				}
+			}
+			catch (Exception) { return null; }
+		}
+
 		public static List<string> GetReadMe(string folder)	
 		{
 			List<string> readme = new List<string>();

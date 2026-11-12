@@ -122,20 +122,20 @@ namespace DesktopPet
 			bool charging = ps.PowerLineStatus == PowerLineStatus.Online;
 			if (charging)
 			{
-				if (!wasCharging && lowSaid) { Program.Mainthread?.ReactAll("happy", "cheer", "jump"); SpeechBubble.Say(Lang.T("pc.charging"), 5); }
+				if (!wasCharging && lowSaid) { Program.Mainthread?.ReactAll("happy", "cheer", "jump"); SpeechBubble.Notify(Lang.T("pc.charging"), 5); }
 				lowSaid = criticalSaid = false;
 			}
 			else if (pct <= 10 && !criticalSaid)
 			{
 				criticalSaid = lowSaid = true;
 				Program.Mainthread?.ReactAll("scared", "shocked", "tired", "dizzy");
-				SpeechBubble.Say(Lang.T("pc.batteryCritical", pct), 0, new SpeechBubble.Choice("OK", null, true));
+				SpeechBubble.Notify(Lang.T("pc.batteryCritical", pct), 0, new SpeechBubble.Choice("OK", null, true));
 			}
 			else if (pct <= 20 && !lowSaid)
 			{
 				lowSaid = true;
 				Program.Mainthread?.ReactAll("tired", "yawn", "sleepy");
-				SpeechBubble.Say(Lang.T("pc.batteryLow", pct), 10);
+				SpeechBubble.Notify(Lang.T("pc.batteryLow", pct), 10);
 			}
 			wasCharging = charging;
 		}
@@ -150,7 +150,7 @@ namespace DesktopPet
 			{
 				Program.MyData.SetSetting("SaidMorning", today);
 				Program.Mainthread?.ReactAll("wave", "hello", "stretch", "happy");
-				SpeechBubble.Say(Lang.T("pc.morning"), 8);
+				SpeechBubble.Notify(Lang.T("pc.morning"), 8);
 			}
 			// the night belongs to the day it started (00:30 is still "last night")
 			string night = (now.Hour < 5 ? now.AddDays(-1) : now).ToString("yyyy-MM-dd");
@@ -158,7 +158,7 @@ namespace DesktopPet
 			{
 				Program.MyData.SetSetting("SaidNight", night);
 				Program.Mainthread?.ReactAll("yawn", "sleepy", "tired", "sleep");
-				SpeechBubble.Say(Lang.T("pc.night"), 10);
+				SpeechBubble.Notify(Lang.T("pc.night"), 10);
 			}
 		}
 
@@ -203,6 +203,21 @@ namespace DesktopPet
 			catch (Exception ex) { StartUp.AddDebugInfo(StartUp.DEBUG_TYPE.warning, "downloads watcher: " + ex.Message); }
 		}
 
+		/// <summary>Self-test: watch another folder (null = the real Downloads again) and check it now.</summary>
+		internal static void TestWatch(string folder)
+		{
+			downloads?.Dispose();
+			downloads = null;
+			lock (pending) pending.Clear();
+			if (folder == null) { if (Enabled) WatchDownloads(); return; }
+			downloads = new FileSystemWatcher(folder) { IncludeSubdirectories = false, EnableRaisingEvents = true };
+			void Seen(string path) { if (!IsUnfinished(Path.GetFileName(path))) lock (pending) pending[path] = DateTime.Now; }
+			downloads.Created += (s, e) => Seen(e.FullPath);
+			downloads.Renamed += (s, e) => Seen(e.FullPath);
+		}
+
+		internal static void TestCheckDownloads() { lastDownloadSaid = DateTime.MinValue; FinishedDownloads(); }
+
 		/// <summary>Files that stopped growing for a few seconds are announced (several at once in one bubble).</summary>
 		static void FinishedDownloads()
 		{
@@ -218,7 +233,7 @@ namespace DesktopPet
 			Program.Mainthread?.ReactAll("cheer", "happy", "jump", "thumbs up");
 			string first = done[0];
 			string text = done.Count == 1 ? Lang.T("pc.downloaded", Path.GetFileName(first)) : Lang.T("pc.downloadedMany", done.Count);
-			SpeechBubble.Say(text, 10, new SpeechBubble.Choice(Lang.T("pc.showFile"), () =>
+			SpeechBubble.Notify(text, 10, new SpeechBubble.Choice(Lang.T("pc.showFile"), () =>
 			{
 				try { Process.Start(new ProcessStartInfo("explorer.exe", "/select,\"" + first + "\"") { UseShellExecute = false }); } catch (Exception) { }
 			}, true));
