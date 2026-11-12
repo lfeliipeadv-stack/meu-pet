@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -74,6 +74,7 @@ namespace DesktopPet
 			Try("create pet", PetCreatorBuild);
 			await TryAsync("dialogs hold the pets", DialogsHold);
 			Try("colour emoji", ColorEmoji);
+			Try("sheep talk", SheepTalk);
 			await TryAsync("sky arrival", SkyArrival);
 			await TryAsync("tour", Onboard);
 			await TryAsync("talking pet", TalkingPet);
@@ -289,6 +290,21 @@ namespace DesktopPet
 
 		/// <summary>Falling from a window that went away: a pet in the air cannot stand still until it lands.</summary>
 		static bool InAir(FormPet pet) => (pet.CurrentAnimationName ?? "").IndexOf("fall", StringComparison.OrdinalIgnoreCase) >= 0;
+
+		/// <summary>The eSheep that comes with the program turns to face you while it talks (and turns back after).</summary>
+		static void SheepTalk()
+		{
+			var ser = new System.Xml.Serialization.XmlSerializer(typeof(XmlData.RootNode));
+			XmlData.RootNode root;
+			using (var r = new StringReader(BuiltInPets.GetXml("esheep64"))) root = (XmlData.RootNode)ser.Deserialize(r);
+			var talk = root.Animations.Animation.FirstOrDefault(a => a.Name == "talk");
+			Check("eSheep: has a talk animation", talk != null);
+			if (talk == null) return;
+			Check("eSheep talk: stays in place", talk.Start.X == "0" && talk.End.X == "0" && talk.Start.Y == "0" && talk.End.Y == "0", $"{talk.Start.X},{talk.Start.Y}");
+			Check("eSheep talk: ends looking at you (front frame)", talk.Sequence.Frame.Last() == 10 && talk.Sequence.RepeatFromFrame == talk.Sequence.Frame.Length - 1);
+			var back = root.Animations.Animation.FirstOrDefault(a => talk.Sequence.Next != null && a.Id == talk.Sequence.Next[0].Value);
+			Check("eSheep talk: then turns back", back?.Name == "rotate1b", back?.Name);
+		}
 
 		/// <summary>Emoji in colour: the same drawing call as the bubbles and the panel, on a picture; saved next to the result.</summary>
 		static void ColorEmoji()
@@ -761,6 +777,10 @@ namespace DesktopPet
 				Check("talk: a bubble does not cut the sleep animation", pet.CurrentAnimationName == sleeping, pet.CurrentAnimationName);
 				CloseBubbles();
 			}
+
+			// a pet with a "talk" animation (the eSheep turns to face you) uses it while it talks
+			if (pet.FindAnimation("talk") >= 0) Check("talk: the pet faces you while talking (talk animation)", pet.StillAnimation == pet.FindAnimation("talk"), pet.StillAnimation.ToString());
+			else lines.Add("SKIP  talk: the pet in use has no talk animation");
 
 			// talking: the pet stops walking
 			pet.React("walk");

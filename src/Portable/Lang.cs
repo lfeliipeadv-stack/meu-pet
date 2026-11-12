@@ -301,6 +301,7 @@ namespace DesktopPet
 				["whatsnew.title"] = "What's new in version {0}:",
 				["whatsnew.more"] = "See everything",
 				["whatsnew.2.5.0"] = "ask me anything (AI), hover button, quiet focus time, Outlook e-mails, I stand still when talking, create your own pet, Spanish and an installer that checks .NET.",
+				["whatsnew.2.5.1"] = "colourful emoji, I arrive from the sky the first time and I look at you while I talk.",
 				["opt.aiStyle.title"] = "Personality",
 				["opt.aiStyle.desc"] = "How the pet answers.",
 				["opt.aiStyle.friendly"] = "Friendly",

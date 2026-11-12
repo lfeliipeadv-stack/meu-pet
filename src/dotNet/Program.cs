@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
@@ -334,11 +335,32 @@ namespace DesktopPet
         /// A built-in pet (Claude, Capi …) is saved in the settings when it is adopted, so a newer exe would keep
         /// showing the old copy. Replace it with the version embedded in this exe when they differ.
         /// </summary>
+        /// <summary>Same pet: the same title, name and author in the header (the version may differ).</summary>
+        static bool SameHeader(string a, string b)
+        {
+            try
+            {
+                string Head(string xml)
+                {
+                    var d = new System.Xml.XmlDocument();
+                    d.LoadXml(xml);
+                    var h = d.DocumentElement?.SelectSingleNode("*[local-name()='header']");
+                    return h == null ? null : string.Join("|", new[] { "title", "petname", "author" }.Select(n => h.SelectSingleNode($"*[local-name()='{n}']")?.InnerText ?? ""));
+                }
+                string ha = Head(a);
+                return ha != null && ha == Head(b);
+            }
+            catch (Exception) { return false; }
+        }
+
         static void RefreshBuiltInPet()
         {
             try
             {
                 string folder = MyData.GetCurrentPetFolder();
+                // the eSheep saved on the first run has no folder name: recognise it by its header
+                if (string.IsNullOrEmpty(folder))
+                    folder = BuiltInPets.Folders.FirstOrDefault(f => SameHeader(MyData.GetXml(), BuiltInPets.GetXml(f))) ?? "";
                 if (!BuiltInPets.IsBuiltIn(folder)) return;
                 var doc = new System.Xml.XmlDocument();
                 doc.LoadXml(BuiltInPets.GetXml(folder));

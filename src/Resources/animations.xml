@@ -1687,6 +1687,30 @@
         <next probability="10" only="none">8</next>
       </sequence>
     </animation>
+    <animation id="57">
+      <name>talk</name>
+      <start>
+        <x>0</x>
+        <y>0</y>
+        <offsety>0</offsety>
+        <opacity>1</opacity>
+        <interval>200</interval>
+      </start>
+      <end>
+        <x>0</x>
+        <y>0</y>
+        <offsety>0</offsety>
+        <opacity>1</opacity>
+        <interval>200</interval>
+      </end>
+      <sequence repeatfrom="2" repeat="150">
+        <frame>3</frame>
+        <frame>9</frame>
+        <frame>10</frame>
+        <next probability="100" only="none">3</next>
+      </sequence>
+    </animation>
+
   </animations>
   <childs>
     <child animationid="21">
