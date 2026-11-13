@@ -1,5 +1,6 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -42,6 +43,8 @@ namespace DesktopPet
 
 		/// <summary>The self-test is running: the plugins that react to the computer on their own (music, visits, full screen) wait.</summary>
 		public static bool Running;
+		/// <summary>The live part of the self-test: those plugins run for real (a butterfly, a pushed window, full screen).</summary>
+		public static bool Live;
 
 		public static async void Run(string outFile)
 		{
@@ -114,6 +117,7 @@ namespace DesktopPet
 			Try("claude events", ClaudeEvents);
 			await TryAsync("claude endpoint", ClaudeEndpoint);
 			Try("new plugins", NewPlugins);
+			await TryAsync("live plugins", LivePlugins);
 
 			lines.Insert(0, $"DesktopPet self-test {DateTime.Now:yyyy-MM-dd HH:mm:ss}  —  {failures} failure(s)");
 			try { File.WriteAllLines(outFile, lines, new UTF8Encoding(false)); } catch (Exception) { }
@@ -313,8 +317,18 @@ namespace DesktopPet
 				var lines = File.ReadAllLines(OtherAgents.CodexConfig).ToList();
 				Check("codex: notify before the first table", lines.FindIndex(l => l.StartsWith("notify")) < lines.FindIndex(l => l.StartsWith("[")));
 				Check("codex: removed", OtherAgents.SetCodex(false) == null && !OtherAgents.CodexInstalled && File.ReadAllText(OtherAgents.CodexConfig).Contains("[profiles.x]"));
-				File.WriteAllText(OtherAgents.CodexConfig, "notify = [\"other.exe\"]\n");
-				Check("codex: someone else's notify is kept", OtherAgents.SetCodex(true) == "agents.codexBusy" && File.ReadAllText(OtherAgents.CodexConfig).Contains("other.exe"));
+				// someone else's notify (like the Codex app's own): run after the pet, put back exactly when turned off
+				string theirs = "notify = [ \"C:\\\\Program Files\\\\Other\\\\codex-computer-use.exe\", \"turn-ended\" ]";
+				File.WriteAllText(OtherAgents.CodexConfig, theirs + "\nmodel = \"o3\"\n");
+				Check("codex: their notify read", string.Join("|", OtherAgents.TomlStrings(theirs)) == "C:\\Program Files\\Other\\codex-computer-use.exe|turn-ended");
+				Check("codex: chained with their notify", OtherAgents.SetCodex(true) == null && OtherAgents.CodexInstalled);
+				var chained = OtherAgents.TomlStrings(File.ReadAllLines(OtherAgents.CodexConfig).First(l => l.StartsWith("notify")));
+				Check("codex: the pet first, then their program with its arguments", chained != null && chained.Count == 5 && chained[1] == "--agent=done" && chained[2] == "--then"
+					&& chained[3] == "C:\\Program Files\\Other\\codex-computer-use.exe" && chained[4] == "turn-ended", chained == null ? "?" : string.Join("|", chained));
+				Check("codex: only one notify line", File.ReadAllLines(OtherAgents.CodexConfig).Count(l => l.StartsWith("notify")) == 1);
+				OtherAgents.SetCodex(false);
+				Check("codex: their notify put back exactly", File.ReadAllText(OtherAgents.CodexConfig) == theirs + "\r\nmodel = \"o3\"\r\n" || File.ReadAllText(OtherAgents.CodexConfig) == theirs + "\nmodel = \"o3\"\n",
+					File.ReadAllText(OtherAgents.CodexConfig));
 				// Cursor: hooks merged with the user's own
 				Directory.CreateDirectory(Path.GetDirectoryName(OtherAgents.CursorHooks));
 				File.WriteAllText(OtherAgents.CursorHooks, "{\"version\":1,\"hooks\":{\"stop\":[{\"command\":\"mine.exe\"}]}}");
@@ -331,6 +345,145 @@ namespace DesktopPet
 
 			Check("notes: tasks saved", Notes.Tasks != null);
 			Check("api: example uses the secret file", LocalApi.Example.Contains("agent.json") && LocalApi.Example.Contains("X-DesktopPet"));
+		}
+
+		/// <summary>
+		/// The plugins for real: another process calling "--agent" like Codex does (with a program chained after it),
+		/// a butterfly flying to the pet, a window pushed by the walking pet, a full-screen window hiding the pets,
+		/// a new song making the pet react.
+		/// </summary>
+		static async Task LivePlugins()
+		{
+			Live = true;
+			try
+			{
+				foreach (var b in Application.OpenForms.OfType<SpeechBubble>().ToList()) b.Close();
+				await Task.Delay(300);
+
+				// ---- agents: a second DesktopPet process, called exactly like Codex calls its notify program
+				bool apiWas = LocalApi.Enabled, levelWas = AgentLevel.Enabled;
+				int tasks = AgentLevel.Tasks;
+				try
+				{
+					LocalApi.Enabled = true; AgentLevel.Enabled = true;
+					await Task.Delay(300);
+					Check("live agents: the bridge listens for the API", AgentBridge.Listening);
+					var psi = new System.Diagnostics.ProcessStartInfo(Environment.ProcessPath) { UseShellExecute = false, CreateNoWindow = true };
+					foreach (var a in new[] { "--agent=done", "--then", Environment.ProcessPath, "--agent=thinking", "{\"type\":\"agent-turn-complete\"}" }) psi.ArgumentList.Add(a);
+					int exit = -1;
+					await Task.Run(() => { using (var p = System.Diagnostics.Process.Start(psi)) { if (p.WaitForExit(20000)) exit = p.ExitCode; else p.Kill(); } });
+					await Task.Delay(800);
+					Check("live agents: the command ends well", exit == 0, "exit " + exit);
+					Check("live agents: the pet counted the finished task", AgentLevel.Tasks == tasks + 1, $"{tasks} -> {AgentLevel.Tasks}");
+					Check("live agents: the chained program ran after (thinking)", AgentBridge.Last == AgentBridge.Activity.Thinking, AgentBridge.Last.ToString());
+				}
+				finally
+				{
+					Program.MyData.SetSetting("AgentTasks", tasks);
+					LocalApi.Enabled = apiWas; AgentLevel.Enabled = levelWas;
+					foreach (var b in Application.OpenForms.OfType<SpeechBubble>().ToList()) b.Close();
+				}
+
+				var pet = Pet();
+				if (pet == null) { lines.Add("SKIP  live plugins: no pet on screen"); return; }
+
+				// ---- music: a new song (Spotify's title) makes the pet react; a paused player does not count
+				MusicWatch.FakeTitle = "Spotify Premium";
+				Check("live music: paused Spotify is not a song", MusicWatch.Playing() == "");
+				int react = pet.FindAnimation("dance", "party", "happy", "cheer", "jump");
+				string before = pet.CurrentAnimationName;
+				MusicWatch.FakeTitle = "Daft Punk - One More Time";
+				MusicWatch.Tick();
+				await Task.Delay(400);
+				if (react >= 0) Check("live music: the pet reacts to a new song", pet.CurrentAnimationName != before || new[] { "dance", "party", "happy", "cheer", "jump" }.Contains(pet.CurrentAnimationName), pet.CurrentAnimationName);
+				else lines.Add("SKIP  live music: this pet has no dance or happy animation");
+				MusicWatch.FakeTitle = null;
+				string real = MusicWatch.Playing();
+				lines.Add("INFO  live music: Spotify now: " + (real.Length > 0 ? real : "nothing playing"));
+				pet.React("walk");
+				await Task.Delay(1500);
+
+				// ---- butterfly: flies to the pet, around it, and away
+				Visitors.Visit();
+				await Task.Delay(300);
+				var fly = Visitors.Flying;
+				Check("live butterfly: appears", fly != null);
+				if (fly != null)
+				{
+					var start = fly.Location;
+					double nearest = double.MaxValue;
+					var clock = System.Diagnostics.Stopwatch.StartNew();
+					while (Visitors.Flying != null && clock.Elapsed.TotalSeconds < 60)
+					{
+						var c = new Point(fly.Left + fly.Width / 2, fly.Top + fly.Height / 2);
+						var head = new Point(pet.Left + pet.Width / 2, pet.Top + pet.Height / 3);
+						nearest = Math.Min(nearest, Math.Sqrt(Math.Pow(c.X - head.X, 2) + Math.Pow(c.Y - head.Y, 2)));
+						await Task.Delay(100);
+					}
+					Check("live butterfly: reaches the pet", nearest < 80, $"closest {nearest:0} px");
+					Check("live butterfly: flies away and closes", Visitors.Flying == null, $"{clock.Elapsed.TotalSeconds:0} s");
+				}
+
+				// ---- pushing: a small window standing on the pet's floor, just in front of it
+				bool pushWas = WindowPush.Enabled;
+				using (var box = new Form { FormBorderStyle = FormBorderStyle.FixedSingle, StartPosition = FormStartPosition.Manual, Size = new Size(220, 160), Text = "push test", ShowInTaskbar = false })
+				{
+					try
+					{
+						// nothing may hold the pets still (a bubble or a window left open by an earlier check)
+						foreach (var b in Application.OpenForms.OfType<SpeechBubble>().ToList()) b.Close();
+						for (int i = 0; i < 30 && FormPet.Held; i++) await Task.Delay(100);
+						int dir = 0;
+						for (int tries = 0; tries < 3 && dir == 0; tries++)
+						{
+							pet.React("walk");
+							await Task.Delay(800);
+							int x0 = pet.Left; await Task.Delay(500);
+							dir = Math.Sign(pet.Left - x0);
+						}
+						if (dir == 0) { lines.Add($"SKIP  live push: the pet did not walk (held {FormPet.Held}, {pet.CurrentAnimationName})"); }
+						else
+						{
+							int front = pet.Left + pet.Width / 2 + dir * pet.Width / 4;
+							box.Location = new Point(dir > 0 ? front + 25 : front - 25 - box.Width, pet.Bottom + 2 - box.Height);
+							box.Show();
+							WindowPush.TestTarget = box.Handle;
+							WindowPush.Enabled = true;
+							int bx = box.Left;
+							var clock = System.Diagnostics.Stopwatch.StartNew();
+							while (clock.Elapsed.TotalSeconds < 8 && Math.Abs(box.Left - bx) < 6)
+							{
+								if (!pet.OnGround || pet.CurrentAnimationName == null || !pet.CurrentAnimationName.Contains("walk")) pet.React("walk");
+								await Task.Delay(200);
+							}
+							Check("live push: the walking pet pushes the window", (box.Left - bx) * dir >= 6, $"window moved {box.Left - bx} px, pet going {(dir > 0 ? "right" : "left")}");
+						}
+					}
+					finally { WindowPush.Enabled = pushWas; WindowPush.TestTarget = IntPtr.Zero; box.Close(); }
+				}
+
+				// ---- full screen: a window covering the screen hides the pets, closing it brings them back
+				bool fsWas = FullScreenWatch.Enabled;
+				FullScreenWatch.Enabled = true;
+				using (var full = new Form { FormBorderStyle = FormBorderStyle.None, StartPosition = FormStartPosition.Manual, Bounds = Screen.PrimaryScreen.Bounds, BackColor = Color.Black, Text = "full screen test" })
+				{
+					try
+					{
+						full.Show(); full.Activate();
+						for (int i = 0; i < 10 && !FullScreenWatch.Active; i++) { await Task.Delay(300); FullScreenWatch.Tick(); }
+						if (!FullScreenWatch.Active && GetForegroundWindow() != full.Handle)
+							lines.Add("SKIP  live full screen: Windows did not let the test window come to the front (another program has the focus)");
+						else
+							Check("live full screen: the pets hide", FullScreenWatch.Active && HideHotkey.Hidden && !pet.Visible);
+					}
+					finally { full.Close(); }
+					for (int i = 0; i < 10 && FullScreenWatch.Active; i++) { await Task.Delay(300); FullScreenWatch.Tick(); }
+					Check("live full screen: the pets are shown after", !FullScreenWatch.Active && !HideHotkey.Hidden && pet.Visible);
+				}
+				FullScreenWatch.Enabled = fsWas;
+				if (HideHotkey.Hidden) HideHotkey.SetHidden(false);
+			}
+			finally { Live = false; MusicWatch.FakeTitle = null; }
 		}
 
 		/// <summary>Every window with a text box keeps the pets still while it is open.</summary>

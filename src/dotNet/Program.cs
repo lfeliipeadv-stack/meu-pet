@@ -84,7 +84,7 @@ namespace DesktopPet
             // "DesktopPet.exe --agent=done": another AI agent (Codex, Cursor, a script) tells the running pet what it is doing
             if (args.Length > 0 && args[0].StartsWith("--agent=", StringComparison.OrdinalIgnoreCase))
             {
-                Environment.Exit(OtherAgents.Signal(args[0].Substring("--agent=".Length)));
+                Environment.Exit(OtherAgents.Run(args));
                 return;
             }
 #endif

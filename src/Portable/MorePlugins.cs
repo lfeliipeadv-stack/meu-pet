@@ -55,9 +55,9 @@ namespace DesktopPet
 			catch (Exception skipped) { LogFile.Ignored(skipped); return 5; }
 		}
 
-		static void Tick()
+		internal static void Tick()
 		{
-			if (SelfTest.Running) return;
+			if (SelfTest.Running && !SelfTest.Live) return;
 			int st = State();
 			bool full = st == Busy || st == D3dFullScreen || st == Presentation || st == App;
 			bool dnd = st == QuietTime;
@@ -354,6 +354,60 @@ namespace DesktopPet
 			}
 		}
 
+		const string SavedPrefix = "# desktopPet, your notify before: ";
+
+		static string Toml(string s) => "\"" + s.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"";
+
+		/// <summary>The strings of a one-line TOML array (notify = ["a", "b"]), or null if the line has another form.</summary>
+		public static List<string> TomlStrings(string line)
+		{
+			int open = line.IndexOf('['), close = line.LastIndexOf(']');
+			if (open < 0 || close < open) return null;
+			var list = new List<string>();
+			string inner = line.Substring(open + 1, close - open - 1);
+			int i = 0;
+			while (i < inner.Length)
+			{
+				char c = inner[i];
+				if (char.IsWhiteSpace(c) || c == ',') { i++; continue; }
+				if (c == '\'') { int e = inner.IndexOf('\'', i + 1); if (e < 0) return null; list.Add(inner.Substring(i + 1, e - i - 1)); i = e + 1; continue; }
+				if (c != '"') return null;
+				var sb = new StringBuilder();
+				i++;
+				while (i < inner.Length && inner[i] != '"')
+				{
+					if (inner[i] == '\\' && i + 1 < inner.Length) { i++; sb.Append(inner[i] == 'n' ? '\n' : inner[i] == 't' ? '\t' : inner[i]); }
+					else sb.Append(inner[i]);
+					i++;
+				}
+				if (i >= inner.Length) return null;
+				list.Add(sb.ToString());
+				i++;
+			}
+			return list;
+		}
+
+		/// <summary>
+		/// "DesktopPet.exe --agent=done [--then program args…] [payload]": tell the pet, then run the program that was in
+		/// Codex's notify before (with the same arguments and the payload Codex adds at the end).
+		/// </summary>
+		public static int Run(string[] args)
+		{
+			int code = Signal(args[0].Substring(Marker.Length));
+			int then = Array.IndexOf(args, "--then");
+			if (then >= 0 && then + 1 < args.Length)
+			{
+				try
+				{
+					var psi = new ProcessStartInfo(args[then + 1]) { UseShellExecute = false, CreateNoWindow = true };
+					for (int k = then + 2; k < args.Length; k++) psi.ArgumentList.Add(args[k]);
+					using (var p = Process.Start(psi)) p?.WaitForExit(60000);
+				}
+				catch (Exception ex) { LogFile.Ignored(ex); }
+			}
+			return code == 2 ? 2 : 0;   // an agent must never fail because the pet is closed
+		}
+
 		/// <summary>Add or remove the notify line. Returns a message key when something prevents it.</summary>
 		public static string SetCodex(bool on)
 		{
@@ -361,14 +415,35 @@ namespace DesktopPet
 			{
 				var lines = File.Exists(CodexConfig) ? File.ReadAllLines(CodexConfig).ToList() : new List<string>();
 				int ours = lines.FindIndex(l => l.TrimStart().StartsWith("notify") && l.Contains(Marker));
-				if (!on) { if (ours >= 0) { lines.RemoveAt(ours); File.WriteAllLines(CodexConfig, lines); } return null; }
+				int saved = lines.FindIndex(l => l.StartsWith(SavedPrefix));
+				if (!on)
+				{
+					if (ours < 0) return null;
+					// put back the user's own notify line, exactly as it was
+					if (saved >= 0) { lines[ours] = lines[saved].Substring(SavedPrefix.Length); lines.RemoveAt(saved); }
+					else lines.RemoveAt(ours);
+					File.WriteAllLines(CodexConfig, lines);
+					return null;
+				}
 				if (ours >= 0) return null;
-				if (lines.Any(l => l.TrimStart().StartsWith("notify"))) return "agents.codexBusy";   // the user has their own notify program
-				// notify is a top-level key: before the first [table]
-				string exe = Exe.Replace("\\", "\\\\");
-				string line = $"notify = [\"{exe}\", \"{Marker}done\"]";
-				int firstTable = lines.FindIndex(l => l.TrimStart().StartsWith("["));
-				if (firstTable < 0) lines.Add(line); else lines.Insert(firstTable, line);
+				string exe = Toml(Exe);
+				string ourLine = $"notify = [{exe}, {Toml(Marker + "done")}]";
+				int theirs = lines.FindIndex(l => System.Text.RegularExpressions.Regex.IsMatch(l, @"^\s*notify\s*="));
+				if (theirs >= 0)
+				{
+					// Codex runs only one notify program: run theirs after us ("--then"), keep a copy of their line to put it back
+					var their = TomlStrings(lines[theirs]);
+					if (their == null) return "agents.codexBusy";   // a form we do not read (several lines…): leave it alone
+					ourLine = $"notify = [{exe}, {Toml(Marker + "done")}, {Toml("--then")}, {string.Join(", ", their.Select(Toml))}]";
+					lines.Insert(theirs, SavedPrefix + lines[theirs]);
+					lines[theirs + 1] = ourLine;
+				}
+				else
+				{
+					// notify is a top-level key: before the first [table]
+					int firstTable = lines.FindIndex(l => l.TrimStart().StartsWith("["));
+					if (firstTable < 0) lines.Add(ourLine); else lines.Insert(firstTable, ourLine);
+				}
 				Directory.CreateDirectory(Path.GetDirectoryName(CodexConfig));
 				File.WriteAllLines(CodexConfig, lines);
 				return null;
@@ -486,8 +561,15 @@ namespace DesktopPet
 		}
 
 		/// <summary>"Artist - Song" from Spotify's window, or "" when nothing plays (the title is just "Spotify").</summary>
+		/// <summary>Spotify shows "Artist - Song" while playing and just "Spotify…" when paused.</summary>
+		public static bool IsSong(string title) => !string.IsNullOrEmpty(title) && title.Contains(" - ") && !title.StartsWith("Spotify", StringComparison.OrdinalIgnoreCase);
+
+		/// <summary>Self-test: a window title to use instead of Spotify's.</summary>
+		internal static string FakeTitle;
+
 		public static string Playing()
 		{
+			if (FakeTitle != null) return IsSong(FakeTitle) ? FakeTitle : "";
 			try
 			{
 				foreach (var p in Process.GetProcessesByName("Spotify"))
@@ -495,7 +577,7 @@ namespace DesktopPet
 					using (p)
 					{
 						string t = p.MainWindowTitle ?? "";
-						if (t.Contains(" - ") && !t.StartsWith("Spotify", StringComparison.OrdinalIgnoreCase)) return t;
+						if (IsSong(t)) return t;
 					}
 				}
 			}
@@ -503,9 +585,9 @@ namespace DesktopPet
 			return "";
 		}
 
-		static void Tick()
+		internal static void Tick()
 		{
-			if (SelfTest.Running) return;
+			if (SelfTest.Running && !SelfTest.Live) return;
 			string now = Playing();
 			if (now == song) return;
 			song = now;
@@ -536,6 +618,8 @@ namespace DesktopPet
 		static Timer timer;
 		static DateTime next = DateTime.Now.AddMinutes(12);
 		static ButterflyForm current;
+		/// <summary>A butterfly is on screen now, and where (self-test).</summary>
+		internal static Form Flying => current != null && !current.IsDisposed && current.Visible ? current : null;
 		static readonly Random rnd = new Random();
 
 		public static bool Enabled
@@ -555,7 +639,7 @@ namespace DesktopPet
 		/// <summary>A butterfly now (also the "Try it" button).</summary>
 		public static void Visit()
 		{
-			if (SelfTest.Running) return;
+			if (SelfTest.Running && !SelfTest.Live) return;
 			next = DateTime.Now.AddMinutes(20 + rnd.Next(25));
 			var pet = Pet();
 			if (pet == null || SpeechBubble.QuietNow || (current != null && !current.IsDisposed)) return;
@@ -685,6 +769,10 @@ namespace DesktopPet
 
 		static Timer timer;
 		static readonly Dictionary<FormPet, int> lastLeft = new Dictionary<FormPet, int>();
+		/// <summary>Self-test: a window of this program that may be pushed.</summary>
+		internal static IntPtr TestTarget;
+		/// <summary>Pixels kept between the pet's window and the window it pushes.</summary>
+		const int Gap = 3;
 
 		public static bool Enabled
 		{
@@ -706,12 +794,16 @@ namespace DesktopPet
 				lastLeft[pet] = pet.Left;
 				int dx = pet.Left - prev;
 				if (dx == 0 || Math.Abs(dx) > 20 || !pet.OnGround) continue;
-				// the front of the pet: a quarter of its window from the middle (the window is wider than the drawing)
-				int front = pet.Left + pet.Width / 2 + Math.Sign(dx) * pet.Width / 4;
-				var target = WindowAt(front, pet.Bottom, Math.Sign(dx));
+				// the front edge of the pet's window: the app makes a pet turn back when its window touches another one,
+				// so the pushed window is kept a few pixels ahead of it
+				int dir = Math.Sign(dx), front = dir > 0 ? pet.Right : pet.Left;
+				var target = WindowAt(front, pet.Bottom, dir);
 				if (target == IntPtr.Zero) continue;
 				GetWindowRect(target, out var r);
-				SetWindowPos(target, IntPtr.Zero, r.L + dx, r.T, 0, 0, 0x0001 /* no size */ | 0x0004 /* no z-order */ | 0x0010 /* no activate */);
+				int edge = dir > 0 ? r.L : r.R, wanted = front + dir * Gap;
+				int move = dir > 0 ? Math.Max(0, wanted - edge) : Math.Min(0, wanted - edge);
+				if (move == 0) continue;
+				SetWindowPos(target, IntPtr.Zero, r.L + move, r.T, 0, 0, 0x0001 /* no size */ | 0x0004 /* no z-order */ | 0x0010 /* no activate */);
 			}
 		}
 
@@ -724,7 +816,7 @@ namespace DesktopPet
 			{
 				if (!IsWindowVisible(h) || IsIconic(h) || IsZoomed(h)) return true;
 				GetWindowThreadProcessId(h, out uint pid);
-				if (pid == me) return true;
+				if (pid == me && h != TestTarget) return true;
 				int ex = GetWindowLong(h, -20);
 				if ((ex & 0x80) != 0 || (ex & 0x8) != 0) return true;              // tool windows and topmost ones (widgets, overlays)
 				if (DwmGetWindowAttribute(h, 14 /* cloaked */, out int cloaked, 4) == 0 && cloaked != 0) return true;
@@ -733,7 +825,8 @@ namespace DesktopPet
 				if (w < 80 || hh < 60 || w > 900 || hh > 700) return true;           // only small windows
 				if (r.B < feet - 8 || r.T > feet - 24) return true;                  // must stand on the same floor and rise above the feet
 				int edge = dir > 0 ? r.L : r.R;
-				if (Math.Abs(front - edge) > 10) return true;
+				int ahead = (edge - front) * dir;                                    // how far in front of the pet's window
+				if (ahead < -6 || ahead > Gap + 8) return true;
 				found = h;
 				return false;
 			}, IntPtr.Zero);
