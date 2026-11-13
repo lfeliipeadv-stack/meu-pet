@@ -688,7 +688,7 @@ static class PingoPet
 		Loop2(45, "clap", 120, "random/3+5", fClap1, fClap2);
 		var march = p.A(46, "march").Move("-1", "0").Speed("160").Loop("random/3+5", 0);
 		march.Seq(fMarch1, fStand, fMarch2, fStand); march.Then(100, 1).OnBorder(100, 2).OnGravity(100, 5);
-		Loop2(47, "spin", 90, "random/3+3", fStand, fLookR, fBack, fLookL);
+		Loop2(47, "spin", 90, "random/3+3", fStand, fWalk3, fBack, fWalk1);   // front, leaning one side, back, leaning the other
 		Loop2(48, "headphones", 200, "random/3+5", fMusic1, fMusic2);
 		Loop2(49, "sing", 240, "random/3+3", fSing1, fSing2);
 		var skate = p.A(50, "ice skate").Move("-6", "0", "-3", "0").Speed("110").Loop("random/3+5", 0);

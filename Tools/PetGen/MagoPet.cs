@@ -411,14 +411,18 @@ static class MagoPet
 			f.Rect(1, 10, 14, 1, Cauldron).Rect(2, 10, 12, 1, Green).Rect(1, 11, 14, 4, Cauldron).Dot(3, 12, Smoke);
 			f.Dot(2, 15, Cauldron).Dot(13, 15, Cauldron);
 			f.Rect(14, 6, 1, 2, Robe).Dot(14, 8, Skin).Rect(k % 2 == 0 ? 12 : 11, 7, 1, 3, Wood);    // stirring stick
-			int[][] bub = { new[] { 5, 9, 9, 8 }, new[] { 7, 8, 4, 7 }, new[] { 9, 7, 6, 9 }, new[] { 4, 6, 10, 9 } };
-			var b = bub[k % 4];
-			f.Dot(b[0], b[1], Green).Dot(b[2], b[3], DarkGreen);
-			if (k % 2 == 1) f.Dot(6, 4 - k % 3, Green).Dot(10, 3, DarkGreen);
+			// three bubbles rise out of the potion one after another (each one higher every frame, then pops)
+			int[] bx = { 4, 7, 10 };
+			for (int j = 0; j < 3; j++)
+			{
+				int age = (k + j * 2) % 6;                // 0..5: born on the surface, rising, gone
+				if (age >= 5) continue;
+				f.Dot(bx[j] + (age % 2), 9 - age, age < 3 ? Green : DarkGreen);
+			}
 			return f;
 		}
-		var brew = new int[4];
-		for (int i = 0; i < 4; i++) brew[i] = p.Add(Brew(i));
+		var brew = new int[6];
+		for (int i = 0; i < 6; i++) brew[i] = p.Add(Brew(i));
 
 		// ---- 5 drinks a potion and turns green for a moment
 		Frame Potion(int stage)

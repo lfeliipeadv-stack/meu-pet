@@ -583,14 +583,28 @@ static class RexPet
 		int fHeroStand = F(Hero(0, false)), fHeroFly1 = F(Hero(0, true)), fHeroFly2 = F(Hero(1, true));
 		var bd1 = Pose(eye: 0, arm: 1); Hat(bd1, "builder"); Hold(bd1, "hammer"); bd1.Shift(0, 0); int fBuild1 = F(bd1);
 		var bd2 = Pose(eye: 6, jaw: 1, arm: 2); Hat(bd2, "builder"); St(bd2, 0, 19, "kkk", "kkk", ".bbbb"); bd2.Dot(1, 23, Yel).Dot(3, 24, Yel); int fBuild2 = F(bd2);
-		(int x, int y, char c)[] orbs = { (3, 0, Blue), (11, -4, Mint), (19, -1, Purp), (2, 8, Red) };
+		// Juggling: three balls travel around a loop in front of his face (thrown up from one hand, over the top,
+		// caught by the other), a third of the loop apart, so every ball really moves from frame to frame.
+		char[] orbColors = { Blue, Red, Mint };
+		const int JuggleFrames = 8;
 		Frame Juggle(int k)
 		{
-			var f = Pose(eye: 5, jaw: 0, arm: k % 2 == 0 ? 1 : 2, farUp: k % 2 == 1, tail: k % 2 == 0 ? 1 : -1);
-			for (int i = 0; i < 4; i++) { var o = orbs[(i + k) % 4]; Circle(f, o.x, o.y + (k % 2), 1.6f, o.c, o.c); f.Dot(o.x - 1, o.y - 1 + (k % 2), Wt); }
+			// the hand that is about to throw goes up, the other one waits low
+			bool throwNear = k % 4 < 2;
+			var f = Pose(eye: 5, jaw: k % 4 == 1 ? 4 : 0, arm: throwNear ? 1 : 2, farUp: !throwNear, tail: k % 2 == 0 ? 1 : -1);
+			for (int i = 0; i < 3; i++)
+			{
+				// position on the loop (0..1): up on the outside, down on the inside, faster at the bottom
+				double t = (k / (double)JuggleFrames + i / 3.0) % 1.0;
+				double a = Math.PI * 2 * t;
+				int x = (int)Math.Round(9 + Math.Cos(a) * 7);   // 2..16: the whole ball stays inside the frame
+				int y = (int)Math.Round(3 - Math.Sin(a) * 7 * (Math.Sin(a) > 0 ? 1.0 : 0.45));
+				Circle(f, x, y, 1.6f, orbColors[i], orbColors[i]);
+				f.Dot(x - 1, y - 1, Wt);   // a little shine
+			}
 			return f;
 		}
-		int fJuggle1 = F(Juggle(0)), fJuggle2 = F(Juggle(1)), fJuggle3 = F(Juggle(2)), fJuggle4 = F(Juggle(3));
+		int[] fJuggle = Enumerable.Range(0, JuggleFrames).Select(k => F(Juggle(k))).ToArray();
 		Frame Sing(int k)
 		{
 			var f = Pose(eye: k == 0 ? 2 : 1, jaw: k == 0 ? 1 : 2, arm: 2, tail: k == 0 ? 1 : -1, blush: true);
@@ -841,7 +855,7 @@ static class RexPet
 		p.Childs.Add((75, "imageX", "imageY", 107));
 		var explore = p.A(76, "explorer").Move("-1", "0").Speed("260").Loop("random/3+4", 0); explore.Seq(fExplore1, fExplore2); explore.Then(100, 1).OnBorder(100, 2).OnGravity(100, 5);
 		Show(77, "builder", 150, (fBuild1, 2), (fBuild2, 2), (fBuild1, 2), (fBuild2, 2), (fBuild1, 2), (fBuild2, 2), (fHappy, 2));
-		Loop(80, "juggle", 140, "random/3+4", fJuggle1, fJuggle2, fJuggle3, fJuggle4);
+		Loop(80, "juggle", 100, "random/3+3", fJuggle);
 		Lead(82, "sing", 220, 84, (fSing1, 1));
 		var sing = p.A(84, "singing").Move("0", "0").Speed("220").Loop("random/3+4", 0); sing.Seq(fSing1, fSing2); sing.Then(100, 1);
 		p.Childs.Add((84, "imageX", "imageY", 107));

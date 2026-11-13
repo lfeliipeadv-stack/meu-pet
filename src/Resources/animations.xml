@@ -629,7 +629,7 @@
         <opacity>1</opacity>
         <interval>30</interval>
       </end>
-      <sequence repeatfrom="0" repeat="(areaH/2+(randS*areaH/2)/120-imageH-68)/2">
+      <sequence repeatfrom="0" repeat="(areaH/2+(randS*areaH/2)/120)/(2*scale)-55">
         <frame>134</frame>
         <next probability="100" only="none">22</next>
       </sequence>

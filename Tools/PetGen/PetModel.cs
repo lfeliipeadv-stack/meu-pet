@@ -76,6 +76,22 @@ public sealed class Frame
 		return this;
 	}
 
+	/// <summary>
+	/// Breathing in: the upper part of the figure sinks one pixel (a row just above the middle is dropped), the feet
+	/// stay where they are. Used between two equal frames so a pose held still still looks alive.
+	/// </summary>
+	public Frame Breathe()
+	{
+		int top = int.MaxValue, bottom = -1;
+		for (int y = MinY; y < W; y++) for (int x = 0; x < W; x++) if (this[x, y] != '.') { top = Math.Min(top, y); bottom = Math.Max(bottom, y); }
+		var f = Clone();
+		if (bottom - top < 6) return f;
+		int mid = top + (bottom - top) * 55 / 100;
+		for (int y = mid; y > top; y--) for (int x = 0; x < W; x++) f[x, y] = this[x, y - 1];
+		for (int x = 0; x < W; x++) f[x, top] = '.';
+		return f;
+	}
+
 	public Frame MirrorX()
 	{
 		var copy = Clone();
@@ -158,6 +174,41 @@ public sealed class PetDef
 	public int TilesX = 8;
 
 	public int Add(Frame f) { Frames.Add(f); return Frames.Count - 1; }
+
+	/// <summary>
+	/// No animation stands frozen: one that shows the same frame again and again without moving on screen (holding
+	/// something before throwing it, sitting…) breathes instead (the frame alternates with <see cref="Frame.Breathe"/>).
+	/// A frozen prop in a child window that ends the scene (a splat on the floor) fades out instead.
+	/// </summary>
+	public void Liven()
+	{
+		// animations played by child windows: from each child's first animation along the "next" links
+		var childAnims = new HashSet<int>();
+		var todo = new Queue<int>(Childs.Select(c => c.next));
+		while (todo.Count > 0)
+		{
+			int id = todo.Dequeue();
+			if (!childAnims.Add(id)) continue;
+			var a = Anims.FirstOrDefault(x => x.Id == id);
+			if (a != null) foreach (var n in a.Next.Concat(a.Border ?? new()).Concat(a.Gravity ?? new())) todo.Enqueue(n.next);
+		}
+		var breath = new Dictionary<int, int>();
+		foreach (var a in Anims)
+		{
+			if (a.Frames.Count < 3 || a.Frames.Distinct().Count() != 1) continue;
+			bool moves = a.StartX != "0" || a.StartY != "0" || a.EndX != "0" || a.EndY != "0";
+			if (moves || a.StartOpacity != a.EndOpacity) continue;
+			if (a.Name == "kill" || a.Name == "drag" || a.Name == "toss" || a.Name.StartsWith("fall")) continue;
+			if (childAnims.Contains(a.Id))
+			{
+				if (a.Next.Count == 0) a.Fade(1, 0);
+				continue;
+			}
+			int f = a.Frames[0];
+			if (!breath.TryGetValue(f, out int b)) breath[f] = b = Add(Frames[f].Breathe());
+			for (int i = 0; i < a.Frames.Count; i++) a.Frames[i] = (i / 2) % 2 == 0 ? f : b;
+		}
+	}
 	public Anim A(int id, string name) { var a = new Anim { Id = id, Name = name }; Anims.Add(a); return a; }
 
 	/// <summary>Sprite sheet (frames scaled with nearest neighbour, transparent background).</summary>

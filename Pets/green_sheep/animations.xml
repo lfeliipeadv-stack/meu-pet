@@ -752,7 +752,7 @@
         <opacity>1</opacity>
         <interval>30</interval>
       </end>
-      <sequence repeatfrom="0" repeat="(areaH/2+(randS*screenH/2)/120-imageH-68)/2">
+      <sequence repeatfrom="0" repeat="(areaH/2+(randS*areaH/2)/120)/(2*scale)-51">
         <frame>134</frame>
         <action>none</action>
         <next probability="100" only="none">22</next>
@@ -829,6 +829,9 @@
         <action>none</action>
         <next probability="100" only="none">47</next>
       </sequence>
+      <border>
+        <next probability="100" only="none">47</next>
+      </border>
     </animation>
     <animation id="23">
       <name>bath1a</name>

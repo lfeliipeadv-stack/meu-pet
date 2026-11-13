@@ -100,7 +100,9 @@
       </end>
       <sequence repeatfrom="0" repeat="0">
         <frame>0</frame>
-        <frame>0</frame>
+        <frame>48</frame>
+        <frame>49</frame>
+        <frame>48</frame>
         <frame>0</frame>
         <action>flip</action>
         <next probability="100" only="none">1</next>

@@ -11,6 +11,7 @@ string previewDir = args.Length > 1 ? args[1] : null;
 
 foreach (var pet in new[] { ClaudePet.Build(), MagoPet.Build(), NuviPet.Build(), BooPet.Build(), PingoPet.Build(), RexPet.Build() })
 {
+	pet.Liven();
 	pet.Sounds = PetSounds.For(pet.Folder);
 	string dir = Path.Combine(outDir, pet.Folder);
 	Directory.CreateDirectory(dir);

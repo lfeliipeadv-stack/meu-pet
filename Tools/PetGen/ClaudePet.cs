@@ -1007,7 +1007,7 @@ static class ClaudePet
 
 		// 2 turn around (flip)
 		var turn = p.A(2, "turn").Move("0", "0").Speed("120");
-		turn.Seq(fStand, fStand, fStand);
+		turn.Seq(fStand, fLeanR, fLeanR2, fLeanR, fStand);   // leans to one side as it turns round
 		turn.Action = "flip";
 		turn.Then(100, 1);
 

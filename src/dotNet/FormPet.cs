@@ -1282,6 +1282,7 @@ namespace DesktopPet
             titleBarInfo.cbSize = Marshal.SizeOf(titleBarInfo);
 
             if (y <= 0) return -1;
+            var own = OwnChildHandles();
             Rectangle area = ScreenArea;
             CheckFullScreen();
 
@@ -1289,6 +1290,8 @@ namespace DesktopPet
             NativeMethods.EnumWindows(delegate (IntPtr hWnd, int lParam)
             {
                 if (hWnd == Handle) return true;    // form itself, don't parse
+                // its own props (the bathtub it dives into, a balloon…) are part of the scene, not a floor to land on
+                if (own.Contains(hWnd)) return true;
 
                     // Enumerate only visible windows
                 if (NativeMethods.IsWindowVisible(hWnd))
@@ -1405,6 +1408,14 @@ namespace DesktopPet
         private static readonly Stopwatch windowCacheClock = Stopwatch.StartNew();
         private const long WindowCacheMs = 60;
 
+        /// <summary>Windows of the props this pet opened (child windows): never a wall or a floor for it.</summary>
+        private List<IntPtr> OwnChildHandles()
+        {
+            var l = new List<IntPtr>();
+            foreach (var c in childs) if (c != null && !c.IsDisposed && c.IsHandleCreated) l.Add(c.Handle);
+            return l;
+        }
+
         private Dictionary<IntPtr, string> EnumerateWindows()
         {
             long now = windowCacheClock.ElapsedMilliseconds;
@@ -1413,10 +1424,12 @@ namespace DesktopPet
                 cachedWindows = EnumerateWindowsUncached();
                 cachedWindowsAt = now;
             }
-            // Each pet ignores itself.
-            if (!cachedWindows.ContainsKey(Handle)) return cachedWindows;
+            // Each pet ignores itself and its own props (it dives into its bathtub, it does not bump into it).
+            var own = OwnChildHandles();
+            if (!cachedWindows.ContainsKey(Handle) && !own.Any(cachedWindows.ContainsKey)) return cachedWindows;
             var copy = new Dictionary<IntPtr, string>(cachedWindows);
             copy.Remove(Handle);
+            foreach (var h in own) copy.Remove(h);
             return copy;
         }
 
