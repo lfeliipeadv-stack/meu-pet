@@ -59,7 +59,14 @@ namespace DesktopPet
 				save(System.IO.Path.Combine("details", pet.folder));
 			}
 			f.petsView.CloseDetail();
-			foreach (Page p in new[] { Page.Behaviour, Page.Application, Page.About, Page.Reminders, Page.Extras, Page.Ai }) { f.SelectPage(p); await Task.Delay(200); save(p.ToString().ToLowerInvariant()); }
+			foreach (Page p in new[] { Page.Home, Page.Application, Page.About, Page.Reminders, Page.Plugins, Page.Integrations, Page.Ai }) { f.SelectPage(p); await Task.Delay(200); save(p.ToString().ToLowerInvariant()); }
+			// the Claude Code window (shown, captured, closed)
+			using (var cd = new PluginDialog(f, "int.claude.title", f.BuildClaude) { StartPosition = FormStartPosition.Manual, Location = new Point(-5000, -5000) })
+			{
+				cd.Show(); await Task.Delay(300);
+				using (var bmp = new Bitmap(cd.Width, cd.Height)) { cd.DrawToBitmap(bmp, new Rectangle(Point.Empty, cd.Size)); bmp.Save(System.IO.Path.Combine(folder, "claude.png"), System.Drawing.Imaging.ImageFormat.Png); }
+				cd.Close();
+			}
 			// color group card (gSheep) with the pink color selected
 			var group = f.WebPets.pets.FirstOrDefault(p => p.Variants != null);
 			if (group != null)
@@ -98,6 +105,48 @@ namespace DesktopPet
 				}
 			}
 			catch (Exception ex) { StartUp.AddDebugInfo(StartUp.DEBUG_TYPE.warning, "picker snapshot: " + ex.Message); }
+
+			// the small windows: shortcuts, create my pet, install, a message, the text question, the whole answer
+			try
+			{
+				async Task Shot(Form w, string name)
+				{
+					w.StartPosition = FormStartPosition.Manual; w.Location = new Point(-5000, -5000);
+					if (!w.Visible) w.Show();
+					await Task.Delay(350);
+					w.Refresh();
+					using (var bmp = new Bitmap(w.Width, w.Height)) { w.DrawToBitmap(bmp, new Rectangle(Point.Empty, w.Size)); bmp.Save(System.IO.Path.Combine(folder, name + ".png"), System.Drawing.Imaging.ImageFormat.Png); }
+					w.Close();
+				}
+				await Shot(new FormLaunchers(), "win-launchers");
+				await Shot(new FormPetCreator(), "win-petcreator");
+				var inst = new Install { StartPosition = FormStartPosition.Manual, Location = new Point(-5000, -5000) };
+				inst.ShowInstallation();
+				await Shot(inst, "win-install");
+				foreach (var (name, make) in Dialogs.TestWindows())
+					await Shot(make(), name);
+			}
+			catch (Exception ex) { StartUp.AddDebugInfo(StartUp.DEBUG_TYPE.warning, "windows snapshot: " + ex.Message); }
+
+			// the chat above the pet: empty (suggestions), then a short conversation
+			try
+			{
+				await Task.Delay(800);
+				FormChat.Open();
+				await Task.Delay(600);
+				var chat = Application.OpenForms.OfType<FormChat>().First();
+				void shot(string name) { chat.Refresh(); using (var bmp = new Bitmap(chat.Width, chat.Height)) { chat.DrawToBitmap(bmp, new Rectangle(Point.Empty, chat.Size)); bmp.Save(System.IO.Path.Combine(folder, name + ".png"), System.Drawing.Imaging.ImageFormat.Png); } }
+				shot("chat-empty");
+				int before = Reminders.All.Count;
+				chat.Send(Lang.T("chat.sugHelp"));
+				await Task.Delay(900);
+				chat.Send(Lang.Current.StartsWith("pt") ? "me lembra de beber água daqui a 20 minutos" : "remind me in 20 minutes to drink water");
+				await Task.Delay(900);
+				shot("chat");
+				foreach (var r in Reminders.All.Skip(before).ToList()) Reminders.Remove(r);
+				chat.Close();
+			}
+			catch (Exception ex) { StartUp.AddDebugInfo(StartUp.DEBUG_TYPE.warning, "chat snapshot: " + ex.Message); }
 
 			// speech bubble of a reminder, and the reminder editor
 			try
@@ -173,6 +222,9 @@ namespace DesktopPet
 						ai.DrawToBitmap(bmp, new Rectangle(Point.Empty, ai.Size));
 						bmp.Save(System.IO.Path.Combine(folder, "ai-settings.png"), System.Drawing.Imaging.ImageFormat.Png);
 					}
+					ai.TestChoose("ollama");
+					await Task.Delay(200);
+					using (var bmp = new Bitmap(ai.Width, ai.Height)) { ai.DrawToBitmap(bmp, new Rectangle(Point.Empty, ai.Size)); bmp.Save(System.IO.Path.Combine(folder, "ai-settings-ollama.png"), System.Drawing.Imaging.ImageFormat.Png); }
 				}
 			}
 			catch (Exception ex) { StartUp.AddDebugInfo(StartUp.DEBUG_TYPE.warning, "ai snapshot: " + ex.Message); }

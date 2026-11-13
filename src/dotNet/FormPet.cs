@@ -489,12 +489,12 @@ namespace DesktopPet
             }
             catch(Exception ex) // if form is closed timer could continue to tick (why?)
             {
-                if(MessageBox.Show(Lang.T("msg.fatalError", ex.Message), Lang.T("msg.appError"), MessageBoxButtons.OKCancel, MessageBoxIcon.Error) == DialogResult.Cancel)
+                if(PetMessage.Show(Lang.T("msg.fatalError", ex.Message), Lang.T("msg.appError"), MessageBoxButtons.OKCancel, MessageBoxIcon.Error) == DialogResult.Cancel)
                 {
                     string seqIndex = "";
                     foreach (var item in CurrentAnimation.Sequence.Frames) seqIndex += item + ",";
 
-                        MessageBox.Show(
+                        PetMessage.Show(
                         "Current Animation ID: " + CurrentAnimation.ID + "\n" +
                         "Current Animation Name: " + CurrentAnimation.Name + "\n" +
                         "Current Animation Sequence: " + seqIndex + "\n"
@@ -596,7 +596,7 @@ namespace DesktopPet
             /// <returns>Offset Animation ID</returns>
         int SkinOffset(int animID)
         {
-            if (Xml.AnimationXML.Image.Skins <= 1)
+            if (Xml.AnimationXML?.Image == null || Xml.AnimationXML.Image.Skins <= 1)
                 return animID;
             else
             {

@@ -65,7 +65,7 @@ namespace DesktopPet
 				new[] { 1, 2, 4 }, new[] { "1×", "2×", "4×" }, confirmRestart: true);
 			applicationView.AddAction("", /* undo */ "opt.restore", "opt.restore.button", () =>
 			{
-				if (MessageBox.Show(this, Lang.T("dlg.restore.text"), Lang.T("dlg.restore.title"), MessageBoxButtons.OKCancel, MessageBoxIcon.Question) != DialogResult.OK) return;
+				if (PetMessage.Show(this, Lang.T("dlg.restore.text"), Lang.T("dlg.restore.title"), MessageBoxButtons.OKCancel, MessageBoxIcon.Question) != DialogResult.OK) return;
 				StartUp.AddDebugInfo(StartUp.DEBUG_TYPE.warning, "restoring default XML");
 				Program.MyData.SetIcon("");
 				Program.MyData.SetImages("");
@@ -112,7 +112,9 @@ namespace DesktopPet
 				/// <summary>Optional key overriding the description key.</summary>
 				public string DescKey;
 				public string Title => Lang.T(Key.EndsWith(".titleInstalled") ? Key : Key + ".title");
-				public string Description => Lang.T(DescKey ?? Key + ".desc");
+				/// <summary>Optional: a description that changes (a status), instead of the translation key.</summary>
+				public Func<string> DescFunc;
+				public string Description => DescFunc?.Invoke() ?? Lang.T(DescKey ?? Key + ".desc");
 				public Rectangle Rect, Control;
 			}
 			private sealed class ToggleRow : Row
@@ -126,6 +128,10 @@ namespace DesktopPet
 			private sealed class ChoiceRow : Row { public bool ConfirmRestart; public Func<int> Get; public Action<int> Set; public int[] Values; public string[] Texts; public Rectangle[] Segments; }
 			private sealed class ActionRow : Row { public string ButtonKey; public Action Run; }
 			private sealed class DropDownRow : Row { public Func<string[]> Items; public Func<int> Get; public Action<int> Set; }
+			/// <summary>A section title between rows ("Pet", "Program").</summary>
+			private sealed class HeaderRow : Row { }
+			/// <summary>A row with a badge and several buttons (a configured AI provider: Use, Edit, Remove).</summary>
+			private sealed class ButtonsRow : Row { public string Badge; public string TitleText; public List<(string text, Action run)> Buttons = new List<(string, Action)>(); public List<Rectangle> Hits = new List<Rectangle>(); }
 
 			private readonly FormSettings form;
 			private readonly List<Row> rows = new List<Row>();
@@ -151,8 +157,24 @@ namespace DesktopPet
 			public void AddChoice(string glyph, string key, Func<int> get, Action<int> set, int[] values, string[] texts, bool confirmRestart = false) =>
 				rows.Add(new ChoiceRow { Glyph = glyph, ConfirmRestart = confirmRestart, Key = key, Get = get, Set = set, Values = values, Texts = texts });
 
+			/// <summary>A button whose description is a live status ("found at…", "listening on port…").</summary>
+			public void AddStatus(string glyph, string key, Func<string> status, string buttonKey, Action run) =>
+				rows.Add(new ActionRow { Glyph = glyph, Key = key, ButtonKey = buttonKey, Run = run, DescFunc = status });
+
 			public void AddAction(string glyph, string key, string buttonKey, Action run, string descKey = null) =>
 				rows.Add(new ActionRow { Glyph = glyph, Key = key, ButtonKey = buttonKey, Run = run, DescKey = descKey });
+
+			public void AddHeader(string key) => rows.Add(new HeaderRow { Key = key });
+			public void AddHeader(Func<string> text) => rows.Add(new HeaderRow { Key = "", DescFunc = text });
+
+			/// <summary>Start again (the rows are built anew, e.g. after a provider was added).</summary>
+			public void Clear() { rows.Clear(); hover = null; Invalidate(); }
+
+			public void AddButtons(string glyph, string title, string description, string badge, params (string text, Action run)[] buttons) =>
+				rows.Add(new ButtonsRow { Glyph = glyph, Key = "", TitleText = title, DescFunc = () => description, Badge = badge, Buttons = buttons.ToList() });
+
+			/// <summary>Rows without the section titles (the size of a small options window).</summary>
+			public int RowCount => rows.Count(r => !(r is HeaderRow));
 
 			public void AddDropDown(string glyph, string key, Func<string[]> items, Func<int> get, Action<int> set) =>
 				rows.Add(new DropDownRow { Glyph = glyph, Key = key, Items = items, Get = get, Set = set });
@@ -163,12 +185,23 @@ namespace DesktopPet
 				int w = Width - ScrollBarWidth - 16;
 				foreach (var row in rows)
 				{
+					if (row is HeaderRow)
+					{
+						y += row == rows[0] ? 0 : 14;
+						row.Rect = Rectangle.Empty;
+						Theme.DrawText(g, (row.DescFunc?.Invoke() ?? Lang.T(row.Key)).ToUpperInvariant(), form.fontSmall, new Rectangle(14, y, w, 22), Theme.Accent, TextFormatFlags.SingleLine | TextFormatFlags.VerticalCenter);
+						y += 30;
+						continue;
+					}
 					// segments of a choice grow with their text ("1×" … "Automático")
 					int segW = row is ChoiceRow crw ? Math.Max(50, crw.Texts.Max(t => Theme.MeasureText(g, Lang.T(t), form.fontBold, int.MaxValue, TextFormatFlags.SingleLine).Width) + 22) : 0;
-					int controlW = row is SliderRow ? 260 : row is ChoiceRow cr ? cr.Values.Length * (segW + 6) : row is ActionRow ? 120 : row is DropDownRow ? 220 : 130;
+					int controlW = row is SliderRow ? 260 : row is ChoiceRow cr ? cr.Values.Length * (segW + 6) : row is ActionRow ? 120 : row is DropDownRow ? 220 : row is ButtonsRow br ? br.Buttons.Sum(b => Theme.MeasureText(g, b.text, form.fontSmall, int.MaxValue, TextFormatFlags.SingleLine).Width + 34) : 130;
 					int textW = w - controlW - 110;
+					// a wide choice in a narrow window: under the text instead of squeezing it
+					bool stacked = row is ChoiceRow && textW < 220;
+					if (stacked) textW = w - 110;
 					var descSize = Theme.MeasureText(g, row.Description, form.fontSmall, textW);
-					int h = Math.Max(76, 40 + descSize.Height + 16);
+					int h = Math.Max(76, 40 + descSize.Height + 16) + (stacked ? 46 : 0);
 					row.Rect = new Rectangle(8, y, w, h);
 					bool isHover = hover == row;
 					Theme.FillRounded(g, isHover ? Theme.SurfaceAlt : Theme.Surface, row.Rect, 10);
@@ -180,7 +213,16 @@ namespace DesktopPet
 						TextRenderer.DrawText(g, row.Glyph, GlyphFont, iconBack, Theme.Accent, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding);
 
 					int tx = row.Rect.X + 76;
-					Theme.DrawText(g, row.Title, form.fontBold, new Rectangle(tx, row.Rect.Y + 16, textW, 22), Theme.Text, TextFormatFlags.SingleLine | TextFormatFlags.EndEllipsis);
+					string title = row is ButtonsRow tb ? tb.TitleText : row.Title;
+					Theme.DrawText(g, title, form.fontBold, new Rectangle(tx, row.Rect.Y + 16, textW, 22), Theme.Text, TextFormatFlags.SingleLine | TextFormatFlags.EndEllipsis);
+					if (row is ButtonsRow bb && !string.IsNullOrEmpty(bb.Badge))
+					{
+						int tw2 = Math.Min(textW, Theme.MeasureText(g, title, form.fontBold, int.MaxValue, TextFormatFlags.SingleLine).Width);
+						int bw2 = Theme.MeasureText(g, bb.Badge, form.fontSmall, int.MaxValue, TextFormatFlags.SingleLine).Width + 16;
+						var badge = new Rectangle(tx + tw2 + 8, row.Rect.Y + 16, bw2, 22);
+						Theme.FillRounded(g, Theme.AccentSoft, badge, 11);
+						Theme.DrawText(g, bb.Badge, form.fontSmall, badge, Theme.Accent, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine);
+					}
 					Theme.DrawText(g, row.Description, form.fontSmall, new Rectangle(tx, row.Rect.Y + 40, textW, descSize.Height), Theme.TextMuted);
 
 					int cx = row.Rect.Right - controlW - 20;
@@ -200,7 +242,7 @@ namespace DesktopPet
 							break;
 						case ChoiceRow c:
 							int current = c.Get();
-							c.Control = new Rectangle(row.Rect.Right - 20 - controlW, cy - 16, controlW, 32);
+							c.Control = stacked ? new Rectangle(row.Rect.X + 76, row.Rect.Bottom - 48, Math.Min(controlW, row.Rect.Width - 96), 32) : new Rectangle(row.Rect.Right - 20 - controlW, cy - 16, controlW, 32);
 							Theme.FillRounded(g, Theme.SurfaceAlt, c.Control, 8);
 							Theme.DrawRounded(g, Theme.Border, c.Control, 8);
 							c.Segments = new Rectangle[c.Values.Length];
@@ -218,6 +260,18 @@ namespace DesktopPet
 						case ActionRow a:
 							a.Control = new Rectangle(row.Rect.Right - 20 - controlW, cy - 17, controlW, 34);
 							Theme.DrawButton(g, a.Control, Lang.T(a.ButtonKey), form.fontText, false, hover == a && a.Control.Contains(PointToClient(MousePosition)));
+							break;
+						case ButtonsRow br2:
+							br2.Hits.Clear();
+							int bxx = row.Rect.Right - 20;
+							foreach (var (text, _) in Enumerable.Reverse(br2.Buttons))
+							{
+								int bw3 = Theme.MeasureText(g, text, form.fontSmall, int.MaxValue, TextFormatFlags.SingleLine).Width + 26;
+								var br3 = new Rectangle(bxx - bw3, cy - 16, bw3, 32);
+								br2.Hits.Insert(0, br3);
+								Theme.DrawButton(g, br3, text, form.fontSmall, false, hover == br2 && br3.Contains(PointToClient(MousePosition)));
+								bxx -= bw3 + 8;
+							}
 							break;
 						case DropDownRow d:
 							d.Control = new Rectangle(row.Rect.Right - 20 - controlW, cy - 17, controlW, 34);
@@ -288,7 +342,7 @@ namespace DesktopPet
 							if (c.Segments[i].Contains(e.Location) && c.Values[i] != c.Get())
 							{
 								// only options that really restart the program ask first (pet size); the theme applies at once
-									if (!c.ConfirmRestart || MessageBox.Show(form, Lang.T("dlg.restart.text"), c.Title, MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
+									if (!c.ConfirmRestart || PetMessage.Show(form, Lang.T("dlg.restart.text"), c.Title, MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
 										c.Set(c.Values[i]);
 							}
 						}
@@ -298,6 +352,9 @@ namespace DesktopPet
 						break;
 					case DropDownRow d:
 						if (d.Control.Contains(e.Location)) OpenDropDown(d);
+						break;
+					case ButtonsRow b:
+						for (int i = 0; i < b.Hits.Count; i++) if (b.Hits[i].Contains(e.Location)) { b.Buttons[i].run(); break; }
 						break;
 				}
 			}
@@ -311,10 +368,10 @@ namespace DesktopPet
 				if (row is ChoiceRow c && c.Segments != null)
 					for (int i = 0; i < c.Segments.Length; i++) if (c.Segments[i].Contains(e.Location)) seg = i;
 				bool clickable = row is ToggleRow || (row is SliderRow s && s.Control.Contains(e.Location)) || seg >= 0
-					|| (row is ActionRow a && a.Control.Contains(e.Location)) || (row is DropDownRow d && d.Control.Contains(e.Location));
+					|| (row is ActionRow a && a.Control.Contains(e.Location)) || (row is DropDownRow d && d.Control.Contains(e.Location)) || (row is ButtonsRow bq && bq.Hits.Any(h => h.Contains(e.Location)));
 				Cursor = clickable ? Cursors.Hand : Cursors.Default;
 				if (row != hover || seg != hoverSegment) { hover = row; hoverSegment = seg; Invalidate(); }
-				else if (row is ActionRow || row is DropDownRow) Invalidate();
+				else if (row is ActionRow || row is DropDownRow || row is ButtonsRow) Invalidate();
 			}
 
 			protected override void OnMouseUp(MouseEventArgs e)

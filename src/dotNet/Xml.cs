@@ -155,7 +155,7 @@ namespace DesktopPet
                 StartUp.AddDebugInfo(StartUp.DEBUG_TYPE.warning, "User XML error: " + ex.ToString());
                 if (Program.MyData.GetXml().Length > 100)
                 {
-                    MessageBox.Show(Lang.T("msg.xmlParseError", ex.Message), Lang.T("msg.xmlError"), MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    PetMessage.Show(Lang.T("msg.xmlParseError", ex.Message), Lang.T("msg.xmlError"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 stream.Flush();
                 stream.Position = 0;
@@ -192,7 +192,7 @@ namespace DesktopPet
 
             if (bError)
             {
-                MessageBox.Show(Lang.T("msg.xmlLoadError"), Lang.T("msg.xmlError"), MessageBoxButtons.OK, MessageBoxIcon.Error);
+                PetMessage.Show(Lang.T("msg.xmlLoadError"), Lang.T("msg.xmlError"), MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
             return !bError;
@@ -244,10 +244,10 @@ namespace DesktopPet
                 ani.Sequence.Action = node.Sequence.Action;
                 ani.Sequence.Repeat = GetXMLCompute(node.Sequence.RepeatCount, "animation " + node.Id + ": node.sequence.Repeat");
                 ani.Sequence.Frames.AddRange(node.Sequence.Frame);
-                if (ani.Sequence.RepeatFrom > 0)
-                    ani.Sequence.TotalSteps = ani.Sequence.Frames.Count + (ani.Sequence.Frames.Count - ani.Sequence.RepeatFrom - 1) * ani.Sequence.Repeat.Value;
-                else
-                    ani.Sequence.TotalSteps = ani.Sequence.Frames.Count + ani.Sequence.Frames.Count * ani.Sequence.Repeat.Value;
+                // the frames from "repeatfrom" to the end are played "repeat" more times: the same count as for a random
+                // repeat (Sequence.CalculateTotalSteps) and as the frame shown (FormPet). It had one frame less per repeat
+                // here, so an animation that repeats only its last frame did not repeat at all.
+                ani.Sequence.TotalSteps = ani.Sequence.Frames.Count + (ani.Sequence.Frames.Count - ani.Sequence.RepeatFrom) * ani.Sequence.Repeat.Value;
                 if (node.Sequence.Next != null)
                 {
                     foreach (XmlData.NextNode nextNode in node.Sequence.Next)
@@ -484,7 +484,7 @@ namespace DesktopPet
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message);
+                    PetMessage.Show(ex.Message);
                 }
                 try
                 {
@@ -494,7 +494,7 @@ namespace DesktopPet
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message);
+                    PetMessage.Show(ex.Message);
                 }
 
             }
@@ -520,7 +520,7 @@ namespace DesktopPet
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message);
+                    PetMessage.Show(ex.Message);
                 }
                 try
                 {
@@ -528,7 +528,7 @@ namespace DesktopPet
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message);
+                    PetMessage.Show(ex.Message);
                 }
             }
 

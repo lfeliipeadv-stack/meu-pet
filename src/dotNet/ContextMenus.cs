@@ -57,8 +57,11 @@ namespace DesktopPet
         static string info;
         
         LocalData MyData = new LocalData();
+#if !NETCORE
+        // the .NET 10 build opens Settings/About as single windows instead (FormSettings.ShowPage)
         bool isAboutLoaded = false;
         bool isOptionLoaded = false;
+#endif
 
         /// <summary>
         /// Creates this instance for the tray icon.
@@ -125,6 +128,7 @@ namespace DesktopPet
             PetsMeet.Start();
             ComputerEvents.Apply();
             Activity.Apply();
+            Weather.Apply();
             Agenda.Start();
             OutlookMail.Start();
             HoverAsk.Start();
@@ -226,6 +230,7 @@ namespace DesktopPet
             if (remindersMenuItem != null)
             {
                 remindersMenuItem.Text = Lang.T("tray.reminders");
+                remindersMenuItem.Visible = PluginSwitch.On("reminders");
                 foreach (ToolStripItem it in remindersMenuItem.DropDownItems)
                 {
                     if (it.Tag is int m) it.Text = Lang.T("tray.remindIn", m);
@@ -369,7 +374,7 @@ namespace DesktopPet
         void Options_Click(object sender, EventArgs e)
         {
 #if NETCORE
-            FormSettings.ShowPage(FormSettings.Page.Pets);
+            FormSettings.ShowPage(FormSettings.Page.Home);
 #else
             if (isAboutLoaded)
             {

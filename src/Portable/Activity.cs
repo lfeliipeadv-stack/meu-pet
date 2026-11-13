@@ -95,7 +95,10 @@ namespace DesktopPet
 			if (!active) return null;
 			string said = null;
 			if (lastActive != DateTime.MinValue && (now - lastActive).TotalMinutes >= AwayLong) said = "welcome";
-			if (streakStart == DateTime.MinValue || lastActive == DateTime.MinValue || (now - lastActive).TotalMinutes >= BreakGap) streakStart = now;
+			if (streakStart == DateTime.MinValue || lastActive == DateTime.MinValue || (now - lastActive).TotalMinutes >= BreakGap) {
+				if (lastActive != DateTime.MinValue && !testing) DayStats.Add("breaks", 1);   // a pause of 5 minutes or more
+				streakStart = now;
+			}
 			lastActive = now;
 			if (said == null && !pomodoro && (now - streakStart).TotalMinutes >= BreakAfter && (now - lastBreakSaid).TotalMinutes >= RepeatBreak)
 			{
@@ -106,7 +109,10 @@ namespace DesktopPet
 		}
 
 		/// <summary>Self-test: start again from nothing.</summary>
-		internal static void Reset() { lastActive = streakStart = lastBreakSaid = DateTime.MinValue; used.Clear(); celebrated.Clear(); }
+		/// <summary>Self-test runs: the day counters are not touched.</summary>
+		static bool testing;
+
+		internal static void Reset() { testing = true; lastActive = streakStart = lastBreakSaid = DateTime.MinValue; used.Clear(); celebrated.Clear(); }
 
 		// ------------------------------------------------------------------ programs used for a long time
 
@@ -129,7 +135,7 @@ namespace DesktopPet
 				var p = Process.GetProcessById((int)pid);
 				if (Ignore.Contains(p.ProcessName, StringComparer.OrdinalIgnoreCase)) return;
 				name = p.ProcessName;
-				try { string d = p.MainModule?.FileVersionInfo.FileDescription; if (!string.IsNullOrWhiteSpace(d) && d.Length <= 40) name = d.Trim(); } catch (Exception) { }
+				try { string d = p.MainModule?.FileVersionInfo.FileDescription; if (!string.IsNullOrWhiteSpace(d) && d.Length <= 40) name = d.Trim(); } catch (Exception skipped) { LogFile.Ignored(skipped); }
 			}
 			catch (Exception) { return; }
 			Track((int)pid, name, seconds, now);
@@ -154,6 +160,27 @@ namespace DesktopPet
 					return "app|" + u.Name + "|" + Duration(TimeSpan.FromSeconds(u.Seconds));
 			}
 			return null;
+		}
+	}
+}
+
+namespace DesktopPet
+{
+	/// <summary>Counters of today (minutes of focus, breaks taken…) for the Home page; they start again each day.</summary>
+	public static class DayStats
+	{
+		static string Key(string name) => "Day." + name;
+
+		public static int Get(string name)
+		{
+			var p = Program.MyData.GetSetting(Key(name)).Split('|');
+			return p.Length == 2 && p[0] == DateTime.Today.ToString("yyyy-MM-dd") && int.TryParse(p[1], out int n) ? n : 0;
+		}
+
+		public static void Add(string name, int n)
+		{
+			try { Program.MyData.SetSetting(Key(name), DateTime.Today.ToString("yyyy-MM-dd") + "|" + (Get(name) + n)); }
+			catch (Exception skipped) { LogFile.Ignored(skipped); }
 		}
 	}
 }

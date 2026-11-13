@@ -14,7 +14,24 @@ class RuntimeMotionTests
     static BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
     static object Field(object o, string n) { return o.GetType().GetField(n, flags).GetValue(o); }
     static void Set(object o, string n, object v) { o.GetType().GetField(n, flags).SetValue(o, v); }
-    static object Call(object o, string n, params object[] args) { return o.GetType().GetMethod(n, flags).Invoke(o, args); }
+    static object Call(object o, string n, params object[] args)
+    {
+        var m = o.GetType().GetMethod(n, flags);
+        var p = m.GetParameters();
+        if (args.Length < p.Length)   // optional parameters added later (e.g. CheckTopWindow's window in .NET 10): their defaults
+        {
+            var all = new object[p.Length];
+            for (int i = 0; i < p.Length; i++)
+            {
+                if (i < args.Length) { all[i] = args[i]; continue; }
+                object d = p[i].DefaultValue;   // "IntPtr x = default" comes back as an Int32 0: use the type's own zero then
+                bool usable = d != null && d != DBNull.Value && p[i].ParameterType.IsInstanceOfType(d);
+                all[i] = usable ? d : (p[i].ParameterType.IsValueType ? Activator.CreateInstance(p[i].ParameterType) : null);
+            }
+            args = all;
+        }
+        return m.Invoke(o, args);
+    }
     static void Check(bool ok, string message) { if (!ok) throw new Exception(message); }
     static void Pump(int ms) { var clock=Stopwatch.StartNew(); while(clock.ElapsedMilliseconds<ms) { Application.DoEvents(); Thread.Sleep(1); } }
 
@@ -23,7 +40,8 @@ class RuntimeMotionTests
         try
         {
             Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
-            Assembly app = Assembly.LoadFrom("DesktopPet.exe");
+            // .NET 10: the program is DesktopPet.dll (DesktopPet.exe is only the launcher); .NET Framework: DesktopPet.exe
+            Assembly app = Assembly.LoadFrom(File.Exists("DesktopPet.dll") ? "DesktopPet.dll" : "DesktopPet.exe");
             var program = app.GetType("DesktopPet.Program",true);
             object startup=FormatterServices.GetUninitializedObject(app.GetType("DesktopPet.StartUp",true));
             program.GetField("Mainthread",flags).SetValue(null,startup);
@@ -153,7 +171,8 @@ class RuntimeMotionTests
                 double tossTime=((Stopwatch)Field(pet,"motionClock")).Elapsed.TotalMilliseconds;
                 Set(pet,"tossUpdatedAt",tossTime);
                 Call(pet,"AdvanceToss",tossTime+30);
-                Check(pet.Left>screen.Left && pet.Left<screen.Left+10,"Bounce lost remaining horizontal travel");
+                // 1 + (-20) bounces to 9.5: shown as 9 (.NET Framework truncates) or 10 (.NET 10 rounds)
+                Check(pet.Left>screen.Left && pet.Left<=screen.Left+10,"Bounce lost remaining horizontal travel (left="+pet.Left+", border="+screen.Left+", x="+Field(pet,"PositionX")+")");
                 Check((double)Field(pet,"PositionY")>screen.Bottom-pet.Height-100,"Bounce paused vertical movement");
                 Check(((Timer)Field(pet,"timer1")).Interval==30,"Sprite cadence changed");
                 Set(pet,"PositionY",(double)screen.Bottom-pet.Height-2);

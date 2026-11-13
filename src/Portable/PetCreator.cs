@@ -169,37 +169,32 @@ namespace DesktopPet
 		}
 	}
 
-	/// <summary>The "Create my pet" window.</summary>
-	internal sealed class FormPetCreator : PetDialog
+	/// <summary>The "Create my pet" window: the name, one card per movement (pick its pictures), create.</summary>
+	internal sealed class FormPetCreator : ThemedDialog
 	{
-		readonly TextBox name = new TextBox { Width = 400, MaxLength = 40 };
+		readonly TextBox name = new TextBox { BorderStyle = BorderStyle.None, MaxLength = 40 };
 		readonly CheckBox facingRight = new CheckBox { AutoSize = true };
 		readonly PetCreator.Input input = new PetCreator.Input();
-		readonly Label status = new Label { AutoSize = true, MaximumSize = new Size(400, 0) };
+		readonly List<(string emoji, string key, List<Image> list, bool required, Button pick)> moves = new List<(string, string, List<Image>, bool, Button)>();
+		Rectangle nameField, introRect;
+		string error = "";
+		int movesTop;
+		const int W = 560, RowH = 58;
+
 		/// <summary>The folder of the pet created (null until it is).</summary>
 		public string CreatedFolder { get; private set; }
 
 		public FormPetCreator()
 		{
 			Text = Lang.T("create.title");
-			Icon = Properties.Resources.icon;
-			FormBorderStyle = FormBorderStyle.FixedDialog;
-			MaximizeBox = MinimizeBox = false;
-			ShowInTaskbar = false;
-			StartPosition = FormStartPosition.CenterParent;
-			AutoSize = true; AutoSizeMode = AutoSizeMode.GrowAndShrink;
-			Padding = new Padding(16);
-
-			var root = new FlowLayoutPanel { FlowDirection = FlowDirection.TopDown, AutoSize = true, WrapContents = false };
-			root.Controls.Add(new Label { Text = Lang.T("create.intro"), AutoSize = true, MaximumSize = new Size(400, 0), Margin = new Padding(0, 0, 0, 10) });
-			root.Controls.Add(new Label { Text = Lang.T("create.name"), AutoSize = true, Font = new Font(Theme.FontFamilyName, 9.5f, FontStyle.Bold) });
-			root.Controls.Add(name);
-			void Row(string key, List<Image> list, bool required)
+			iconEmoji = "🎨";
+			var create = AddButton(Lang.T("create.create"), DialogResult.None, true);
+			AddButton(Lang.T("rem.cancel"), DialogResult.Cancel, false);
+			name.Font = fText;
+			Controls.Add(name);
+			void Move(string emoji, string key, List<Image> list, bool required)
 			{
-				var r = new FlowLayoutPanel { AutoSize = true, WrapContents = false, Margin = new Padding(0, 8, 0, 0) };
-				var label = new Label { Text = Lang.T(key) + (required ? " *" : ""), AutoSize = false, Width = 160, Height = 28, TextAlign = ContentAlignment.MiddleLeft };
-				var count = new Label { Text = Lang.T("create.none"), AutoSize = false, Width = 110, Height = 28, TextAlign = ContentAlignment.MiddleLeft, ForeColor = Theme.TextMuted };
-				var pick = new Button { Text = Lang.T("create.pick"), AutoSize = true, MinimumSize = new Size(120, 28) };
+				var pick = new Button { Text = Lang.T("create.pick"), AutoSize = true, MinimumSize = new Size(110, 34), Font = fSmall };
 				pick.Click += (s, e) =>
 				{
 					using (var d = new OpenFileDialog { Multiselect = true, Filter = Lang.T("create.images") + "|*.png;*.gif;*.jpg;*.jpeg;*.bmp" })
@@ -209,25 +204,22 @@ namespace DesktopPet
 						list.Clear();
 						// in name order: frame_01, frame_02…
 						foreach (var f in d.FileNames.OrderBy(f => f, StringComparer.OrdinalIgnoreCase))
-							try { using (var tmp = Image.FromFile(f)) list.Add(new Bitmap(tmp)); } catch (Exception) { }
-						count.Text = Lang.T("create.count", list.Count);
-						count.ForeColor = list.Count > 0 ? Theme.Text : Theme.TextMuted;
+							try { using (var tmp = Image.FromFile(f)) list.Add(new Bitmap(tmp)); } catch (Exception skipped) { LogFile.Ignored(skipped); }
+						error = "";
+						Invalidate();
 					}
 				};
-				r.Controls.Add(label); r.Controls.Add(count); r.Controls.Add(pick);
-				root.Controls.Add(r);
+				Controls.Add(pick);
+				moves.Add((emoji, key, list, required, pick));
 			}
-			Row("create.walk", input.Walk, true);
-			Row("create.idle", input.Idle, false);
-			Row("create.sleep", input.Sleep, false);
-			Row("create.fall", input.Fall, false);
-			Row("create.drag", input.Drag, false);
+			Move("🚶", "create.walk", input.Walk, true);
+			Move("🧍", "create.idle", input.Idle, false);
+			Move("💤", "create.sleep", input.Sleep, false);
+			Move("🪂", "create.fall", input.Fall, false);
+			Move("✋", "create.drag", input.Drag, false);
 			facingRight.Text = Lang.T("create.facingRight");
-			facingRight.Margin = new Padding(0, 10, 0, 0);
-			root.Controls.Add(facingRight);
-			status.Margin = new Padding(0, 8, 0, 0);
-			root.Controls.Add(status);
-			var create = new Button { Text = Lang.T("create.create"), AutoSize = true, MinimumSize = new Size(140, 32), Margin = new Padding(0, 12, 0, 0) };
+			facingRight.Font = fSmall;
+			Controls.Add(facingRight);
 			create.Click += (s, e) =>
 			{
 				try
@@ -242,13 +234,74 @@ namespace DesktopPet
 					CreatedFolder = folder;
 					DialogResult = DialogResult.OK;
 				}
-				catch (Exception ex) { status.Text = ex.Message; status.ForeColor = Theme.Danger; }
+				catch (Exception ex) { error = ex.Message; LayoutAll(); }
 			};
-			root.Controls.Add(create);
-			Controls.Add(root);
-			AcceptButton = create;
-			Theme.ApplyTo(this);
-			Theme.MakePrimary(create);
+			foreach (var b in buttons) b.Font = fText;
+			ClientSize = new Size(W, 100);
+			ApplyTheme(create);
+			name.BorderStyle = BorderStyle.None;
+			name.BackColor = Theme.Surface; name.ForeColor = Theme.Text;
+			LayoutAll();
+			ActiveControl = name;
+		}
+
+		void LayoutAll()
+		{
+			int tx = Pad + 64, tw = W - tx - Pad, ih;
+			using (var g = CreateGraphics()) ih = Theme.MeasureText(g, Lang.T("create.intro"), fSmall, tw, TextFormatFlags.WordBreak).Height;
+			introRect = new Rectangle(tx, Pad + 34, tw, ih);
+			int y = Math.Max(Pad + 48, introRect.Bottom) + 22;
+			y += 24;   // the "Pet name" label
+			nameField = new Rectangle(Pad, y, W - Pad * 2, 44);
+			name.Width = nameField.Width - 28;
+			name.Location = new Point(nameField.X + 14, nameField.Y + (44 - name.Height) / 2);
+			y = nameField.Bottom + 18;
+			movesTop = y;
+			for (int i = 0; i < moves.Count; i++)
+			{
+				var b = moves[i].pick;
+				b.Location = new Point(W - Pad - 14 - b.Width, y + i * (RowH + 8) + (RowH - b.Height) / 2);
+			}
+			y += moves.Count * (RowH + 8) + 4;
+			facingRight.Location = new Point(Pad + 2, y);
+			y = facingRight.Bottom + (error.Length > 0 ? 50 : 18);
+			int bottom = LayoutButtons(y + 10, W);
+			ClientSize = new Size(W, bottom + Pad);
+			Invalidate();
+		}
+
+		protected override void OnPaint(PaintEventArgs e)
+		{
+			base.OnPaint(e);
+			var g = e.Graphics;
+			Theme.Prepare(g);
+			PaintIcon(g);
+			Theme.DrawText(g, Lang.T("create.title"), fTitle, new Rectangle(Pad + 64, Pad - 2, W - Pad * 2 - 64, 30), Theme.Text, TextFormatFlags.SingleLine);
+			Theme.DrawText(g, Lang.T("create.intro"), fSmall, introRect, Theme.TextMuted, TextFormatFlags.WordBreak);
+			Theme.DrawText(g, Lang.T("create.name"), fText, new Rectangle(Pad, nameField.Y - 24, 300, 22), Theme.Text, TextFormatFlags.SingleLine);
+			Theme.FillRounded(g, Theme.Surface, nameField, 10);
+			Theme.DrawRounded(g, name.Focused ? Theme.Accent : Theme.Border, nameField, 10);
+			for (int i = 0; i < moves.Count; i++)
+			{
+				var m = moves[i];
+				var r = new Rectangle(Pad, movesTop + i * (RowH + 8), W - Pad * 2, RowH);
+				bool has = m.list.Count > 0;
+				Theme.FillRounded(g, Theme.Surface, r, 10);
+				Theme.DrawRounded(g, has ? Theme.Accent : Theme.Border, r, 10);
+				var ic = new Rectangle(r.X + 12, r.Y + 11, 36, 36);
+				Theme.FillRounded(g, Theme.AccentSoft, ic, 9);
+				Theme.DrawText(g, m.emoji, fText, ic, Theme.Text, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine);
+				Theme.DrawText(g, Lang.T(m.key) + (m.required ? " *" : ""), fText, new Rectangle(r.X + 60, r.Y + 8, 220, 22), Theme.Text, TextFormatFlags.SingleLine);
+				string count = has ? Lang.T("create.count", m.list.Count) : Lang.T(m.required ? "create.needed" : "create.optional");
+				Theme.DrawText(g, (has ? "✓ " : "") + count, fSmall, new Rectangle(r.X + 60, r.Y + 30, 260, 20), has ? Theme.Accent : Theme.TextMuted, TextFormatFlags.SingleLine);
+			}
+			if (error.Length > 0)
+			{
+				var er = new Rectangle(Pad, facingRight.Bottom + 10, W - Pad * 2, 34);
+				Theme.FillRounded(g, Color.FromArgb(36, Theme.Danger), er, 8);
+				Theme.DrawText(g, "⚠️  " + error, fSmall, new Rectangle(er.X + 12, er.Y, er.Width - 20, er.Height), Theme.Danger, TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine | TextFormatFlags.EndEllipsis);
+			}
+			using (var p = new Pen(Theme.Border)) g.DrawLine(p, Pad, buttons[0].Top - 12, W - Pad, buttons[0].Top - 12);
 		}
 
 		protected override void OnFormClosed(FormClosedEventArgs e)

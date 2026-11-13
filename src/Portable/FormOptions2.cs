@@ -959,7 +959,7 @@ namespace DesktopPet
 								File.Delete(Path.Combine(BaseLocalPath, lp.folder + ext));
 						}
 					}
-					catch (Exception) { }   // a broken saved copy is simply replaced
+					catch (Exception skipped) { LogFile.Ignored(skipped); }   // a broken saved copy is simply replaced
 				}
 				File.WriteAllText(jsonFile, jsonString);
 			}
@@ -1019,9 +1019,9 @@ namespace DesktopPet
 					try { using (GetOrDownload(folder, "README.pt-BR.md")) { } file = "README.pt-BR.md"; }
 					catch (WebException ex) when ((ex.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.NotFound)
 					{
-						try { File.WriteAllText(none, ""); } catch (Exception) { }
+						try { File.WriteAllText(none, ""); } catch (Exception skipped) { LogFile.Ignored(skipped); }
 					}
-					catch (Exception) { }   // offline: the English one may still be saved
+					catch (Exception skipped) { LogFile.Ignored(skipped); }   // offline: the English one may still be saved
 				}
 			}
 			using (var stream = GetOrDownload(folder, file))

@@ -245,6 +245,7 @@
     <Compile Include="Portable\LocalData.cs" />
     <Compile Include="Portable\Lang.cs" />
     <Compile Include="Portable\JsonText.cs" />
+    <Compile Include="Portable\LogFile.cs" />
     <Compile Include="Portable\AppInfo.cs" />
     <None Include="lang\*.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

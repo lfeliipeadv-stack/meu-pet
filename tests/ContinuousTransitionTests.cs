@@ -16,7 +16,13 @@ using Timer = System.Windows.Forms.Timer;
 class ContinuousTransitionTests
 {
     static readonly BindingFlags F = BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
-    static object Field(object o, string n) { return o.GetType().GetField(n, F).GetValue(o); }
+    static object Field(object o, string n)
+    {
+        var f = o.GetType().GetField(n, F);
+        // the .NET 10 build calls it "pendingTransition", the .NET Framework one "transitionPending"
+        if (f == null && n == "transitionPending") f = o.GetType().GetField("pendingTransition", F);
+        return f.GetValue(o);
+    }
     static void Set(object o, string n, object v) { o.GetType().GetField(n, F).SetValue(o, v); }
     static object Call(object o, string n, params object[] a) { return o.GetType().GetMethod(n, F).Invoke(o, a); }
     static void Check(bool ok, string message) { if (!ok) throw new Exception(message); }

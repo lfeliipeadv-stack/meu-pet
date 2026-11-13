@@ -81,6 +81,10 @@ namespace DesktopPet
 			Try("sheep talk", SheepTalk);
 			Try("smart reminders", SmartReminders);
 			Try("activity", ActivityCare);
+			Try("settings pages", SettingsPages);
+			Try("ai providers", AiProviders);
+			await TryAsync("chat", ChatBox);
+			await TryAsync("weather", WeatherCheck);
 			await TryAsync("pets chat", PetsChat);
 			await TryAsync("sky arrival", SkyArrival);
 			await TryAsync("tour", Onboard);
@@ -299,6 +303,113 @@ namespace DesktopPet
 		/// <summary>Falling from a window that went away: a pet in the air cannot stand still until it lands.</summary>
 		static bool InAir(FormPet pet) => (pet.CurrentAnimationName ?? "").IndexOf("fall", StringComparison.OrdinalIgnoreCase) >= 0;
 
+		/// <summary>The chat above the pet: opens, holds the pets, answers here (reminder, help, meeting) and closes.</summary>
+		static async Task ChatBox()
+		{
+			foreach (var b in Application.OpenForms.OfType<SpeechBubble>().ToList()) b.Close();
+			FormChat.Open();
+			await Task.Delay(400);
+			var chat = Application.OpenForms.OfType<FormChat>().FirstOrDefault();
+			Check("chat: opens", chat != null && chat.Visible);
+			if (chat == null) return;
+			Check("chat: the pets wait while it is open", FormPet.Held);
+			var pet = Pet();
+			if (pet != null) Check("chat: next to the pet", Math.Abs((chat.Left + chat.Width / 2) - (pet.Left + pet.Width / 2)) < chat.Width && (chat.Bottom <= pet.Top + 2 || chat.Top >= pet.Bottom - 2), $"chat {chat.Bounds}, pet {pet.Bounds}");
+			chat.Refresh();
+			Check("chat: suggestions to tap", FormChat.Messages.Count > 0 || chat.TestClickable >= 4, chat.TestClickable.ToString());
+
+			int before = Reminders.All.Count;
+			var r1 = await FormChat.Answer("me lembra de regar as plantas às 23h");
+			var added = Reminders.All.Skip(before).ToList();
+			Check("chat: a reminder written as a sentence is created", added.Count == 1 && added[0].Text == "Regar as plantas" && r1.ActionText != null, r1.Text);
+			foreach (var r in added) Reminders.Remove(r);
+			var help = await FormChat.Answer("o que você sabe fazer?");
+			Check("chat: says what it can do (no AI)", help.Text == Lang.T("chat.help"));
+			var sys = await FormChat.Answer("como está a memória do computador?");
+			Check("chat: the computer, answered here", sys.Text.Contains("%"), sys.Text);
+			if (!AiAssistant.Configured)
+			{
+				var free = await FormChat.Answer("qual a capital da França?");
+				Check("chat: free question without AI offers to set it up", free.Text == Lang.T("chat.needAi") && free.Action != null);
+			}
+			else lines.Add("SKIP  chat: free question without AI (an AI is set up here)");
+
+			chat.Send("o que você sabe fazer?");
+			for (int i = 0; i < 30 && chat.TestBusy; i++) await Task.Delay(100);
+			Check("chat: the conversation shows question and answer", FormChat.Messages.Count >= 2 && FormChat.Messages[FormChat.Messages.Count - 2].User && !FormChat.Messages.Last().User);
+			chat.Close();
+			await Task.Delay(200);
+			Check("chat: closed, pets free again", !FormChat.IsOpen && !FormPet.Held);
+		}
+
+		/// <summary>Configured AI providers: saved, switched and removed; the user's own are put back afterwards.</summary>
+		static void AiProviders()
+		{
+			string savedList = Program.MyData.GetSetting("AiProfiles"), savedActive = AiProfiles.ActiveId;
+			bool savedDone = Program.MyData.GetSettingBool("AiProfilesDone", false);
+			var savedNow = AiProfiles.Snapshot();
+			try
+			{
+				Program.MyData.SetSetting("AiProfiles", ""); AiProfiles.ActiveId = "";
+				Program.MyData.SetSetting("AiProfilesDone", true);
+				AiProfiles.Restore(("", "", "", ""));
+				Check("ai providers: none at first", AiProfiles.All.Count == 0 && !AiAssistant.Configured);
+				AiAssistant.ProviderId = "ollama"; AiAssistant.BaseUrl = "http://localhost:11434/v1"; AiAssistant.Model = "llama3.2"; AiAssistant.Key = "";
+				AiProfiles.SaveCurrent(asNew: true);
+				AiAssistant.ProviderId = "groq"; AiAssistant.BaseUrl = "https://api.groq.com/openai/v1"; AiAssistant.Model = "llama-3.3-70b-versatile"; AiAssistant.Key = "chave-de-teste";
+				AiProfiles.SaveCurrent(asNew: true);
+				var all = AiProfiles.All;
+				Check("ai providers: two saved, the last in use", all.Count == 2 && AiProfiles.ActiveId == all[1].Id && AiAssistant.ProviderId == "groq");
+				Check("ai providers: the key stays encrypted in the list", !Program.MyData.GetSetting("AiProfiles").Contains("chave-de-teste") && all[1].KeyBlob.Length > 0);
+				AiProfiles.Use(all[0]);
+				Check("ai providers: switching uses the other one", AiAssistant.ProviderId == "ollama" && AiAssistant.Model == "llama3.2" && AiAssistant.Key == "");
+				AiProfiles.Use(all[1]);
+				Check("ai providers: and back, with its key", AiAssistant.Key == "chave-de-teste");
+				AiProfiles.Remove(all[1]);
+				Check("ai providers: removing the one in use falls back to the other", AiProfiles.All.Count == 1 && AiAssistant.ProviderId == "ollama");
+				AiProfiles.Remove(AiProfiles.All[0]);
+				Check("ai providers: none left, nothing in use", AiProfiles.All.Count == 0 && !AiAssistant.Configured);
+			}
+			finally
+			{
+				Program.MyData.SetSetting("AiProfiles", savedList); AiProfiles.ActiveId = savedActive;
+				Program.MyData.SetSetting("AiProfilesDone", savedDone);
+				AiProfiles.Restore(savedNow);
+			}
+		}
+
+		/// <summary>The settings window: every page draws, the cards switch features, old pages lead to new ones.</summary>
+		static void SettingsPages()
+		{
+			foreach (var (name, ok, detail) in FormSettings.SelfCheck()) Check("settings: " + name, ok, detail);
+			int before = DayStats.Get("selftest");
+			DayStats.Add("selftest", 2);
+			Check("today counters: added", DayStats.Get("selftest") == before + 2);
+		}
+
+		/// <summary>Weather: texts from the codes, and the real Open-Meteo (skipped without internet).</summary>
+		static async Task WeatherCheck()
+		{
+			Check("weather: codes have texts", new[] { 0, 2, 3, 45, 53, 63, 73, 81, 95 }.All(c => Lang.T(Weather.Describe(c).key) != Weather.Describe(c).key));
+			var t = new Weather.Today { Code = 63, Min = 18, Max = 26, RainChance = 80 };
+			string s = Weather.Summary(t, new Weather.Place { Name = "São Paulo, SP, BR" });
+			Check("weather: summary with the umbrella tip", s.Contains("São Paulo") && s.Contains("18") && s.Contains("26") && s.Contains("80") && !s.Contains("{"), s);
+			try
+			{
+				var place = await Weather.FindCity("Curitiba");
+				Check("weather online: city found", place != null && Math.Abs(place.Lat + 25.4) < 1 && Math.Abs(place.Lon + 49.3) < 1, place?.Name + " " + place?.Lat + "," + place?.Lon);
+				if (place != null)
+				{
+					var w = await Weather.Load(place);
+					Check("weather online: forecast read", w != null && w.Max >= w.Min && w.Max < 60 && w.Min > -40 && w.RainChance >= 0 && w.RainChance <= 100, w == null ? "" : $"{w.Min}..{w.Max} code {w.Code} rain {w.RainChance}% soon {w.RainSoon}%");
+				}
+			}
+			catch (Exception ex) when (ex is System.Net.Http.HttpRequestException || ex is TaskCanceledException)
+			{
+				lines.Add("SKIP  weather online: no internet (" + ex.Message + ")");
+			}
+		}
+
 		/// <summary>Two pets chat: the first says a line, the other answers in its own bubble a moment later.</summary>
 		static async Task PetsChat()
 		{
@@ -422,9 +533,9 @@ namespace DesktopPet
 			Check("eSheep: has a talk animation", talk != null);
 			if (talk == null) return;
 			Check("eSheep talk: stays in place", talk.Start.X == "0" && talk.End.X == "0" && talk.Start.Y == "0" && talk.End.Y == "0", $"{talk.Start.X},{talk.Start.Y}");
-			// counted like the program does (Xml.cs): frames + (frames - repeatfrom - 1) × repeat; the repeated frames are repeatfrom…end
+			// counted like the program does: frames + (frames - repeatfrom) × repeat; the repeated frames are repeatfrom…end
 			int f = talk.Sequence.Frame.Length, rf = talk.Sequence.RepeatFromFrame, rep = int.TryParse(talk.Sequence.RepeatCount, out int rr) ? rr : 0;
-			int steps = rf > 0 ? f + (f - rf - 1) * rep : f + f * rep;
+			int steps = f + (f - rf) * rep;
 			var held = talk.Sequence.Frame.Skip(rf).Distinct().ToList();
 			Check("eSheep talk: stays looking at you (the front frame repeats)", steps >= 50 && held.Count == 1 && held[0] == 10, $"{steps} steps, repeats {string.Join(",", held)}");
 			var back = root.Animations.Animation.FirstOrDefault(a => talk.Sequence.Next != null && a.Id == talk.Sequence.Next[0].Value);

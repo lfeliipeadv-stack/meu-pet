@@ -142,7 +142,7 @@ namespace DesktopPet
                     {
                         if (!mutex2.WaitOne(TimeSpan.FromSeconds(1), false))
                         {
-                            MessageBox.Show(Lang.T("msg.alreadyRunning"), Lang.T("msg.information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            PetMessage.Show(Lang.T("msg.alreadyRunning"), Lang.T("msg.information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                             return;
                         }
                     }
@@ -154,7 +154,7 @@ namespace DesktopPet
             }
             catch (Exception ex)
             {
-                MessageBox.Show(Lang.T("msg.cantExecute", ex.Message));
+                PetMessage.Show(Lang.T("msg.cantExecute", ex.Message));
                 return;
             }
 
@@ -294,7 +294,7 @@ namespace DesktopPet
 					{
 						if (!mutex2.WaitOne(TimeSpan.FromSeconds(1), false))
 						{
-							MessageBox.Show("Application is already running! Only 2 instances are allowed.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+							PetMessage.Show("Application is already running! Only 2 instances are allowed.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
 							return;
 						}
 					}
@@ -306,7 +306,7 @@ namespace DesktopPet
 			}
 			catch (Exception ex)
 			{
-				MessageBox.Show("Can't execute application: " + ex.Message);
+				PetMessage.Show("Can't execute application: " + ex.Message);
 				return;
 			}
 

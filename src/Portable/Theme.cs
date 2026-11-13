@@ -123,7 +123,7 @@ namespace DesktopPet
 					if (v is int i) return i == 0;
 				}
 			}
-			catch (Exception) { }
+			catch (Exception skipped) { LogFile.Ignored(skipped); }
 			return false;
 		}
 
@@ -171,7 +171,7 @@ namespace DesktopPet
 					int border = ColorTranslator.ToWin32(Border);
 					DwmSetWindowAttribute(form.Handle, DWMWA_BORDER_COLOR, ref border, sizeof(int));
 				}
-				catch (Exception) { }
+				catch (Exception skipped) { LogFile.Ignored(skipped); }
 			}
 			if (form.IsHandleCreated) apply();
 			else form.HandleCreated += (s, e) => apply();

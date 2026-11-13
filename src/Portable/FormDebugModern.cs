@@ -298,7 +298,7 @@ namespace DesktopPet
 					case "copy": Copy(lines); break;
 					case "clear": StartUp.ClearLog(); Reload(); break;
 					case "xml": OpenInNotepad(Animations.Xml?.AnimationXMLString); break;
-					case "dot": try { OpenInNotepad(Tools.XmlToDot.ProcessXml(Animations.Xml.AnimationXML)); } catch (Exception) { } break;
+					case "dot": try { OpenInNotepad(Tools.XmlToDot.ProcessXml(Animations.Xml.AnimationXML)); } catch (Exception skipped) { LogFile.Ignored(skipped); } break;
 				}
 			}
 
@@ -312,7 +312,7 @@ namespace DesktopPet
 			static void Copy(List<StartUp.LogLine> list)
 			{
 				if (list.Count == 0) return;
-				try { Clipboard.SetText(string.Join(Environment.NewLine, list.Select(l => $"{l.Time:HH:mm:ss.fff} [{l.Type}] {l.Text}"))); } catch (Exception) { }
+				try { Clipboard.SetText(string.Join(Environment.NewLine, list.Select(l => $"{l.Time:HH:mm:ss.fff} [{l.Type}] {l.Text}"))); } catch (Exception skipped) { LogFile.Ignored(skipped); }
 			}
 
 			/// <summary>Show a text in Notepad (a temporary file: no typing into another program's window).</summary>
@@ -326,7 +326,7 @@ namespace DesktopPet
 					System.IO.File.WriteAllText(file, text);
 					Process.Start(new ProcessStartInfo("notepad.exe", "\"" + file + "\"") { UseShellExecute = false });
 				}
-				catch (Exception) { }
+				catch (Exception skipped) { LogFile.Ignored(skipped); }
 			}
 		}
 	}

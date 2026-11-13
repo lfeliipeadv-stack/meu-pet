@@ -37,7 +37,7 @@ namespace DesktopPet
 			get
 			{
 				if (history != null) return history;
-				try { history = File.Exists(FilePath) ? JsonText.Deserialize<Dictionary<string, int>>(File.ReadAllText(FilePath)) : null; } catch (Exception) { }
+				try { history = File.Exists(FilePath) ? JsonText.Deserialize<Dictionary<string, int>>(File.ReadAllText(FilePath)) : null; } catch (Exception skipped) { LogFile.Ignored(skipped); }
 				return history ?? (history = new Dictionary<string, int>());
 			}
 		}
@@ -74,7 +74,7 @@ namespace DesktopPet
 				Directory.CreateDirectory(Path.GetDirectoryName(FilePath));
 				File.WriteAllText(FilePath, JsonText.SerializeIndented(History));
 			}
-			catch (Exception) { }
+			catch (Exception skipped) { LogFile.Ignored(skipped); }
 			if (i <= 1) Program.Mainthread?.ReactAll("happy", "cheer", "dance", "jump");
 			else if (i >= 3) Program.Mainthread?.ReactAll("love", "hearts", "hug", "wave");
 			SpeechBubble.Say(Lang.T("mood.reply" + i), 10);

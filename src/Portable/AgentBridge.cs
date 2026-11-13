@@ -88,7 +88,7 @@ namespace DesktopPet
 			else if (!Enabled && !DevListen && listener != null)
 			{
 				cancel?.Cancel();
-				try { listener.Stop(); } catch (Exception) { }
+				try { listener.Stop(); } catch (Exception skipped) { LogFile.Ignored(skipped); }
 				listener = null;
 			}
 		}
@@ -142,7 +142,7 @@ namespace DesktopPet
 					else if (path == "/say") { if (DevListen) DevNote("say " + body); Post(() => Say(body)); }
 					else if (path == "/react") { var a = ReactionByName(body); if (a != Activity.None) Post(() => React(a)); }
 				}
-				catch (Exception) { }
+				catch (Exception skipped) { LogFile.Ignored(skipped); }
 			}
 		}
 
@@ -207,7 +207,7 @@ namespace DesktopPet
 							|| (resp.TryGetProperty("success", out var ok) && ok.ValueKind == JsonValueKind.False);
 				}
 			}
-			catch (Exception) { }
+			catch (Exception skipped) { LogFile.Ignored(skipped); }
 
 			switch (hookEvent)
 			{
@@ -323,7 +323,7 @@ namespace DesktopPet
 
 		static void DevNote(string text)
 		{
-			try { File.AppendAllText(Path.Combine(Path.GetTempPath(), "desktoppet-agent.log"), DateTime.Now.ToString("HH:mm:ss.fff") + " " + text + Environment.NewLine); } catch (Exception) { }
+			try { File.AppendAllText(Path.Combine(Path.GetTempPath(), "desktoppet-agent.log"), DateTime.Now.ToString("HH:mm:ss.fff") + " " + text + Environment.NewLine); } catch (Exception skipped) { LogFile.Ignored(skipped); }
 		}
 
 		/// <summary>Reactions a local tool (the MCP server) may ask for.</summary>
@@ -357,7 +357,7 @@ namespace DesktopPet
 				Directory.CreateDirectory(Path.GetDirectoryName(ConnectionFile));
 				File.WriteAllText(ConnectionFile, JsonSerializer.Serialize(new { port = Port, token = Token }));
 			}
-			catch (Exception) { }
+			catch (Exception skipped) { LogFile.Ignored(skipped); }
 		}
 
 		/// <summary>Send events to ourselves through the real endpoint (the "Test" button and the self-test).</summary>

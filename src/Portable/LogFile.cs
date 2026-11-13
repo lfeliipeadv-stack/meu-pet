@@ -27,6 +27,25 @@ namespace DesktopPet
 		/// <summary>Always written (start, version, crashes).</summary>
 		public static void Important(string text) => Append("INFO ", text);
 
+		static readonly System.Collections.Generic.HashSet<string> ignoredSeen = new System.Collections.Generic.HashSet<string>();
+
+		/// <summary>
+		/// An error that is caught and deliberately ignored (the program carries on), written once per place per run
+		/// so a catch inside a timer cannot flood the log. Use it instead of an empty <c>catch { }</c>.
+		/// </summary>
+		public static void Ignored(Exception ex,
+			[System.Runtime.CompilerServices.CallerMemberName] string member = "",
+			[System.Runtime.CompilerServices.CallerFilePath] string file = "",
+			[System.Runtime.CompilerServices.CallerLineNumber] int line = 0)
+		{
+			string where = Path.GetFileName(file) + ":" + line + " " + member;
+			lock (gate) { if (!ignoredSeen.Add(where)) return; }
+			Append("WARN ", "ignored in " + where + ": " + (ex == null ? "?" : ex.GetType().Name + ": " + ex.Message));
+		}
+
+		/// <summary>A plain warning line.</summary>
+		public static void Write(string text) => Append("WARN ", text);
+
 		static void Append(string level, string text)
 		{
 			try

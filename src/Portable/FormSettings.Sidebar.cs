@@ -22,13 +22,14 @@ namespace DesktopPet
 			private readonly FormSettings form;
 			private readonly (Page page, string text, string glyph)[] items =
 			{
-				(Page.Pets, "nav.pets", ""),          // home-ish
-				(Page.Behaviour, "nav.behaviour", ""), // touch/pointer
-				(Page.Reminders, "nav.reminders", ""),      // clock
-				(Page.Extras, "nav.extras", ""),      // star
-				(Page.Ai, "nav.ai", ""),      // chat
-				(Page.Application, "nav.application", ""), // settings
-				(Page.About, "nav.about", ""),         // info
+				(Page.Home, "nav.home", "\uE80F"),            // home
+				(Page.Pets, "nav.pets", "\uE8D4"),            // pets (people)
+				(Page.Reminders, "nav.reminders", "\uE823"),  // clock
+				(Page.Ai, "nav.ai", "\uE8BD"),                // chat
+				(Page.Plugins, "nav.plugins", "\uEA86"),      // puzzle
+				(Page.Integrations, "nav.integrations", "\uE71B"), // link
+				(Page.Application, "nav.application", "\uE713"), // settings
+				(Page.About, "nav.about", "\uE946"),          // info
 			};
 			private int hover = -1;
 			private readonly Font glyphFont;

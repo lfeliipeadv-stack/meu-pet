@@ -245,7 +245,7 @@ namespace DesktopPet
 					var zone = TimeZoneInfo.FindSystemTimeZoneById(tz);
 					return TimeZoneInfo.ConvertTime(DateTime.SpecifyKind(t, DateTimeKind.Unspecified), zone, TimeZoneInfo.Local);
 				}
-				catch (Exception) { }
+				catch (Exception skipped) { LogFile.Ignored(skipped); }
 			}
 			return t;
 		}

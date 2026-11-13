@@ -35,9 +35,9 @@ namespace DesktopPet
 		static void Check()
 		{
 			var pet = Application.OpenForms.OfType<FormPet>().FirstOrDefault(p => p.Visible && !p.IsChildWindow && p.Opacity > 0);
-			bool can = Enabled && AiAssistant.Configured && pet != null && !pet.Busy && !HideHotkey.Hidden
+			bool can = Enabled && pet != null && !pet.Busy && !HideHotkey.Hidden
 				&& !Application.OpenForms.OfType<SpeechBubble>().Any(b => b.Visible)   // the bubble is above the pet: no button over it
-				&& !(Form.ActiveForm is FormAsk);
+				&& !(Form.ActiveForm is FormAsk) && !FormChat.IsOpen;
 			if (!can) { if (pill != null && pill.Visible) pill.Hide(); return; }
 
 			var mouse = Cursor.Position;

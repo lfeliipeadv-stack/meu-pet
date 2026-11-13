@@ -179,7 +179,7 @@ namespace DesktopPet
 		{
 			var now = DateTime.Now;
 			string today = now.ToString("yyyy-MM-dd");
-			if (now.Hour >= 5 && now.Hour < 11 && Program.MyData.GetSetting("SaidMorning") != today)
+			if (now.Hour >= 5 && now.Hour < 11 && Program.MyData.GetSetting("SaidMorning") != today && !(Weather.Enabled && Weather.Morning))   // the weather says good morning then
 			{
 				Program.MyData.SetSetting("SaidMorning", today);
 				Program.Mainthread?.ReactAll("wave", "hello", "stretch", "happy");
@@ -210,7 +210,7 @@ namespace DesktopPet
 					if (Directory.Exists(s)) return s;
 				}
 			}
-			catch (Exception) { }
+			catch (Exception skipped) { LogFile.Ignored(skipped); }
 			return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
 		}
 
@@ -268,7 +268,7 @@ namespace DesktopPet
 			string text = done.Count == 1 ? Lang.T("pc.downloaded", Path.GetFileName(first)) : Lang.T("pc.downloadedMany", done.Count);
 			SpeechBubble.Notify(text, 10, new SpeechBubble.Choice(Lang.T("pc.showFile"), () =>
 			{
-				try { Process.Start(new ProcessStartInfo("explorer.exe", "/select,\"" + first + "\"") { UseShellExecute = false }); } catch (Exception) { }
+				try { Process.Start(new ProcessStartInfo("explorer.exe", "/select,\"" + first + "\"") { UseShellExecute = false }); } catch (Exception skipped) { LogFile.Ignored(skipped); }
 			}, true));
 		}
 	}

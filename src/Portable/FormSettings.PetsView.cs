@@ -305,7 +305,7 @@ namespace DesktopPet
 			void OnFrame(object sender, EventArgs e)
 			{
 				if (IsDisposed || !IsHandleCreated) return;
-				try { BeginInvoke(new Action(() => { if (selected?.Preview == animating) Invalidate(); else StopPreview(); })); } catch (Exception) { }
+				try { BeginInvoke(new Action(() => { if (selected?.Preview == animating) Invalidate(); else StopPreview(); })); } catch (Exception skipped) { LogFile.Ignored(skipped); }
 			}
 
 			void StopPreview()

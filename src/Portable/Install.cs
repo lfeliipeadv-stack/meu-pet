@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using System;
+using System.Drawing;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
@@ -94,8 +95,81 @@ namespace DesktopPet
 #if NETCORE
             Theme.ApplyTo(this);
             Theme.MakePrimary(button1);
+            LayoutModern();
 #endif
         }
+
+#if NETCORE
+        // ------------------------------------------------------------------ the look of the rest of the program
+
+        const int MW = 540, MPad = 24;
+        Font mTitle, mText, mSmall, mIcon;
+        Label mDesc;
+        Rectangle mCard;
+
+        /// <summary>The same look as the other windows: icon in a circle, title, a line about it, a card, buttons below.</summary>
+        void LayoutModern()
+        {
+            if (mTitle == null)
+            {
+                mTitle = Theme.CreateFont(20, FontStyle.Bold); mText = Theme.CreateFont(14); mSmall = Theme.CreateFont(12); mIcon = Theme.CreateFont(22);
+                mDesc = new Label { AutoSize = false };
+                Controls.Add(mDesc);
+                pictureBox1.Visible = false;
+                FormBorderStyle = FormBorderStyle.FixedDialog;
+                MaximizeBox = MinimizeBox = false;
+                textBox1.VisibleChanged += (s, e) => Invalidate();
+                checkBox1.VisibleChanged += (s, e) => Invalidate();
+            }
+            ClientSize = new Size(MW, 400);
+            label1.Text = Lang.T("inst.headerApp");
+            label1.Font = mTitle; label1.AutoSize = true;
+            label1.Location = new Point(MPad + 64, MPad + 2);
+            mDesc.Text = Lang.T("inst.desc");
+            mDesc.Font = mSmall; mDesc.ForeColor = Theme.TextMuted;
+            mDesc.Location = new Point(MPad + 64, MPad + 34);
+            mDesc.Size = new Size(MW - MPad * 2 - 64, 58);
+            mCard = new Rectangle(MPad, 122, MW - MPad * 2, 190);
+            Text = Lang.T("inst.headerApp");
+            textBox1.BorderStyle = BorderStyle.None;
+            textBox1.Font = mSmall;
+            textBox1.BackColor = Theme.Surface; textBox1.ForeColor = Theme.TextMuted;
+            textBox1.Location = new Point(mCard.X + 14, mCard.Y + 12);
+            textBox1.Size = new Size(mCard.Width - 22, mCard.Height - 24);
+            var boxes = new[] { checkBox1, checkBox2, checkBox3 };
+            for (int i = 0; i < boxes.Length; i++)
+            {
+                boxes[i].Font = mText; boxes[i].AutoSize = true;
+                boxes[i].BackColor = Theme.Surface; boxes[i].ForeColor = Theme.Text;
+                boxes[i].Location = new Point(mCard.X + 18, mCard.Y + 20 + i * 42);
+            }
+            progressBar1.Location = new Point(mCard.X + 18, mCard.Bottom - 34);
+            progressBar1.Size = new Size(mCard.Width - 36, 10);
+            foreach (var b in new[] { button1, button2, button3 }) { b.Font = mText; b.AutoSize = true; b.MinimumSize = new Size(120, 38); }
+            int by = mCard.Bottom + 28;
+            button1.Location = new Point(MW - MPad - button1.Width, by);
+            button2.Location = new Point(button1.Left - 10 - button2.Width, by);
+            button3.Location = new Point(MPad, by);
+            button3.ForeColor = Theme.Danger;
+            ClientSize = new Size(MW, by + button1.Height + MPad);
+            BackColor = Theme.Background;
+            Invalidate();
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            base.OnPaint(e);
+            if (mTitle == null) return;
+            var g = e.Graphics;
+            Theme.Prepare(g);
+            var ic = new Rectangle(MPad, MPad, 48, 48);
+            Theme.FillRounded(g, Theme.AccentSoft, ic, 24);
+            Theme.DrawText(g, "📦", mIcon, ic, Theme.Text, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine);
+            Theme.FillRounded(g, Theme.Surface, mCard, 12);
+            Theme.DrawRounded(g, Theme.Border, mCard, 12);
+            using (var p = new Pen(Theme.Border)) g.DrawLine(p, MPad, button1.Top - 12, MW - MPad, button1.Top - 12);
+        }
+#endif
 
             /// <summary>
             /// Open the form window. Allows the user to install or uninstall this application.
@@ -194,7 +268,7 @@ namespace DesktopPet
             }
             catch(Exception ex)
             {
-                MessageBox.Show(Lang.T("inst.error", ex.Message));
+                PetMessage.Show(Lang.T("inst.error", ex.Message));
                 progressBar1.Value = 0;
                 return;
             }

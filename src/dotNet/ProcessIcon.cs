@@ -85,7 +85,7 @@ namespace DesktopPet
                 ContextMenus.UpdateIcon(petIcon, petName, aboutAuthor, aboutTitle, aboutVersion, aboutInfo);
                 ni.Text = Truncate(Lang.T("tray.tooltip", petNameShown));
             }
-            catch (Exception) { } // probably thread error.
+            catch (Exception skipped) { LogFile.Ignored(skipped); } // probably thread error.
         }
 
         /// <summary>The program's own icon, at tray size.</summary>

@@ -33,6 +33,10 @@ jobs:
           if (Test-Path $result) { Get-Content $result } else { throw "O autoteste não gerou resultado" }
           if ($p.ExitCode -ne 0) { throw "$($p.ExitCode) verificação(ões) falharam" }
 
+      - name: Testes de movimento (.NET 10)
+        shell: pwsh
+        run: ./tests/run-net-motion-tests.ps1 -Scales 1,3 -OutputDirectory (Join-Path $env:RUNNER_TEMP "motion-tests")
+
       - name: Guardar o resultado
         if: always()
         uses: actions/upload-artifact@v4

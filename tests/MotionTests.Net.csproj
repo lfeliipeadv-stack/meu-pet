@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    One motion suite (tests\<TestName>.cs) built against the .NET 10 program (src\DesktopPet.Net.csproj),
+    the build that is actually released. Used by run-net-motion-tests.ps1:
+      dotnet build tests\MotionTests.Net.csproj -p:TestName=RuntimeMotionTests -o <folder>
+    MotionTests compiles src\dotNet\MotionTrack.cs on its own (no reference to the program).
+  -->
+  <PropertyGroup>
+    <TestName Condition="'$(TestName)' == ''">MotionTests</TestName>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <PlatformTarget>x64</PlatformTarget>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>false</SelfContained>
+    <AssemblyName>$(TestName)</AssemblyName>
+    <RootNamespace>DesktopPet.Tests</RootNamespace>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <!-- each suite gets its own obj folder, so building several in a row does not mix them -->
+    <IntermediateOutputPath>obj\$(TestName)\</IntermediateOutputPath>
+    <!-- FormatterServices (obsolete but still works), platform-only APIs, the program's own warnings -->
+    <NoWarn>$(NoWarn);SYSLIB0050;CA1416;CS0618;CS0436</NoWarn>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="$(TestName).cs" />
+    <Compile Include="..\src\dotNet\MotionTrack.cs" Condition="'$(TestName)' == 'MotionTests'" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TestName)' != 'MotionTests'">
+    <ProjectReference Include="..\src\DesktopPet.Net.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\src\Resources\animations.xml" Link="motion-fixture.xml" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

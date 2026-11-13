@@ -22,7 +22,8 @@ class MotionAuditTests
     static int failures, checks;
     static void FinishTransition(FormPet pet)
     {
-        var pending = pet.GetType().GetField("transitionPending", F);
+        // "pendingTransition" in the .NET 10 build, "transitionPending" in the .NET Framework one
+        var pending = pet.GetType().GetField("pendingTransition", F) ?? pet.GetType().GetField("transitionPending", F);
         if (pending != null && (bool)pending.GetValue(pet))
         {
             System.Threading.Thread.Sleep(((Timer)Field(pet, "timer1")).Interval + 10);

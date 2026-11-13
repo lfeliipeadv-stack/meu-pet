@@ -130,7 +130,7 @@ namespace DesktopPet
             string exePath = Environment.ProcessPath ?? Application.ExecutablePath;
             string appDir = Path.GetDirectoryName(exePath);
             string oldExe = Path.Combine(appDir, "DesktopPet_old.exe");
-            try { if (File.Exists(oldExe)) File.Delete(oldExe); } catch (Exception) { }   // leftover of the previous update
+            try { if (File.Exists(oldExe)) File.Delete(oldExe); } catch (Exception skipped) { LogFile.Ignored(skipped); }   // leftover of the previous update
 
             try
             {
@@ -140,7 +140,7 @@ namespace DesktopPet
                     throw new InvalidOperationException(Lang.T("inst.incompleteRelease", release.Version));
 
                 string notes = release.Notes.Length > 1500 ? release.Notes.Substring(0, 1500) + "…" : release.Notes;
-                if (MessageBox.Show(owner, Lang.T("inst.newVersion", release.Version, notes),
+                if (PetMessage.Show(owner, Lang.T("inst.newVersion", release.Version, notes),
                         Lang.T("inst.versionTitle", "DesktopPet", CurrentVersion),
                         MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
                     return;
@@ -169,17 +169,17 @@ namespace DesktopPet
                         using (var zip = new ZipArchive(new MemoryStream(lang)))
                             zip.ExtractToDirectory(Path.Combine(appDir, "lang"), true);
                     }
-                    catch (Exception) { }   // the new exe still works with its built-in English
+                    catch (Exception skipped) { LogFile.Ignored(skipped); }   // the new exe still works with its built-in English
                 }
 
                 Process.Start(new ProcessStartInfo(exePath) { UseShellExecute = true });
-                MessageBox.Show(owner, Lang.T("inst.updated"));
+                PetMessage.Show(owner, Lang.T("inst.updated"));
                 Application.Exit();
             }
             catch (Exception ex)
             {
                 StartUp.AddDebugInfo(StartUp.DEBUG_TYPE.warning, "Update failed: " + ex.Message);
-                if (!silent) MessageBox.Show(owner, Lang.T("inst.updateFailed", ex.Message));
+                if (!silent) PetMessage.Show(owner, Lang.T("inst.updateFailed", ex.Message));
             }
         }
 

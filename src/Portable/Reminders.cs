@@ -176,6 +176,7 @@ namespace DesktopPet
 
 		static void Check()
 		{
+			if (!PluginSwitch.On("reminders")) return;   // the Reminders plugin is off
 			var now = DateTime.Now;
 			bool changed = false;
 			foreach (var r in All.ToList())

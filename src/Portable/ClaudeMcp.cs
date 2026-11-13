@@ -28,7 +28,7 @@ namespace DesktopPet
 						if (dir.Trim().Length > 0 && File.Exists(p)) return p;
 					}
 				}
-				catch (Exception) { }
+				catch (Exception skipped) { LogFile.Ignored(skipped); }
 			}
 			try
 			{
@@ -36,7 +36,7 @@ namespace DesktopPet
 				if (Directory.Exists(root))
 					return Directory.GetFiles(root, "claude.exe", SearchOption.AllDirectories).OrderByDescending(File.GetLastWriteTime).FirstOrDefault();
 			}
-			catch (Exception) { }
+			catch (Exception skipped) { LogFile.Ignored(skipped); }
 			return null;
 		}
 

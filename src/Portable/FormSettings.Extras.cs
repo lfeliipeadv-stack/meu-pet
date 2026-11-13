@@ -11,62 +11,35 @@ namespace DesktopPet
 	{
 		// ================================================================== Extras page
 
-		/// <summary>Focus timer, virtual pet, PC monitor, mood and shortcuts (all used from the pet menu).</summary>
-		private void BuildExtrasOptions()
-		{
-			int[] focus = { 15, 25, 45, 50 };
-			extrasView.AddChoice("", /* stopwatch */ "opt.pomoFocus",
-				() => Program.MyData.GetSettingInt("PomodoroFocus", 25),
-				v => Program.MyData.SetSetting("PomodoroFocus", v),
-				focus, focus.Select(m => m + " min").ToArray());
-			int[] pause = { 5, 10, 15 };
-			extrasView.AddChoice("", /* moon */ "opt.pomoBreak",
-				() => Program.MyData.GetSettingInt("PomodoroBreak", 5),
-				v => Program.MyData.SetSetting("PomodoroBreak", v),
-				pause, pause.Select(m => m + " min").ToArray());
-			extrasView.AddToggle("", /* heart */ "opt.vpet", () => VirtualPet.Enabled, on => VirtualPet.Enabled = on);
-			extrasView.AddToggle("", /* chart */ "opt.monitor", () => PcMonitor.Enabled, on => PcMonitor.Enabled = on);
-			extrasView.AddToggle("", /* emoji */ "opt.mood", () => Mood.Daily, on => Mood.Daily = on);
-			int[] hours = { 10, 13, 15, 17 };
-			extrasView.AddChoice("", /* clock */ "opt.moodHour", () => Mood.Hour, v => Mood.Hour = v, hours, hours.Select(h => h + "h").ToArray());
-			extrasView.AddAction("", /* history */ "opt.moodHistory", "opt.moodHistory.button", () =>
-				MessageBox.Show(this, Lang.T("mood.history", Mood.Recent(14)), Lang.T("opt.moodHistory.title"), MessageBoxButtons.OK, MessageBoxIcon.None));
-			extrasView.AddAction("", /* apps */ "opt.shortcuts", "opt.shortcuts.button", () => { using (var f = new FormLaunchers()) f.ShowDialog(this); });
-
-			// the pet and the computer
-			extrasView.AddToggle("", /* people */ "opt.petsMeet", () => PetsMeet.Enabled, on => PetsMeet.Enabled = on);
-			extrasView.AddToggle("", /* monitor */ "opt.pcEvents", () => ComputerEvents.Enabled, on => ComputerEvents.Enabled = on);
-			extrasView.AddToggle("", /* activity */ "opt.activity", () => Activity.Enabled, on => Activity.Enabled = on);
-
-			// new e-mails in the classic Outlook
-			extrasView.AddToggle("", /* mail */ "opt.mail", () => OutlookMail.Enabled, on => OutlookMail.Enabled = on);
-
-			// calendar (private iCal link of Google or Outlook)
-			extrasView.AddAction("", /* calendar */ "opt.agenda", "opt.agenda.button", ConfigureAgenda);
-			int[] lead = { 5, 10, 15 };
-			extrasView.AddChoice("", /* clock */ "opt.agendaLead", () => Agenda.LeadMinutes, v => Agenda.LeadMinutes = v, lead, lead.Select(m => m + " min").ToArray());
-
-			// Claude Code
-			extrasView.AddToggle("", /* code */ "opt.claude", () => AgentBridge.Enabled && ClaudeHooks.IsInstalled(), SetClaude);
-			extrasView.AddToggle("", /* message */ "opt.claudeBubbles", () => AgentBridge.ProgressBubbles, on => AgentBridge.ProgressBubbles = on);
-			extrasView.AddAction("", /* play */ "opt.claudeTest", "opt.claudeTest.button", TestClaude);
-			extrasView.AddToggle("", /* chat */ "opt.claudeMcp", ClaudeMcp.IsRegistered, SetClaudeMcp);
-		}
-
-		/// <summary>AI page: set up the AI service, and ask the pet.</summary>
+		/// <summary>Assistant page: the configured AI providers (one in use), then the chat options.</summary>
 		private void BuildAiOptions()
 		{
-			aiView.AddAction("", /* sparkle */ "opt.ai", "opt.ai.button", () =>
+			aiView.Clear();
+			string active = AiProfiles.ActiveId;
+			var profiles = AiProfiles.All;
+			active = AiProfiles.ActiveId;
+			aiView.AddHeader(() => Lang.T("ai.providers", AiProfiles.All.Count));
+			foreach (var p in profiles)
 			{
-				using (var f = new FormAiSettings())
-					if (f.ShowDialog(this) == DialogResult.OK)
-					{
-						StatusText = AiAssistant.Configured ? Lang.T("ai.saved", AiAssistant.Preset(AiAssistant.ProviderId).Name, AiAssistant.Model) : Lang.T("ai.removed");
-						if (AiAssistant.Configured) SpeechBubble.Say(Lang.T("ai.ready"), 8);
-					}
-				aiView.Invalidate();
-			});
-			aiView.AddAction("", /* chat */ "opt.aiAsk", "opt.aiAsk.button", FormAsk.Open);
+				var prof = p;
+				bool local = AiAssistant.IsLocal(p.BaseUrl);
+				string desc = (p.Model.Length > 0 ? p.Model : "—") + " · " + Lang.T(local ? "ai.whereLocal" : "ai.whereInternet") + (p.KeyBlob.Length > 0 ? " · " + Lang.T("ai.keySaved") : "");
+				var buttons = new List<(string, Action)>();
+				if (p.Id != active) buttons.Add((Lang.T("ai.use"), () => { AiProfiles.Use(prof); StatusText = Lang.T("ai.saved", AiProfiles.Name(prof), prof.Model); BuildAiOptions(); }));
+				buttons.Add((Lang.T("ai.edit"), () => EditProvider(prof)));
+				buttons.Add((Lang.T("ai.removeBtn"), () =>
+				{
+					if (PetMessage.Show(this, Lang.T("ai.removeConfirm", AiProfiles.Name(prof)), Lang.T("ai.title"), MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) != DialogResult.Yes) return;
+					AiProfiles.Remove(prof);
+					StatusText = Lang.T("ai.removed");
+					BuildAiOptions();
+				}));
+				aiView.AddButtons(local ? "\uE7F4" : "\uE753", AiProfiles.Name(p), desc, p.Id == active ? Lang.T("ai.inUse") : null, buttons.ToArray());
+			}
+			aiView.AddAction("\uE710", /* add */ "ai.add", "ai.add.button", AddProvider, profiles.Count == 0 ? "ai.addFirst.desc" : null);
+
+			aiView.AddHeader("ai.secChat");
+			aiView.AddAction("\uE8BD", /* chat */ "opt.aiAsk", "opt.aiAsk.button", FormAsk.Open);
 			int[] styles = { 0, 1, 2, 3 };
 			aiView.AddChoice("", /* emoji */ "opt.aiStyle", () => AiAssistant.Style, v => AiAssistant.Style = v, styles,
 				new[] { "opt.aiStyle.friendly", "opt.aiStyle.direct", "opt.aiStyle.kids", "opt.aiStyle.funny" });
@@ -82,6 +55,38 @@ namespace DesktopPet
 					HideHotkey.AskKey = i - 1;
 					StatusText = HideHotkey.AskBusy ? Lang.T("status.hotkeyBusy", HideHotkey.AskText) : Lang.T("status.setTo", Lang.T("opt.askHotkey.title"), HideHotkey.AskText);
 				});
+		}
+
+		/// <summary>"Add provider": the AI window starts empty; cancelling puts back the one in use.</summary>
+		private void AddProvider()
+		{
+			var before = AiProfiles.Snapshot();
+			AiProfiles.Restore(("", "", "", ""));
+			bool ok;
+			using (var f = new FormAiSettings()) ok = f.ShowDialog(this) == DialogResult.OK && AiAssistant.Configured;
+			if (ok)
+			{
+				AiProfiles.SaveCurrent(asNew: true);
+				StatusText = Lang.T("ai.saved", AiAssistant.Preset(AiAssistant.ProviderId).Name, AiAssistant.Model);
+				SpeechBubble.Say(Lang.T("ai.ready"), 8);
+			}
+			else AiProfiles.Restore(before);
+			BuildAiOptions();
+		}
+
+		/// <summary>Edit a provider (it becomes the one in use); "Remove" inside the window forgets it.</summary>
+		private void EditProvider(AiProfile p)
+		{
+			var before = AiProfiles.Snapshot();
+			string wasActive = AiProfiles.ActiveId;
+			AiProfiles.Use(p);
+			using (var f = new FormAiSettings())
+			{
+				if (f.ShowDialog(this) != DialogResult.OK) { if (wasActive != p.Id) { AiProfiles.Restore(before); AiProfiles.ActiveId = wasActive; } }
+				else if (AiAssistant.Configured) { AiProfiles.SaveCurrent(); StatusText = Lang.T("ai.saved", AiAssistant.Preset(AiAssistant.ProviderId).Name, AiAssistant.Model); }
+				else { AiProfiles.Remove(p); StatusText = Lang.T("ai.removed"); }
+			}
+			BuildAiOptions();
 		}
 
 		/// <summary>Paste (or clear) the private iCal link of the calendar, then check it.</summary>
@@ -111,7 +116,7 @@ namespace DesktopPet
 				if (on)
 				{
 					string path = ClaudeHooks.DefaultPath;
-					if (MessageBox.Show(this, Lang.T("claude.confirmOn", path, System.IO.Path.GetFileName(ClaudeHooks.BackupPath(path))),
+					if (PetMessage.Show(this, Lang.T("claude.confirmOn", path, System.IO.Path.GetFileName(ClaudeHooks.BackupPath(path))),
 						Lang.T("opt.claude.title"), MessageBoxButtons.YesNo, MessageBoxIcon.Information) != DialogResult.Yes) return;
 					AgentBridge.Enabled = true;
 					if (!AgentBridge.Listening) { AgentBridge.Enabled = false; StatusText = Lang.T("claude.portBusy", AgentBridge.Port); return; }
@@ -144,13 +149,13 @@ namespace DesktopPet
 				if (output == null)
 				{
 					// Claude Code not found: give the command to paste
-					try { Clipboard.SetText(ClaudeMcp.ManualCommand); } catch (Exception) { }
-					MessageBox.Show(this, Lang.T("mcp.manual", ClaudeMcp.ManualCommand), Lang.T("opt.claudeMcp.title"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+					try { Clipboard.SetText(ClaudeMcp.ManualCommand); } catch (Exception skipped) { LogFile.Ignored(skipped); }
+					PetMessage.Show(this, Lang.T("mcp.manual", ClaudeMcp.ManualCommand), Lang.T("opt.claudeMcp.title"), MessageBoxButtons.OK, MessageBoxIcon.Information);
 					return;
 				}
 				StatusText = ok ? Lang.T(on ? "mcp.on" : "mcp.off") : Lang.T("mcp.error", output.Length > 160 ? output.Substring(0, 160) + "…" : output);
 				if (ok && on) SpeechBubble.Say(Lang.T("mcp.on"), 8);
-				extrasView.Invalidate();
+				integrationsView?.Reload();
 			}
 			catch (Exception ex) { StatusText = Lang.T("mcp.error", ex.Message); }
 		}

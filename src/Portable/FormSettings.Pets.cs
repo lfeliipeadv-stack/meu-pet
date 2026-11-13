@@ -144,7 +144,7 @@ namespace DesktopPet
 			string current = Program.MyData.GetCurrentPetFolder();
 			if (!string.IsNullOrEmpty(current) && !BuiltInPets.IsBuiltIn(current) && !PetStore.Has(current))
 			{
-				try { PetStore.Save(current, Program.MyData.GetXml(), ""); } catch (Exception) { }
+				try { PetStore.Save(current, Program.MyData.GetXml(), ""); } catch (Exception skipped) { LogFile.Ignored(skipped); }
 			}
 			// --- pets created on this computer ("Criar meu pet")
 			foreach (var folder in PetStore.Folders())
@@ -197,7 +197,7 @@ namespace DesktopPet
 				if (listed.Contains(folder) || BuiltInPets.IsBuiltIn(folder)) continue;
 				if (folder.StartsWith(PetCreator.Prefix, StringComparison.OrdinalIgnoreCase)) continue;   // made on this computer
 				if (string.Equals(folder, petsView.CurrentPet, StringComparison.OrdinalIgnoreCase)) { AddLocalPet(folder); continue; }
-				try { PetStore.Delete(folder); } catch (Exception) { }
+				try { PetStore.Delete(folder); } catch (Exception skipped) { LogFile.Ignored(skipped); }
 			}
 		}
 
@@ -229,10 +229,10 @@ namespace DesktopPet
 						using (var ico = new Icon(ms, 64, 64))
 							pet.Image = ico.ToBitmap();
 				}
-				catch (Exception) { }
+				catch (Exception skipped) { LogFile.Ignored(skipped); }
 				WebPets.pets.Add(pet);
 			}
-			catch (Exception) { }
+			catch (Exception skipped) { LogFile.Ignored(skipped); }
 		}
 
 		/// <summary>The eSheep comes with the program; any other pet is available once downloaded.</summary>
@@ -338,7 +338,7 @@ namespace DesktopPet
 				petsView.PetsChanged();
 				var pet = WebPets.pets.FirstOrDefault(p => p.folder == f.CreatedFolder);
 				StatusText = Lang.T("status.created", pet?.DisplayName ?? f.CreatedFolder);
-				if (pet != null && MessageBox.Show(this, Lang.T("dlg.createdAdopt", pet.DisplayName), Lang.T("create.title"), MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+				if (pet != null && PetMessage.Show(this, Lang.T("dlg.createdAdopt", pet.DisplayName), Lang.T("create.title"), MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
 					AdoptPet(pet);
 			}
 		}
@@ -359,7 +359,7 @@ namespace DesktopPet
 					StatusText = imported.Count == 0 ? Lang.T("status.importNone") : Lang.T("status.imported", imported.Count);
 					// reminders, shortcuts, mood, needs and settings (they replace the ones of this computer: ask)
 					if (PetBackup.HasMyThings(dlg.FileName) &&
-						MessageBox.Show(this, Lang.T("dlg.importMyThings"), Lang.T("opt.import.title"), MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
+						PetMessage.Show(this, Lang.T("dlg.importMyThings"), Lang.T("opt.import.title"), MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
 					{
 						int n = PetBackup.RestoreMyThings(dlg.FileName);
 						Theme.Mode = Program.MyData.GetTheme();
@@ -375,7 +375,7 @@ namespace DesktopPet
 					ReloadPets();
 					// the pet that was in use on the other computer: offer it
 					if (imported.Contains(current) && current != petsView.CurrentPet &&
-						MessageBox.Show(this, Lang.T("dlg.importAdopt", current), Lang.T("opt.import.title"), MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+						PetMessage.Show(this, Lang.T("dlg.importAdopt", current), Lang.T("opt.import.title"), MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
 						AdoptPet(new OptionsPet { folder = current, name = current });
 				}
 				catch (Exception ex) { StatusText = Lang.T("status.importError", ex.Message); }
@@ -386,7 +386,7 @@ namespace DesktopPet
 		public void RemovePet(OptionsPet pet)
 		{
 			if (pet == null || BuiltInPets.IsBuiltIn(pet.folder) || pet.folder == petsView.CurrentPet || !PetStore.Has(pet.folder)) return;
-			var answer = MessageBox.Show(this, Lang.T("pets.removeConfirm", pet.DisplayName), Lang.T("pets.remove"),
+			var answer = PetMessage.Show(this, Lang.T("pets.removeConfirm", pet.DisplayName), Lang.T("pets.remove"),
 				MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
 			if (answer != DialogResult.Yes) return;
 			try

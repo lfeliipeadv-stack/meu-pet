@@ -36,8 +36,7 @@ namespace DesktopPet
 			}
 			cm.Items.Add(new ToolStripSeparator());
 
-			// only once an AI service is set up (Settings → AI)
-			if (AiAssistant.Configured)
+			// the chat: reminders, weather and meetings work without the AI too
 			{
 				var ask = Item(cm.Items, Lang.T("menu.ask"), FormAsk.Open);
 				ask.Font = new Font(ask.Font, FontStyle.Bold);
@@ -57,6 +56,8 @@ namespace DesktopPet
 				Item(focus.DropDownItems, Lang.T("menu.focusStop"), Pomodoro.Stop);
 			}
 
+			if (Weather.Enabled) Item(cm.Items, Lang.T("menu.weather"), Weather.SayNow);
+
 			var remind = Item(cm.Items, Lang.T("tray.reminders"), null);
 			foreach (int m in new[] { 5, 10, 15, 30, 60 }) { int min = m; Item(remind.DropDownItems, Lang.T("tray.remindIn", min), () => Reminders.In(min)); }
 			remind.DropDownItems.Add(new ToolStripSeparator());
@@ -67,6 +68,12 @@ namespace DesktopPet
 			foreach (var l in Launchers.All) { var launcher = l; Item(shortcuts.DropDownItems, l.Name, () => Launchers.Open(launcher)); }
 			if (Launchers.All.Count > 0) shortcuts.DropDownItems.Add(new ToolStripSeparator());
 			Item(shortcuts.DropDownItems, Lang.T("menu.shortcutsManage"), () => { FormPet.Hold(true); try { using (var f = new FormLaunchers()) f.ShowDialog(); } finally { FormPet.Hold(false); } });
+
+			// plugins switched off leave the menu
+			games.Visible = PluginSwitch.On("games");
+			focus.Visible = PluginSwitch.On("focus") || Pomodoro.Current != Pomodoro.Phase.Off;
+			remind.Visible = PluginSwitch.On("reminders");
+			shortcuts.Visible = PluginSwitch.On("shortcuts");
 
 			if (Agenda.Configured)
 			{
@@ -79,7 +86,7 @@ namespace DesktopPet
 			mon.Checked = PcMonitor.Enabled;
 
 			cm.Items.Add(new ToolStripSeparator());
-			Item(cm.Items, Lang.T("tray.panel").Replace("&", ""), () => FormSettings.ShowPage(FormSettings.Page.Pets));
+			Item(cm.Items, Lang.T("tray.panel").Replace("&", ""), () => FormSettings.ShowPage(FormSettings.Page.Home));
 			Item(cm.Items, Lang.T("menu.sendAway"), () => { if (!Program.Mainthread.KillSheep(pet)) pet.Close(); });
 
 			cm.Closed += (s, e) => { FormPet.Hold(false); cm.BeginInvoke(new MethodInvoker(cm.Dispose)); };

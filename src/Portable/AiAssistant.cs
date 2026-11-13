@@ -284,7 +284,7 @@ namespace DesktopPet
 		static string ErrorText(int status, string body)
 		{
 			string detail = "";
-			try { detail = JsonNode.Parse(body)?["error"]?["message"]?.GetValue<string>() ?? JsonNode.Parse(body)?["error"]?.GetValue<string>() ?? ""; } catch (Exception) { }
+			try { detail = JsonNode.Parse(body)?["error"]?["message"]?.GetValue<string>() ?? JsonNode.Parse(body)?["error"]?.GetValue<string>() ?? ""; } catch (Exception skipped) { LogFile.Ignored(skipped); }
 			if (detail.Length > 160) detail = detail.Substring(0, 160) + "…";
 			switch (status)
 			{
@@ -294,6 +294,115 @@ namespace DesktopPet
 				case 500: case 502: case 503: return Lang.T("ai.errBusy");
 				default: return $"HTTP {status}" + (detail.Length > 0 ? ": " + detail : "");
 			}
+		}
+	}
+}
+
+namespace DesktopPet
+{
+	/// <summary>One saved AI service (provider, address, model and its key, still encrypted).</summary>
+	public sealed class AiProfile
+	{
+		public string Id { get; set; } = Guid.NewGuid().ToString("N");
+		public string Provider { get; set; } = "";
+		public string BaseUrl { get; set; } = "";
+		public string Model { get; set; } = "";
+		/// <summary>The key as saved by <see cref="AiAssistant.Key"/> (encrypted for this Windows user), never in clear.</summary>
+		public string KeyBlob { get; set; } = "";
+	}
+
+	/// <summary>
+	/// The AI services set up on this computer ("configured providers"). One is in use: its values are the ones
+	/// <see cref="AiAssistant"/> reads (AiProvider, AiBaseUrl, AiModel, AiKey). Switching copies them; keys stay encrypted.
+	/// </summary>
+	public static class AiProfiles
+	{
+		public static List<AiProfile> All
+		{
+			get
+			{
+				List<AiProfile> list = null;
+				try { string s = Program.MyData.GetSetting("AiProfiles"); if (s.Length > 0) list = JsonText.Deserialize<List<AiProfile>>(s); } catch (Exception skipped) { LogFile.Ignored(skipped); }
+				list = list ?? new List<AiProfile>();
+				// before profiles existed: the one service set up becomes the first profile
+				if (list.Count == 0 && AiAssistant.Configured && !Program.MyData.GetSettingBool("AiProfilesDone", false))
+				{
+					var p = FromCurrent(null);
+					list.Add(p);
+					Save(list);
+					ActiveId = p.Id;
+				}
+				return list;
+			}
+		}
+
+		static void Save(List<AiProfile> list)
+		{
+			Program.MyData.SetSetting("AiProfiles", JsonText.SerializeIndented(list));
+			Program.MyData.SetSetting("AiProfilesDone", true);   // the list exists: no more copying from the old single setting
+		}
+
+		public static string ActiveId
+		{
+			get => Program.MyData.GetSetting("AiActive");
+			set => Program.MyData.SetSetting("AiActive", value ?? "");
+		}
+
+		static AiProfile FromCurrent(string id) => new AiProfile
+		{
+			Id = id ?? Guid.NewGuid().ToString("N"),
+			Provider = AiAssistant.ProviderId, BaseUrl = AiAssistant.BaseUrl, Model = AiAssistant.Model,
+			KeyBlob = Program.MyData.GetSetting("AiKey"),
+		};
+
+		/// <summary>After the settings window: save what is in use as the active profile (or a new one).</summary>
+		public static void SaveCurrent(bool asNew = false)
+		{
+			var list = All;
+			if (!AiAssistant.Configured) return;
+			string id = asNew ? null : ActiveId;
+			int i = list.FindIndex(p => p.Id == id);
+			var p2 = FromCurrent(i >= 0 ? id : null);
+			if (i >= 0) list[i] = p2; else list.Add(p2);
+			Save(list);
+			ActiveId = p2.Id;
+		}
+
+		/// <summary>Use this service from now on.</summary>
+		public static void Use(AiProfile p)
+		{
+			AiAssistant.ProviderId = p.Provider; AiAssistant.BaseUrl = p.BaseUrl; AiAssistant.Model = p.Model;
+			Program.MyData.SetSetting("AiKey", p.KeyBlob ?? "");
+			ActiveId = p.Id;
+			AiAssistant.NewConversation();
+		}
+
+		/// <summary>Forget a service; if it was in use, the next one is used (or none).</summary>
+		public static void Remove(AiProfile p)
+		{
+			var list = All;
+			list.RemoveAll(x => x.Id == p.Id);
+			Save(list);
+			if (ActiveId != p.Id) return;
+			if (list.Count > 0) Use(list[0]);
+			else { AiAssistant.ProviderId = ""; AiAssistant.BaseUrl = ""; AiAssistant.Model = ""; Program.MyData.SetSetting("AiKey", ""); ActiveId = ""; }
+		}
+
+		/// <summary>The name to show: the provider's, or the address of a custom one.</summary>
+		public static string Name(AiProfile p)
+		{
+			if (p.Provider == "custom" && Uri.TryCreate(p.BaseUrl, UriKind.Absolute, out var u)) return u.Host;
+			return AiAssistant.Preset(p.Provider).Name;
+		}
+
+		/// <summary>The values in use now (to put them back after "Add provider" is cancelled).</summary>
+		public static (string provider, string url, string model, string key) Snapshot() =>
+			(AiAssistant.ProviderId, AiAssistant.BaseUrl, AiAssistant.Model, Program.MyData.GetSetting("AiKey"));
+
+		public static void Restore((string provider, string url, string model, string key) s)
+		{
+			AiAssistant.ProviderId = s.provider; AiAssistant.BaseUrl = s.url; AiAssistant.Model = s.model;
+			Program.MyData.SetSetting("AiKey", s.key ?? "");
 		}
 	}
 }

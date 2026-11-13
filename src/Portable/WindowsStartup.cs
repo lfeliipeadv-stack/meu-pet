@@ -64,7 +64,7 @@ namespace DesktopPet
                     if (s != want && Program.IsApplicationInstalled()) key.SetValue(ValueName, want);
                 }
             }
-            catch (Exception) { }
+            catch (Exception skipped) { LogFile.Ignored(skipped); }
         }
     }
 }

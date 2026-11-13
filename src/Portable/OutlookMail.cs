@@ -43,7 +43,7 @@ namespace DesktopPet
 			return GetActiveObject(ref clsid, IntPtr.Zero, out object app) == 0 ? app : null;
 		}
 
-		static void Release(object o) { try { if (o != null && Marshal.IsComObject(o)) Marshal.ReleaseComObject(o); } catch (Exception) { } }
+		static void Release(object o) { try { if (o != null && Marshal.IsComObject(o)) Marshal.ReleaseComObject(o); } catch (Exception skipped) { LogFile.Ignored(skipped); } }
 
 		/// <summary>(messages in the Inbox, unread ones), or null when the classic Outlook is not open.</summary>
 		public static (int total, int unread)? Counts()

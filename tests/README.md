@@ -4,7 +4,20 @@ These checks build an isolated Windows runtime and configuration. They do not
 read or modify an installed pet's configuration. Interactive suites briefly show
 pets and a topmost support window; run them in an active, unlocked desktop session.
 
-## Run
+## Run against the .NET 10 build (the one that is released)
+
+Only the .NET 10 SDK is needed. From the repository root:
+
+```powershell
+powershell -NoProfile -File tests/run-net-motion-tests.ps1
+```
+
+Each suite is built by `tests/MotionTests.Net.csproj` (`-p:TestName=<suite>`) with a
+reference to `src/DesktopPet.Net.csproj`, into one temporary folder, x64 only.
+`-Scales`, `-Displays` and `-OutputDirectory` work as below. GitHub runs it on every
+push (`.github/workflows/build.yml`) at scales 1 and 3.
+
+## Run against the legacy .NET Framework build
 
 Prerequisites: Visual Studio Build Tools with desktop MSBuild and Roslyn, NuGet,
 and the .NET Framework 4.7.2 targeting pack. From the repository root:

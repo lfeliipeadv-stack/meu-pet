@@ -27,7 +27,7 @@ namespace DesktopPet
 			get
 			{
 				if (list != null) return list;
-				try { list = File.Exists(FilePath) ? JsonText.Deserialize<List<Launcher>>(File.ReadAllText(FilePath)) : null; } catch (Exception) { }
+				try { list = File.Exists(FilePath) ? JsonText.Deserialize<List<Launcher>>(File.ReadAllText(FilePath)) : null; } catch (Exception skipped) { LogFile.Ignored(skipped); }
 				return list ?? (list = new List<Launcher>());
 			}
 		}
@@ -62,58 +62,55 @@ namespace DesktopPet
 		}
 	}
 
-	/// <summary>Add and remove shortcuts.</summary>
-	internal sealed class FormLaunchers : PetDialog
+	/// <summary>Add and remove shortcuts: a list of cards (folder, program, site) with ✕ to remove.</summary>
+	internal sealed class FormLaunchers : ThemedDialog
 	{
-		readonly ListBox items = new ListBox { Width = 420, Height = 200, IntegralHeight = false };
+		readonly ShortcutList list;
+		const int W = 560;
 
 		public FormLaunchers()
 		{
 			Text = Lang.T("launch.title");
-			Icon = Properties.Resources.icon;
-			FormBorderStyle = FormBorderStyle.FixedDialog;
-			MaximizeBox = MinimizeBox = false;
-			ShowInTaskbar = false;
-			StartPosition = FormStartPosition.CenterParent;
-			AutoSize = true; AutoSizeMode = AutoSizeMode.GrowAndShrink;
-			Padding = new Padding(16);
-
-			var root = new FlowLayoutPanel { FlowDirection = FlowDirection.TopDown, AutoSize = true, WrapContents = false };
-			root.Controls.Add(new Label { Text = Lang.T("launch.intro"), AutoSize = true, MaximumSize = new Size(420, 0), Margin = new Padding(0, 0, 0, 8) });
-			items.DisplayMember = "Name";
-			items.FormattingEnabled = true;
-			items.Format += (s, e) => { if (e.ListItem is Launcher l) e.Value = l.Name + "   —   " + l.Target; };
-			root.Controls.Add(items);
-			var row = new FlowLayoutPanel { AutoSize = true, WrapContents = false, Margin = new Padding(0, 8, 0, 0) };
-			Button B(string key, EventHandler h) { var b = new Button { Text = Lang.T(key), AutoSize = true, MinimumSize = new Size(0, 32) }; b.Click += h; row.Controls.Add(b); return b; }
-			B("launch.addFolder", (s, e) =>
+			iconEmoji = "🚀";
+			var close = AddButton(Lang.T("launch.close"), DialogResult.OK, true);
+			CancelButton = close;
+			list = new ShortcutList(this) { Location = new Point(Pad, 104), Size = new Size(W - Pad * 2, 250) };
+			Controls.Add(list);
+			var row = new FlowLayoutPanel { AutoSize = true, WrapContents = true, Location = new Point(Pad - 3, list.Bottom + 12), MaximumSize = new Size(W - Pad * 2 + 6, 0) };
+			Button B(string text, EventHandler h) { var b = new Button { Text = text, AutoSize = true, MinimumSize = new Size(0, 36), Font = fSmall, Margin = new Padding(3, 3, 6, 3) }; b.Click += h; row.Controls.Add(b); return b; }
+			B("＋ 📁 " + Lang.T("launch.addFolder"), (s, e) =>
 			{
 				using (var d = new FolderBrowserDialog()) if (d.ShowDialog(this) == DialogResult.OK) Add(Path.GetFileName(d.SelectedPath.TrimEnd('\\')), d.SelectedPath);
 			});
-			B("launch.addFile", (s, e) =>
+			B("＋ 📄 " + Lang.T("launch.addFile"), (s, e) =>
 			{
 				using (var d = new OpenFileDialog()) if (d.ShowDialog(this) == DialogResult.OK) Add(Path.GetFileNameWithoutExtension(d.FileName), d.FileName);
 			});
-			B("launch.addSite", (s, e) =>
+			B("＋ 🌐 " + Lang.T("launch.addSite"), (s, e) =>
 			{
 				string url = Prompt(Lang.T("launch.siteAsk"), "https://");
 				if (string.IsNullOrWhiteSpace(url) || url == "https://") return;
 				if (!url.StartsWith("http", StringComparison.OrdinalIgnoreCase)) url = "https://" + url;
 				Add(Uri.TryCreate(url, UriKind.Absolute, out var u) ? u.Host : url, url);
 			});
-			B("launch.remove", (s, e) =>
-			{
-				if (items.SelectedItem is Launcher l) { Launchers.All.Remove(l); Launchers.Save(); Fill(); }
-			});
-			root.Controls.Add(row);
-			var close = new Button { Text = Lang.T("launch.close"), DialogResult = DialogResult.OK, AutoSize = true, MinimumSize = new Size(110, 32), Margin = new Padding(0, 14, 0, 0) };
-			root.Controls.Add(close);
-			AcceptButton = close; CancelButton = close;
-			Controls.Add(root);
-			Fill();
-			Theme.ApplyTo(this);
-			Theme.MakePrimary(close);
-			items.BackColor = Theme.Surface; items.ForeColor = Theme.Text; items.BorderStyle = BorderStyle.FixedSingle;
+			Controls.Add(row);
+			close.Font = fText;
+			ClientSize = new Size(W, 100);
+			ApplyTheme(close);
+			row.PerformLayout();
+			int bottom = LayoutButtons(row.Bottom + 26, W);
+			ClientSize = new Size(W, bottom + Pad);
+		}
+
+		protected override void OnPaint(PaintEventArgs e)
+		{
+			base.OnPaint(e);
+			var g = e.Graphics;
+			Theme.Prepare(g);
+			PaintIcon(g);
+			Theme.DrawText(g, Lang.T("launch.title"), fTitle, new Rectangle(Pad + 64, Pad - 2, W - Pad * 2 - 64, 30), Theme.Text, TextFormatFlags.SingleLine);
+			Theme.DrawText(g, Lang.T("launch.intro"), fSmall, new Rectangle(Pad + 64, Pad + 30, W - Pad * 2 - 64, 40), Theme.TextMuted, TextFormatFlags.WordBreak);
+			using (var p = new Pen(Theme.Border)) g.DrawLine(p, Pad, buttons[0].Top - 12, W - Pad, buttons[0].Top - 12);
 		}
 
 		void Add(string name, string target)
@@ -122,37 +119,86 @@ namespace DesktopPet
 			if (string.IsNullOrWhiteSpace(name)) return;
 			Launchers.All.Add(new Launcher { Name = name.Trim(), Target = target });
 			Launchers.Save();
-			Fill();
+			list.Invalidate();
 		}
 
-		void Fill()
+		/// <summary>The shortcuts as rows: icon by kind, name, where it goes, ✕ to remove; a friendly line when empty.</summary>
+		sealed class ShortcutList : Control
 		{
-			items.Items.Clear();
-			foreach (var l in Launchers.All) items.Items.Add(l);
+			readonly FormLaunchers form;
+			int scroll, hoverX = -1;
+			readonly List<Rectangle> removes = new List<Rectangle>();
+
+			public ShortcutList(FormLaunchers f)
+			{
+				form = f;
+				SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.UserPaint | ControlStyles.ResizeRedraw, true);
+			}
+
+			static string Kind(Launcher l) =>
+				l.Target.StartsWith("http", StringComparison.OrdinalIgnoreCase) ? "🌐" : Directory.Exists(l.Target) ? "📁" : "📄";
+
+			protected override void OnPaint(PaintEventArgs e)
+			{
+				var g = e.Graphics;
+				Theme.Prepare(g);
+				g.Clear(Theme.Background);
+				removes.Clear();
+				var r0 = new Rectangle(0, 0, Width - 1, Height - 1);
+				Theme.FillRounded(g, Theme.Surface, r0, 12);
+				Theme.DrawRounded(g, Theme.Border, r0, 12);
+				if (Launchers.All.Count == 0)
+				{
+					Theme.DrawText(g, "🚀", form.fIcon, new Rectangle(0, Height / 2 - 50, Width, 36), Theme.Text, TextFormatFlags.HorizontalCenter | TextFormatFlags.SingleLine);
+					Theme.DrawText(g, Lang.T("launch.empty"), form.fText, new Rectangle(24, Height / 2 - 6, Width - 48, 50), Theme.TextMuted, TextFormatFlags.HorizontalCenter | TextFormatFlags.WordBreak);
+					return;
+				}
+				int rowH = 52, max = Math.Max(0, Launchers.All.Count * rowH + 12 - Height);
+				scroll = Math.Max(0, Math.Min(max, scroll));
+				g.SetClip(new Rectangle(1, 1, Width - 2, Height - 2));
+				for (int i = 0; i < Launchers.All.Count; i++)
+				{
+					var l = Launchers.All[i];
+					var r = new Rectangle(8, 6 + i * rowH - scroll, Width - 16, rowH - 6);
+					if (i % 2 == 1) Theme.FillRounded(g, Theme.SurfaceAlt, r, 8);
+					Theme.DrawText(g, Kind(l), form.fText, new Rectangle(r.X + 8, r.Y, 30, r.Height), Theme.Text, TextFormatFlags.VerticalCenter | TextFormatFlags.HorizontalCenter | TextFormatFlags.SingleLine);
+					Theme.DrawText(g, l.Name, form.fText, new Rectangle(r.X + 44, r.Y + 4, r.Width - 90, 20), Theme.Text, TextFormatFlags.SingleLine | TextFormatFlags.EndEllipsis);
+					Theme.DrawText(g, l.Target, form.fSmall, new Rectangle(r.X + 44, r.Y + 24, r.Width - 90, 18), Theme.TextMuted, TextFormatFlags.SingleLine | TextFormatFlags.PathEllipsis);
+					var x = new Rectangle(r.Right - 36, r.Y + (r.Height - 28) / 2, 28, 28);
+					if (hoverX == i) Theme.FillRounded(g, Color.FromArgb(40, Theme.Danger), x, 8);
+					Theme.DrawText(g, "✕", form.fText, x, hoverX == i ? Theme.Danger : Theme.TextMuted, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine);
+					removes.Add(x);
+				}
+			}
+
+			protected override void OnMouseWheel(MouseEventArgs e) { base.OnMouseWheel(e); scroll -= e.Delta / 120 * 40; Invalidate(); }
+
+			protected override void OnMouseMove(MouseEventArgs e)
+			{
+				base.OnMouseMove(e);
+				int h = removes.FindIndex(r => r.Contains(e.Location));
+				Cursor = h >= 0 ? Cursors.Hand : Cursors.Default;
+				if (h != hoverX) { hoverX = h; Invalidate(); }
+			}
+
+			protected override void OnMouseLeave(EventArgs e) { base.OnMouseLeave(e); hoverX = -1; Invalidate(); }
+
+			protected override void OnMouseDown(MouseEventArgs e)
+			{
+				base.OnMouseDown(e);
+				int i = removes.FindIndex(r => r.Contains(e.Location));
+				if (i < 0 || i >= Launchers.All.Count) return;
+				Launchers.All.RemoveAt(i);
+				Launchers.Save();
+				hoverX = -1;
+				Invalidate();
+			}
 		}
 
 		/// <summary>A one-line question.</summary>
 		internal static string Prompt(string question, string value)
 		{
-			using (var f = new PetDialog
-			{
-				Text = "desktopPet", FormBorderStyle = FormBorderStyle.FixedDialog, MaximizeBox = false, MinimizeBox = false,
-				ShowInTaskbar = false, StartPosition = FormStartPosition.CenterParent, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, Padding = new Padding(16),
-				Icon = Properties.Resources.icon,
-			})
-			{
-				var p = new FlowLayoutPanel { FlowDirection = FlowDirection.TopDown, AutoSize = true, WrapContents = false };
-				p.Controls.Add(new Label { Text = question, AutoSize = true });
-				var t = new TextBox { Text = value ?? "", Width = 340 };
-				p.Controls.Add(t);
-				var ok = new Button { Text = "OK", DialogResult = DialogResult.OK, MinimumSize = new Size(90, 30), AutoSize = true, Margin = new Padding(0, 10, 0, 0) };
-				p.Controls.Add(ok);
-				f.Controls.Add(p);
-				f.AcceptButton = ok;
-				Theme.ApplyTo(f);
-				Theme.MakePrimary(ok);
-				return f.ShowDialog() == DialogResult.OK ? t.Text : null;
-			}
+			return PromptDialog.Ask(question, value);   // the program's own window (Dialogs.cs)
 		}
 	}
 }

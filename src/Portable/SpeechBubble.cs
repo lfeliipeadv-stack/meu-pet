@@ -257,7 +257,7 @@ namespace DesktopPet
 			base.OnMouseClick(e);
 			if (closeRect.Contains(e.Location)) { Close(); return; }
 			var hit = buttonRects.FirstOrDefault(b => b.rect.Contains(e.Location)).choice;
-			if (hit != null) { Close(); try { hit.Run?.Invoke(); } catch (Exception) { } return; }
+			if (hit != null) { Close(); try { hit.Run?.Invoke(); } catch (Exception skipped) { LogFile.Ignored(skipped); } return; }
 			// a click on the text: just keep it open a bit longer
 			closeAt = DateTime.Now.AddSeconds(10);
 		}

@@ -92,7 +92,7 @@ namespace DesktopPet
             t.Tick += (s, e) =>
             {
                 t.Stop(); t.Dispose();
-                if (!AskBusy || !AiAssistant.Configured || Onboarding.Disabled) return;
+                if (!AskBusy || Onboarding.Disabled) return;
                 string warned = Program.MyData.GetSetting("AskKeyWarned");
                 if (warned == AskKey.ToString()) return;
                 Program.MyData.SetSetting("AskKeyWarned", AskKey.ToString());
@@ -122,7 +122,7 @@ namespace DesktopPet
             // every pet window, children included (balloons, planes…)
             foreach (var pet in Application.OpenForms.OfType<FormPet>().ToList())
             {
-                try { pet.Visible = !hidden; } catch (Exception) { }
+                try { pet.Visible = !hidden; } catch (Exception skipped) { LogFile.Ignored(skipped); }
             }
             Changed?.Invoke();
         }
@@ -135,7 +135,7 @@ namespace DesktopPet
             {
                 const int WM_HOTKEY = 0x0312;
                 if (m.Msg == WM_HOTKEY && (int)m.WParam == Id) Toggle();
-                if (m.Msg == WM_HOTKEY && (int)m.WParam == AskId && !(Form.ActiveForm is FormAsk)) FormAsk.Open();
+                if (m.Msg == WM_HOTKEY && (int)m.WParam == AskId && !(Form.ActiveForm is FormAsk) && !(Form.ActiveForm is FormChat)) FormAsk.Open();
                 base.WndProc(ref m);
             }
         }

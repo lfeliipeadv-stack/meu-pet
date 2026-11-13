@@ -122,6 +122,11 @@
     <Compile Include="Portable\ColorText.cs" />
     <Compile Include="Portable\SmartReminder.cs" />
     <Compile Include="Portable\Activity.cs" />
+    <Compile Include="Portable\Weather.cs" />
+    <Compile Include="Portable\Chat.cs" />
+    <Compile Include="Portable\Dialogs.cs" />
+    <Compile Include="Portable\FormSettings.Plugins.cs" />
+    <Compile Include="Portable\FormSettings.Home.cs" />
     <Compile Include="Portable\FormDebugModern.cs" />
     <Compile Include="Portable\FormSettings.cs" />
     <Compile Include="Portable\BuiltInPets.cs" />
@@ -154,6 +159,8 @@
     <EmbeddedResource Include="Portable\FormOptions2.resx" DependentUpon="FormOptions2.cs" />
     <EmbeddedResource Include="Portable\Install.resx" DependentUpon="Install.cs" />
     <EmbeddedResource Include="Properties\Resources.resx" />
+    <!-- Claude icon on the Integrations card (Portable\FormSettings.Plugins.cs) -->
+    <EmbeddedResource Include="Images\claude.png" LogicalName="img/claude.png" />
   </ItemGroup>
 
 </Project>

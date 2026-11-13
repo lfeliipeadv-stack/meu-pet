@@ -42,7 +42,7 @@ namespace DesktopPet
 			get
 			{
 				if (all != null) return all;
-				try { all = File.Exists(FilePath) ? JsonText.Deserialize<Dictionary<string, PetNeeds>>(File.ReadAllText(FilePath)) : null; } catch (Exception) { }
+				try { all = File.Exists(FilePath) ? JsonText.Deserialize<Dictionary<string, PetNeeds>>(File.ReadAllText(FilePath)) : null; } catch (Exception skipped) { LogFile.Ignored(skipped); }
 				return all ?? (all = new Dictionary<string, PetNeeds>(StringComparer.OrdinalIgnoreCase));
 			}
 		}
@@ -79,7 +79,7 @@ namespace DesktopPet
 				Directory.CreateDirectory(Path.GetDirectoryName(FilePath));
 				File.WriteAllText(FilePath, JsonText.SerializeIndented(All));
 			}
-			catch (Exception) { }
+			catch (Exception skipped) { LogFile.Ignored(skipped); }
 		}
 
 		public static void Start()

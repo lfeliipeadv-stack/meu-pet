@@ -262,7 +262,7 @@ namespace DesktopPet
             }
             catch(Exception ex)
             {
-                MessageBox.Show(Lang.T("msg.settingsError", ex.Message), Lang.T("msg.settings"), MessageBoxButtons.OK, MessageBoxIcon.Error);
+                PetMessage.Show(Lang.T("msg.settingsError", ex.Message), Lang.T("msg.settings"), MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

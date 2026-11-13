@@ -67,7 +67,7 @@ namespace DesktopPet
 				var sys = new DriveInfo(Path.GetPathRoot(Environment.SystemDirectory));
 				Disk = sys.IsReady ? Lang.T("mon.diskFree", sys.Name.TrimEnd('\\'), sys.AvailableFreeSpace / (1024.0 * 1024 * 1024)) : "";
 			}
-			catch (Exception) { }
+			catch (Exception skipped) { LogFile.Ignored(skipped); }
 
 			// the pet notices a busy computer
 			busySeconds = Cpu >= 90 ? busySeconds + 2 : 0;

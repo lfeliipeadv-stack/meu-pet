@@ -158,7 +158,7 @@ namespace DesktopPet
 									if (dlg.ShowDialog(form) == DialogResult.OK) { Reminders.Save(); form.StatusText = Lang.T("rem.saved"); }
 								break;
 							case "delete":
-								if (MessageBox.Show(form, Lang.T("rem.deleteConfirm", r.Text), Lang.T("rem.delete"), MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+								if (PetMessage.Show(form, Lang.T("rem.deleteConfirm", r.Text), Lang.T("rem.delete"), MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
 									Reminders.Remove(r);
 								break;
 						}
@@ -177,98 +177,66 @@ namespace DesktopPet
 		}
 	}
 
-	/// <summary>Create or edit a reminder: what the pet says and when.</summary>
-	internal sealed class FormReminder : PetDialog
+	/// <summary>Create or edit a reminder: what the pet says, when (repeat · every day · once) and on which days.</summary>
+	internal sealed class FormReminder : ThemedDialog
 	{
 		public Reminder Result { get; private set; }
 		readonly Reminder editing;
-		readonly TextBox text = new TextBox { MaxLength = 200, Width = 380 };
-		readonly RadioButton kInterval = new RadioButton { AutoSize = true }, kDaily = new RadioButton { AutoSize = true }, kOnce = new RadioButton { AutoSize = true };
+		readonly TextBox text = new TextBox { MaxLength = 200, BorderStyle = BorderStyle.None };
 		readonly NumericUpDown minutes = new NumericUpDown { Minimum = 1, Maximum = 1440, Width = 70 };
 		readonly NumericUpDown from = new NumericUpDown { Minimum = 0, Maximum = 23, Width = 56 }, to = new NumericUpDown { Minimum = 0, Maximum = 24, Width = 56 };
 		readonly DateTimePicker time = new DateTimePicker { Format = DateTimePickerFormat.Custom, CustomFormat = "HH:mm", ShowUpDown = true, Width = 90 };
-		readonly DateTimePicker at = new DateTimePicker { Format = DateTimePickerFormat.Custom, CustomFormat = "dd/MM/yyyy  HH:mm", Width = 170 };
-		readonly CheckBox[] days = new CheckBox[7];
-		readonly FlowLayoutPanel rowInterval, rowDaily, rowOnce, rowDays;
+		readonly DateTimePicker at = new DateTimePicker { Format = DateTimePickerFormat.Custom, CustomFormat = "dd/MM/yyyy  HH:mm", Width = 180 };
+		readonly FlowLayoutPanel rowInterval, rowDaily, rowOnce;
+		readonly bool[] dayOn = new bool[7];
+		static readonly int[] DayOrder = { 1, 2, 3, 4, 5, 6, 0 };   // Monday first
+		Reminder.Kinds kind;
+		Rectangle textField, card;
+		Rectangle[] segs = new Rectangle[3], dayRects = new Rectangle[7];
+		int whenTop, daysTop;
+		const int W = 560;
 
 		public FormReminder(Reminder r)
 		{
 			editing = r;
 			var model = r ?? new Reminder { Text = "", Days = 127 };
 			Text = Lang.T(r == null ? "rem.new" : "rem.editTitle");
-			Icon = Properties.Resources.icon;
-			FormBorderStyle = FormBorderStyle.FixedDialog;
-			MaximizeBox = MinimizeBox = false;
-			ShowInTaskbar = false;
-			StartPosition = FormStartPosition.CenterParent;
-			AutoSize = true;
-			AutoSizeMode = AutoSizeMode.GrowAndShrink;
-			Padding = new Padding(16);
+			iconEmoji = "⏰";
+			var ok = AddButton(Lang.T("rem.save"), DialogResult.None, true);
+			AddButton(Lang.T("rem.cancel"), DialogResult.Cancel, false);
 
-			var root = new FlowLayoutPanel { FlowDirection = FlowDirection.TopDown, AutoSize = true, WrapContents = false, Dock = DockStyle.Fill };
-			Label L(string key, bool bold = false) => new Label { Text = Lang.T(key), AutoSize = true, Margin = new Padding(0, 10, 0, 4), Font = bold ? new Font(Theme.FontFamilyName, 9.5f, FontStyle.Bold) : null };
 			FlowLayoutPanel Row(params Control[] cs)
 			{
-				var p = new FlowLayoutPanel { FlowDirection = FlowDirection.LeftToRight, AutoSize = true, WrapContents = false, Margin = new Padding(20, 2, 0, 2) };
-				foreach (var c in cs) { c.Margin = new Padding(0, 4, 6, 0); p.Controls.Add(c); }
+				var p = new FlowLayoutPanel { FlowDirection = FlowDirection.LeftToRight, AutoSize = true, WrapContents = false, BackColor = Color.Transparent };
+				foreach (var c in cs) { c.Margin = new Padding(0, 4, 8, 0); c.Font = fText; p.Controls.Add(c); }
 				return p;
 			}
 			Label T(string key) => new Label { Text = Lang.T(key), AutoSize = true, Padding = new Padding(0, 4, 0, 0) };
-
-			root.Controls.Add(L("rem.whatSays", true));
 			text.Text = model.Text;
-			root.Controls.Add(text);
-
-			root.Controls.Add(L("rem.when", true));
-			kInterval.Text = Lang.T("rem.kindInterval"); kDaily.Text = Lang.T("rem.kindDaily"); kOnce.Text = Lang.T("rem.kindOnce");
-			root.Controls.Add(kInterval);
+			text.Font = fText;
+			Controls.Add(text);
 			rowInterval = Row(T("rem.every"), minutes, T("rem.minutesFrom"), from, T("rem.hoursTo"), to, T("rem.hoursEnd"));
-			root.Controls.Add(rowInterval);
-			root.Controls.Add(kDaily);
 			rowDaily = Row(T("rem.at"), time);
-			root.Controls.Add(rowDaily);
-			root.Controls.Add(kOnce);
 			rowOnce = Row(T("rem.on"), at);
-			root.Controls.Add(rowOnce);
-
-			root.Controls.Add(L("rem.days", true));
-			var names = CultureInfo.CurrentCulture.DateTimeFormat.AbbreviatedDayNames;
-			rowDays = new FlowLayoutPanel { AutoSize = true, WrapContents = false, Margin = new Padding(0) };
-			foreach (int i in new[] { 1, 2, 3, 4, 5, 6, 0 })   // Monday first
-			{
-				days[i] = new CheckBox { Text = names[i], AutoSize = true, Checked = (model.Days & (1 << i)) != 0, Margin = new Padding(0, 0, 8, 0) };
-				rowDays.Controls.Add(days[i]);
-			}
-			root.Controls.Add(rowDays);
-
-			var ok = new Button { Text = Lang.T("rem.save"), DialogResult = DialogResult.None, AutoSize = true, MinimumSize = new Size(110, 32) };
-			var cancel = new Button { Text = Lang.T("rem.cancel"), DialogResult = DialogResult.Cancel, AutoSize = true, MinimumSize = new Size(110, 32) };
-			var buttons = new FlowLayoutPanel { FlowDirection = FlowDirection.RightToLeft, AutoSize = true, Margin = new Padding(0, 18, 0, 0), Width = 380 };
-			buttons.Controls.Add(cancel); buttons.Controls.Add(ok);
-			root.Controls.Add(buttons);
-			Controls.Add(root);
-			AcceptButton = ok; CancelButton = cancel;
+			Controls.AddRange(new Control[] { rowInterval, rowDaily, rowOnce });
 
 			minutes.Value = Math.Max(1, Math.Min(1440, model.Minutes));
 			from.Value = Math.Max(0, Math.Min(23, model.FromHour));
 			to.Value = Math.Max(0, Math.Min(24, model.ToHour));
 			time.Value = DateTime.Today + (TimeSpan.TryParse(model.Time, out var ts) ? ts : new TimeSpan(9, 0, 0));
 			at.Value = model.At < DateTime.Now ? DateTime.Now.AddMinutes(10) : model.At;
-			kInterval.Checked = model.Kind == Reminder.Kinds.Interval;
-			kDaily.Checked = model.Kind == Reminder.Kinds.Daily;
-			kOnce.Checked = model.Kind == Reminder.Kinds.Once;
-			foreach (var k in new[] { kInterval, kDaily, kOnce }) k.CheckedChanged += (s, e) => UpdateEnabled();
-			UpdateEnabled();
+			kind = model.Kind;
+			for (int i = 0; i < 7; i++) dayOn[i] = (model.Days & (1 << i)) != 0;
 
 			ok.Click += (s, e) =>
 			{
 				if (string.IsNullOrWhiteSpace(text.Text)) { text.Focus(); System.Media.SystemSounds.Beep.Play(); return; }
 				int mask = 0;
-				for (int i = 0; i < 7; i++) if (days[i].Checked) mask |= 1 << i;
-				if (mask == 0 && !kOnce.Checked) { days[1].Focus(); System.Media.SystemSounds.Beep.Play(); return; }
+				for (int i = 0; i < 7; i++) if (dayOn[i]) mask |= 1 << i;
+				if (mask == 0 && kind != Reminder.Kinds.Once) { System.Media.SystemSounds.Beep.Play(); return; }
 				var target = editing ?? new Reminder();
 				target.Text = text.Text.Trim();
-				target.Kind = kOnce.Checked ? Reminder.Kinds.Once : kDaily.Checked ? Reminder.Kinds.Daily : Reminder.Kinds.Interval;
+				target.Kind = kind;
 				target.Minutes = (int)minutes.Value;
 				target.FromHour = (int)from.Value;
 				target.ToHour = (int)to.Value % 24;
@@ -283,17 +251,100 @@ namespace DesktopPet
 				DialogResult = DialogResult.OK;
 			};
 
-			Theme.ApplyTo(this);
-			Theme.MakePrimary(ok);
+			foreach (var b in buttons) b.Font = fText;
+			ClientSize = new Size(W, 100);
+			ApplyTheme(ok);
+			text.BorderStyle = BorderStyle.None;
+			text.BackColor = Theme.Surface; text.ForeColor = Theme.Text;
 			foreach (var n in new Control[] { minutes, from, to }) { n.BackColor = Theme.Surface; n.ForeColor = Theme.Text; }
+			foreach (var p in new[] { rowInterval, rowDaily, rowOnce }) p.BackColor = Theme.Surface;
+			LayoutAll();
+			ActiveControl = text;
 		}
 
-		void UpdateEnabled()
+		void LayoutAll()
 		{
-			rowInterval.Enabled = kInterval.Checked;
-			rowDaily.Enabled = kDaily.Checked;
-			rowOnce.Enabled = kOnce.Checked;
-			rowDays.Enabled = !kOnce.Checked;
+			int y = Pad + 64;
+			y += 24;   // "What should the pet say?"
+			textField = new Rectangle(Pad, y, W - Pad * 2, 44);
+			text.Width = textField.Width - 28;
+			text.Location = new Point(textField.X + 14, textField.Y + (44 - text.Height) / 2);
+			y = textField.Bottom + 22;
+			whenTop = y;
+			y += 24;   // "When"
+			int sw = (W - Pad * 2 - 8) / 3;
+			for (int i = 0; i < 3; i++) segs[i] = new Rectangle(Pad + i * (sw + 4), y, sw, 36);
+			y += 46;
+			var row = kind == Reminder.Kinds.Interval ? rowInterval : kind == Reminder.Kinds.Daily ? rowDaily : rowOnce;
+			foreach (var p in new[] { rowInterval, rowDaily, rowOnce }) p.Visible = p == row;
+			row.PerformLayout();
+			var pref = row.PreferredSize;
+			card = new Rectangle(Pad, y, W - Pad * 2, Math.Max(56, pref.Height + 24));
+			row.AutoSize = false;   // exactly its content: an auto-sized panel grew over the days below
+			row.Size = new Size(Math.Min(pref.Width, card.Width - 28), pref.Height);
+			row.Location = new Point(card.X + 14, card.Y + (card.Height - pref.Height) / 2);
+			y = card.Bottom + 22;
+			daysTop = y;
+			y += 24;   // "Days of the week"
+			int dw = (W - Pad * 2 - 6 * 6) / 7;
+			for (int i = 0; i < 7; i++) dayRects[i] = new Rectangle(Pad + i * (dw + 6), y, dw, 34);
+			y += 34 + 28;
+			int bottom = LayoutButtons(y, W);
+			ClientSize = new Size(W, bottom + Pad);
+			Invalidate();
+		}
+
+		protected override void OnPaint(PaintEventArgs e)
+		{
+			base.OnPaint(e);
+			var g = e.Graphics;
+			Theme.Prepare(g);
+			PaintIcon(g);
+			Theme.DrawText(g, Text, fTitle, new Rectangle(Pad + 64, Pad + 8, W - Pad * 2 - 64, 32), Theme.Text, TextFormatFlags.SingleLine);
+			Theme.DrawText(g, Lang.T("rem.whatSays"), fText, new Rectangle(Pad, textField.Y - 24, W - Pad * 2, 22), Theme.Text, TextFormatFlags.SingleLine);
+			Theme.FillRounded(g, Theme.Surface, textField, 10);
+			Theme.DrawRounded(g, text.Focused ? Theme.Accent : Theme.Border, textField, 10);
+
+			Theme.DrawText(g, Lang.T("rem.when"), fText, new Rectangle(Pad, whenTop, 300, 22), Theme.Text, TextFormatFlags.SingleLine);
+			string[] names = { Lang.T("rem.kindInterval"), Lang.T("rem.kindDaily"), Lang.T("rem.kindOnce") };
+			var kinds = new[] { Reminder.Kinds.Interval, Reminder.Kinds.Daily, Reminder.Kinds.Once };
+			for (int i = 0; i < 3; i++)
+			{
+				bool on = kind == kinds[i];
+				Theme.FillRounded(g, on ? Theme.Accent : Theme.Surface, segs[i], 10);
+				if (!on) Theme.DrawRounded(g, Theme.Border, segs[i], 10);
+				Theme.DrawText(g, names[i], fSmall, segs[i], on ? Theme.AccentText : Theme.Text, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine | TextFormatFlags.EndEllipsis);
+			}
+			Theme.FillRounded(g, Theme.Surface, card, 10);
+			Theme.DrawRounded(g, Theme.Border, card, 10);
+
+			bool daysUsed = kind != Reminder.Kinds.Once;
+			Theme.DrawText(g, Lang.T("rem.days"), fText, new Rectangle(Pad, daysTop, 300, 22), daysUsed ? Theme.Text : Theme.TextMuted, TextFormatFlags.SingleLine);
+			var dayNames = CultureInfo.CurrentCulture.DateTimeFormat.AbbreviatedDayNames;
+			for (int i = 0; i < 7; i++)
+			{
+				int d = DayOrder[i];
+				bool on = dayOn[d] && daysUsed;
+				Theme.FillRounded(g, on ? Theme.AccentSoft : Theme.Surface, dayRects[i], 17);
+				Theme.DrawRounded(g, on ? Theme.Accent : Theme.Border, dayRects[i], 17);
+				Theme.DrawText(g, dayNames[d].TrimEnd('.'), fSmall, dayRects[i], on ? Theme.Accent : Theme.TextMuted, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine);
+			}
+			using (var p = new Pen(Theme.Border)) g.DrawLine(p, Pad, buttons[0].Top - 12, W - Pad, buttons[0].Top - 12);
+		}
+
+		protected override void OnMouseMove(MouseEventArgs e)
+		{
+			base.OnMouseMove(e);
+			Cursor = segs.Any(r => r.Contains(e.Location)) || (kind != Reminder.Kinds.Once && dayRects.Any(r => r.Contains(e.Location))) ? Cursors.Hand : Cursors.Default;
+		}
+
+		protected override void OnMouseDown(MouseEventArgs e)
+		{
+			base.OnMouseDown(e);
+			var kinds = new[] { Reminder.Kinds.Interval, Reminder.Kinds.Daily, Reminder.Kinds.Once };
+			for (int i = 0; i < 3; i++) if (segs[i].Contains(e.Location)) { kind = kinds[i]; LayoutAll(); return; }
+			if (kind == Reminder.Kinds.Once) return;
+			for (int i = 0; i < 7; i++) if (dayRects[i].Contains(e.Location)) { int d = DayOrder[i]; dayOn[d] = !dayOn[d]; Invalidate(); return; }
 		}
 	}
 }
