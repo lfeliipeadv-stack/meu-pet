@@ -66,7 +66,8 @@ namespace DesktopPet
 		// ------------------------------------------------------------------ quiet time
 
 		/// <summary>Focus time (Pomodoro running, not paused) or pets hidden with Ctrl+Alt+P: no bubbles, no sounds.</summary>
-		public static bool QuietNow => HideHotkey.Hidden || (Pomodoro.Current == Pomodoro.Phase.Focus && !Pomodoro.Paused);
+		public static bool QuietNow => HideHotkey.Hidden || (Pomodoro.Current == Pomodoro.Phase.Focus && !Pomodoro.Paused)
+			|| FullScreenWatch.Dnd || NoticeOptions.InQuietHours;
 
 		static readonly List<(string text, Choice[] choices)> held = new List<(string, Choice[])>();
 		static Timer releaseTimer;
@@ -81,6 +82,8 @@ namespace DesktopPet
 		/// </summary>
 		public static void Notify(string text, int seconds = 12, params Choice[] choices)
 		{
+			// pets hidden with Ctrl+Alt+P: a Windows notification instead of waiting (if chosen)
+			if (NoticeOptions.ToToast(text)) return;
 			if (QuietNow)
 			{
 				held.Add((text, choices ?? new Choice[0]));

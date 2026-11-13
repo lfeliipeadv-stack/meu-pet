@@ -127,6 +127,8 @@
     <Compile Include="Portable\Dialogs.cs" />
     <Compile Include="Portable\FormSettings.Plugins.cs" />
     <Compile Include="Portable\FormSettings.Home.cs" />
+    <Compile Include="Portable\MorePlugins.cs" />
+    <Compile Include="Portable\Notes.cs" />
     <Compile Include="Portable\FormDebugModern.cs" />
     <Compile Include="Portable\FormSettings.cs" />
     <Compile Include="Portable\BuiltInPets.cs" />

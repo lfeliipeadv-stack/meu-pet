@@ -69,7 +69,11 @@ namespace DesktopPet
 			if (Launchers.All.Count > 0) shortcuts.DropDownItems.Add(new ToolStripSeparator());
 			Item(shortcuts.DropDownItems, Lang.T("menu.shortcutsManage"), () => { FormPet.Hold(true); try { using (var f = new FormLaunchers()) f.ShowDialog(); } finally { FormPet.Hold(false); } });
 
+			var notes = Item(cm.Items, Notes.Counting ? Lang.T("menu.notesTime", Notes.Remaining) : Lang.T("menu.notes"), Notes.Open);
+			if (ClipboardWatch.Enabled && ClipboardWatch.History.Count > 0) Item(cm.Items, Lang.T("menu.clipHistory"), () => ClipboardWatch.ShowHistory(null));
+
 			// plugins switched off leave the menu
+			notes.Visible = PluginSwitch.On("notes");
 			games.Visible = PluginSwitch.On("games");
 			focus.Visible = PluginSwitch.On("focus") || Pomodoro.Current != Pomodoro.Phase.Off;
 			remind.Visible = PluginSwitch.On("reminders");

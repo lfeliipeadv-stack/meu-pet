@@ -135,7 +135,7 @@ namespace DesktopPet
 		}
 
 		/// <summary>POST to the running program, with the secret from agent.json.</summary>
-		static void Send(string path, string body)
+		internal static void Send(string path, string body)
 		{
 			var info = JsonNode.Parse(File.ReadAllText(AgentBridge.ConnectionFile));
 			int port = info["port"].GetValue<int>();

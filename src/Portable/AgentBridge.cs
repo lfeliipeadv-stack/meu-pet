@@ -55,6 +55,9 @@ namespace DesktopPet
 
 		public static bool Listening => listener != null;
 
+		/// <summary>Listen when Claude Code, the other AI agents or the local API need it.</summary>
+		static bool Wanted => Enabled || DevListen || LocalApi.Enabled || OtherAgents.AnyInstalled;
+
 		/// <summary>Last activity (for the self-test and the menu).</summary>
 		public static Activity Last { get; private set; }
 
@@ -68,7 +71,7 @@ namespace DesktopPet
 		public static void Apply()
 		{
 			ui = SynchronizationContext.Current ?? ui;
-			if ((Enabled || DevListen) && listener == null)
+			if (Wanted && listener == null)
 			{
 				try
 				{
@@ -85,7 +88,7 @@ namespace DesktopPet
 					StartUp.AddDebugInfo(StartUp.DEBUG_TYPE.error, "agent bridge: " + ex.Message);
 				}
 			}
-			else if (!Enabled && !DevListen && listener != null)
+			else if (!Wanted && listener != null)
 			{
 				cancel?.Cancel();
 				try { listener.Stop(); } catch (Exception skipped) { LogFile.Ignored(skipped); }
@@ -290,6 +293,7 @@ namespace DesktopPet
 				default: anims = AnimThinking; break;
 			}
 			Program.Mainthread?.ReactAll(anims);
+			if (a == Activity.Done) AgentLevel.TaskDone();
 
 			string key = "agent." + a.ToString().ToLowerInvariant();
 			if (a == Activity.Done) SpeechBubble.Notify(Lang.T(key), 8);

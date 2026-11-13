@@ -227,6 +227,7 @@ namespace DesktopPet
 		private List<Card> BuildPlugins()
 		{
 			int[] focus = { 15, 25, 45, 50 }, pause = { 5, 10, 15 }, hours = { 10, 13, 15, 17 }, lead = { 5, 10, 15 };
+			int[] battery = { 15, 20, 30, 40 }, quietFrom = { -1, 21, 22, 23, 0 }, quietTo = { 6, 7, 8, 9 };
 			return new List<Card>
 			{
 				new Card { Id = "weather", Emoji = "🌦️", Key = "plug.weather", Category = "day",
@@ -276,10 +277,50 @@ namespace DesktopPet
 				new Card { Id = "monitor", Emoji = "📊", Key = "opt.monitor", Category = "pc",
 					Get = () => PcMonitor.Enabled, Set = on => PcMonitor.Enabled = on },
 				new Card { Id = "pcEvents", Emoji = "🔋", Key = "opt.pcEvents", Category = "pc",
-					Get = () => ComputerEvents.Enabled, Set = on => ComputerEvents.Enabled = on },
+					Get = () => ComputerEvents.Enabled, Set = on => ComputerEvents.Enabled = on,
+					Status = () => Lang.T("plug.battery.status", ComputerEvents.BatteryLow),
+					Configure = () => ShowPluginOptions("opt.pcEvents.title", v =>
+					{
+						v.AddChoice("", /* battery */ "plug.batteryLow", () => ComputerEvents.BatteryLow, x => ComputerEvents.BatteryLow = x, battery, battery.Select(b => b + "%").ToArray());
+						v.AddToggle("", /* plug */ "plug.plugNotices", () => ComputerEvents.PlugNotices, on => ComputerEvents.PlugNotices = on);
+					}) },
 				new Card { Id = "shortcuts", Emoji = "🚀", Key = "opt.shortcuts", Category = "pc", Get = () => PluginSwitch.On("shortcuts"), Set = on => PluginSwitch.Set("shortcuts", on),
 					Status = () => Lang.T("plug.shortcuts.count", Launchers.All.Count),
 					ConfigureKey = "opt.shortcuts.button", Configure = () => { using (var f = new FormLaunchers()) f.ShowDialog(this); } },
+
+				// ---- added in 2.7
+				new Card { Id = "notes", Emoji = "📝", Key = "plug.notes", Category = "day", Get = () => PluginSwitch.On("notes"), Set = on => PluginSwitch.Set("notes", on),
+					Status = () => Notes.Counting ? "⏳ " + Notes.Remaining : Lang.T("plug.notes.count", Notes.OpenTasks),
+					ConfigureKey = "plugins.open", Configure = Notes.Open },
+				new Card { Id = "fullscreen", Emoji = "🎬", Key = "plug.fullscreen", Category = "pc",
+					Get = () => FullScreenWatch.Enabled, Set = on => FullScreenWatch.Enabled = on,
+					Status = () => FullScreenWatch.Active ? Lang.T("plug.fullscreen.hidden") : FullScreenWatch.Dnd ? Lang.T("plug.fullscreen.dnd") : null },
+				new Card { Id = "notices", Emoji = "🔔", Key = "plug.notices", Category = "day",
+					Get = () => NoticeOptions.ToastsWhenHidden, Set = on => NoticeOptions.ToastsWhenHidden = on,
+					Status = () => NoticeOptions.QuietFrom < 0 ? null : Lang.T("plug.quiet.status", NoticeOptions.QuietFrom, NoticeOptions.QuietTo),
+					Configure = () => ShowPluginOptions("plug.notices.title", v =>
+					{
+						v.AddToggle("", /* notification */ "plug.toasts", () => NoticeOptions.ToastsWhenHidden, on => NoticeOptions.ToastsWhenHidden = on);
+						v.AddChoice("", /* moon */ "plug.quietFrom", () => NoticeOptions.QuietFrom, x => NoticeOptions.QuietFrom = x, quietFrom, quietFrom.Select(h => h < 0 ? Lang.T("plug.quietOff") : h + "h").ToArray());
+						v.AddChoice("", /* sun */ "plug.quietTo", () => NoticeOptions.QuietTo, x => NoticeOptions.QuietTo = x, quietTo, quietTo.Select(h => h + "h").ToArray());
+					}) },
+				new Card { Id = "clipboard", Emoji = "📋", Key = "plug.clipboard", Category = "pc",
+					Get = () => ClipboardWatch.Enabled, Set = on => ClipboardWatch.Enabled = on,
+					Status = () => ClipboardWatch.Enabled ? Lang.T("plug.clipboard.count", ClipboardWatch.History.Count) : null,
+					Configure = () => ShowPluginOptions("plug.clipboard.title", v =>
+					{
+						v.AddToggle("", /* message */ "plug.clipOffers", () => ClipboardWatch.Offers, on => ClipboardWatch.Offers = on);
+						v.AddAction("", /* history */ "plug.clipHistory", "plug.clipHistory.button", () => ClipboardWatch.ShowHistory(this));
+					}) },
+				new Card { Id = "music", Emoji = "🎵", Key = "plug.music", Category = "fun",
+					Get = () => MusicWatch.Enabled, Set = on => MusicWatch.Enabled = on,
+					Status = () => { string s = MusicWatch.Enabled ? MusicWatch.Playing() : ""; return s.Length == 0 ? null : "🎵 " + s; },
+					Configure = () => ShowPluginOptions("plug.music.title", v => v.AddToggle("", /* audio */ "plug.musicTitle", () => MusicWatch.SayTitle, on => MusicWatch.SayTitle = on)) },
+				new Card { Id = "visitors", Emoji = "🦋", Key = "plug.visitors", Category = "fun",
+					Get = () => Visitors.Enabled, Set = on => Visitors.Enabled = on,
+					ConfigureKey = "plug.visitors.button", Configure = Visitors.Visit },
+				new Card { Id = "push", Emoji = "🪟", Key = "plug.push", Category = "fun",
+					Get = () => WindowPush.Enabled, Set = on => WindowPush.Enabled = on },
 			};
 		}
 
@@ -312,7 +353,43 @@ namespace DesktopPet
 				Get = () => AgentBridge.Enabled && ClaudeHooks.IsInstalled(), Set = SetClaude,
 				Status = () => Lang.T(ClaudeMcp.IsRegistered() ? "int.mcpOn" : "int.mcpOff"),
 				Configure = ShowClaude },
+			new Card { Id = "agents", Emoji = "🧑‍💻", Key = "int.agents",
+				Get = () => OtherAgents.AnyInstalled, Set = on => { if (on) ShowAgents(); else { OtherAgents.SetCodex(false); OtherAgents.SetCursor(false); } },
+				Status = () => AgentLevel.Enabled ? Lang.T("int.agents.level", AgentLevel.Level, AgentLevel.Tasks) : null,
+				Configure = ShowAgents },
+			new Card { Id = "api", Emoji = "🔌", Key = "int.api",
+				Get = () => LocalApi.Enabled, Set = on => LocalApi.Enabled = on,
+				Status = () => LocalApi.Enabled && AgentBridge.Listening ? "127.0.0.1:" + AgentBridge.Port : null,
+				Configure = () => ShowPluginOptions("int.api.title", v =>
+				{
+					v.AddToggle("", /* network */ "int.apiOn", () => LocalApi.Enabled, on => { LocalApi.Enabled = on; v.Invalidate(); });
+					v.AddAction("", /* copy */ "int.apiExample", "int.copyCmd.button", () => CopyText(LocalApi.Example));
+					v.AddAction("", /* folder */ "int.apiFile", "opt.logs.button", () =>
+					{
+						try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(System.IO.Path.GetDirectoryName(AgentBridge.ConnectionFile)) { UseShellExecute = true }); }
+						catch (Exception skipped) { LogFile.Ignored(skipped); }
+					});
+				}) },
 		};
+
+		/// <summary>Codex and Cursor: their switches, the command for any other program, the pet's level.</summary>
+		private void ShowAgents()
+		{
+			ShowPluginOptions("int.agents.title", v =>
+			{
+				v.AddToggle("", /* console */ "int.codex", () => OtherAgents.CodexInstalled, on => { Report(OtherAgents.SetCodex(on)); v.Invalidate(); });
+				v.AddToggle("", /* code */ "int.cursor", () => OtherAgents.CursorInstalled, on => { Report(OtherAgents.SetCursor(on)); v.Invalidate(); });
+				v.AddAction("", /* copy */ "int.agentCmd", "int.copyCmd.button", () => CopyText(OtherAgents.Command("done")));
+				v.AddToggle("", /* star */ "int.level", () => AgentLevel.Enabled, on => AgentLevel.Enabled = on);
+			});
+			void Report(string key) { if (key != null) PetMessage.Show(this, Lang.T(key), Lang.T("int.agents.title"), MessageBoxButtons.OK, MessageBoxIcon.Information); }
+		}
+
+		private void CopyText(string text)
+		{
+			try { ClipboardWatch.Copy(text); StatusText = Lang.T("int.copied"); }
+			catch (Exception skipped) { LogFile.Ignored(skipped); }
+		}
 
 		/// <summary>Claude Code in one window: connection, reactions (hooks), messages (MCP) and advanced.</summary>
 		private void ShowClaude()
@@ -443,7 +520,7 @@ namespace DesktopPet
 				meet.Set(was);
 				r.Add(("plugins: a card switches the feature", flipped && meet.Get() == was, ""));
 				var ints = f.integrationsView.TestCards;
-				r.Add(("integrations: only Claude Code, in one card (the AI is in Assistant)", ints.Count == 1 && ints[0].Id == "claude" && ints[0].Icon != null, string.Join(",", ints.Select(c => c.Id))));
+				r.Add(("integrations: Claude Code first (one card), other agents and the local API", ints.Count == 3 && ints[0].Id == "claude" && ints[0].Icon != null && ints[1].Id == "agents" && ints[2].Id == "api", string.Join(",", ints.Select(c => c.Id))));
 				r.Add(("plugins: every card can be switched off", cards.All(c => c.Get != null && c.Set != null), string.Join(", ", cards.Where(c => c.Get == null).Select(c => c.Id))));
 				f.Close();
 			}

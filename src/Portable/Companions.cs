@@ -118,6 +118,20 @@ namespace DesktopPet
 			set { Program.MyData.SetSetting("PcEvents", value); Apply(); }
 		}
 
+		/// <summary>Battery level (%) of the "low battery" notice.</summary>
+		public static int BatteryLow
+		{
+			get => Program.MyData.GetSettingInt("BatteryLow", 20);
+			set => Program.MyData.SetSetting("BatteryLow", value);
+		}
+
+		/// <summary>Also say when the charger is plugged in or out.</summary>
+		public static bool PlugNotices
+		{
+			get => Program.MyData.GetSettingBool("PlugNotices", false);
+			set => Program.MyData.SetSetting("PlugNotices", value);
+		}
+
 		public static void Apply()
 		{
 			if (timer == null) { timer = new Timer { Interval = 15000 }; timer.Tick += (s, e) => Tick(); }
@@ -153,18 +167,24 @@ namespace DesktopPet
 			if (ps.BatteryChargeStatus.HasFlag(BatteryChargeStatus.NoSystemBattery) || ps.BatteryChargeStatus == BatteryChargeStatus.Unknown) return;
 			int pct = (int)Math.Round(ps.BatteryLifePercent * 100);
 			bool charging = ps.PowerLineStatus == PowerLineStatus.Online;
+			int low = BatteryLow, critical = Math.Min(10, low / 2);
 			if (charging)
 			{
-				if (!wasCharging && lowSaid) { Program.Mainthread?.ReactAll("happy", "cheer", "jump"); SpeechBubble.Notify(Lang.T("pc.charging"), 5); }
+				if (!wasCharging && (lowSaid || PlugNotices)) { Program.Mainthread?.ReactAll("happy", "cheer", "jump"); SpeechBubble.Notify(Lang.T("pc.charging"), 5); }
 				lowSaid = criticalSaid = false;
 			}
-			else if (pct <= 10 && !criticalSaid)
+			else if (wasCharging && PlugNotices && pct > low)
+			{
+				Program.Mainthread?.ReactAll("look around", "think", "wave");
+				SpeechBubble.Notify(Lang.T("pc.unplugged", pct), 6);
+			}
+			else if (pct <= critical && !criticalSaid)
 			{
 				criticalSaid = lowSaid = true;
 				Program.Mainthread?.ReactAll("scared", "shocked", "tired", "dizzy");
 				SpeechBubble.Notify(Lang.T("pc.batteryCritical", pct), 0, new SpeechBubble.Choice("OK", null, true));
 			}
-			else if (pct <= 20 && !lowSaid)
+			else if (pct <= low && !lowSaid)
 			{
 				lowSaid = true;
 				Program.Mainthread?.ReactAll("tired", "yawn", "sleepy");

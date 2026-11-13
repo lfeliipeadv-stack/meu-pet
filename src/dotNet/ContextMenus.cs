@@ -127,6 +127,12 @@ namespace DesktopPet
             AgentBridge.Apply();
             PetsMeet.Start();
             ComputerEvents.Apply();
+            FullScreenWatch.Apply();
+            NoticeOptions.Start();
+            ClipboardWatch.Apply();
+            MusicWatch.Apply();
+            Visitors.Apply();
+            WindowPush.Apply();
             Activity.Apply();
             Weather.Apply();
             Agenda.Start();

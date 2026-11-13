@@ -40,8 +40,12 @@ namespace DesktopPet
 			catch (Exception ex) { Check(name, false, ex.GetType().Name + ": " + ex.Message); }
 		}
 
+		/// <summary>The self-test is running: the plugins that react to the computer on their own (music, visits, full screen) wait.</summary>
+		public static bool Running;
+
 		public static async void Run(string outFile)
 		{
+			Running = true;
 			resultFile = outFile;
 			await Task.Delay(3000);   // pets on screen, menus created
 
@@ -109,6 +113,7 @@ namespace DesktopPet
 			Try("claude hooks file", ClaudeHooksFile);
 			Try("claude events", ClaudeEvents);
 			await TryAsync("claude endpoint", ClaudeEndpoint);
+			Try("new plugins", NewPlugins);
 
 			lines.Insert(0, $"DesktopPet self-test {DateTime.Now:yyyy-MM-dd HH:mm:ss}  —  {failures} failure(s)");
 			try { File.WriteAllLines(outFile, lines, new UTF8Encoding(false)); } catch (Exception) { }
@@ -271,6 +276,61 @@ namespace DesktopPet
 			try { PetCreator.Build(new PetCreator.Input { Name = "x" }); } catch (ArgumentException) { refused = true; }
 			Check("create pet: walking pictures needed", refused);
 			foreach (var img in input.Walk.Concat(input.Sleep)) img.Dispose();
+		}
+
+		/// <summary>The plugins of 2.7: links, quiet hours, levels, the agents' command and their settings files.</summary>
+		static void NewPlugins()
+		{
+			Check("clipboard: a link is recognized", ClipboardWatch.IsLink("https://example.com/a?b=1", out var u) && u.Host == "example.com");
+			Check("clipboard: plain text is not a link", !ClipboardWatch.IsLink("olá mundo https://x.com", out _));
+			Check("clipboard: off unless turned on", !ClipboardWatch.Enabled || Program.MyData.GetSetting("ClipWatch").Length > 0);
+
+			int from = NoticeOptions.QuietFrom, to = NoticeOptions.QuietTo;
+			try
+			{
+				int h = DateTime.Now.Hour;
+				NoticeOptions.QuietFrom = h; NoticeOptions.QuietTo = (h + 1) % 24;
+				Check("quiet hours: now is inside", NoticeOptions.InQuietHours && SpeechBubble.QuietNow);
+				NoticeOptions.QuietFrom = (h + 2) % 24; NoticeOptions.QuietTo = (h + 3) % 24;
+				Check("quiet hours: now is outside", !NoticeOptions.InQuietHours);
+				NoticeOptions.QuietFrom = -1;
+				Check("quiet hours: off", !NoticeOptions.InQuietHours);
+			}
+			finally { NoticeOptions.QuietFrom = from; NoticeOptions.QuietTo = to; }
+
+			Check("level: 1 at the start, 2 after 3 tasks, 3 after 8", AgentLevel.LevelFor(0) == 1 && AgentLevel.LevelFor(3) == 2 && AgentLevel.LevelFor(8) == 3 && AgentLevel.LevelFor(7) == 2);
+			Check("agents: unknown event refused", OtherAgents.Signal("nonsense") == 2);
+			Check("agents: command calls this program", OtherAgents.Command("done").Contains("--agent=done"));
+
+			string dir = Path.Combine(Path.GetTempPath(), "desktoppet-agents-" + Guid.NewGuid().ToString("N"));
+			OtherAgents.HomeOverride = dir;
+			try
+			{
+				// Codex: notify before the first table, removed again, and never over someone else's notify
+				Directory.CreateDirectory(Path.GetDirectoryName(OtherAgents.CodexConfig));
+				File.WriteAllText(OtherAgents.CodexConfig, "model = \"o3\"\n\n[profiles.x]\nmodel = \"y\"\n");
+				Check("codex: added", OtherAgents.SetCodex(true) == null && OtherAgents.CodexInstalled);
+				var lines = File.ReadAllLines(OtherAgents.CodexConfig).ToList();
+				Check("codex: notify before the first table", lines.FindIndex(l => l.StartsWith("notify")) < lines.FindIndex(l => l.StartsWith("[")));
+				Check("codex: removed", OtherAgents.SetCodex(false) == null && !OtherAgents.CodexInstalled && File.ReadAllText(OtherAgents.CodexConfig).Contains("[profiles.x]"));
+				File.WriteAllText(OtherAgents.CodexConfig, "notify = [\"other.exe\"]\n");
+				Check("codex: someone else's notify is kept", OtherAgents.SetCodex(true) == "agents.codexBusy" && File.ReadAllText(OtherAgents.CodexConfig).Contains("other.exe"));
+				// Cursor: hooks merged with the user's own
+				Directory.CreateDirectory(Path.GetDirectoryName(OtherAgents.CursorHooks));
+				File.WriteAllText(OtherAgents.CursorHooks, "{\"version\":1,\"hooks\":{\"stop\":[{\"command\":\"mine.exe\"}]}}");
+				Check("cursor: added", OtherAgents.SetCursor(true) == null && OtherAgents.CursorInstalled);
+				Check("cursor: the user's hook is kept", File.ReadAllText(OtherAgents.CursorHooks).Contains("mine.exe"));
+				Check("cursor: removed", OtherAgents.SetCursor(false) == null && !OtherAgents.CursorInstalled && File.ReadAllText(OtherAgents.CursorHooks).Contains("mine.exe"));
+			}
+			finally
+			{
+				OtherAgents.HomeOverride = null;
+				try { Directory.Delete(dir, true); } catch (Exception) { }
+				AgentBridge.Apply();
+			}
+
+			Check("notes: tasks saved", Notes.Tasks != null);
+			Check("api: example uses the secret file", LocalApi.Example.Contains("agent.json") && LocalApi.Example.Contains("X-DesktopPet"));
 		}
 
 		/// <summary>Every window with a text box keeps the pets still while it is open.</summary>
