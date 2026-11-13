@@ -94,7 +94,7 @@ namespace DesktopPet
 				SpeechBubble.Say(Lang.T(Steps[i]), 0, new SpeechBubble.Choice(Lang.T("tour.openAi"), () => { Done(); FormSettings.ShowPage(FormSettings.Page.Ai); }, true),
 					new SpeechBubble.Choice(Lang.T("tour.finish"), Done));
 			else
-				SpeechBubble.Say(Steps[i] == "tour.ai" ? Lang.T("tour.aiReady", HideHotkey.AskEnabled ? HideHotkey.AskText : "—") : Lang.T(Steps[i]), 0, next, new SpeechBubble.Choice(Lang.T("tour.skip"), Done));
+				SpeechBubble.Say(Steps[i] == "tour.ai" ? (HideHotkey.AskEnabled ? Lang.T("tour.aiReady", HideHotkey.AskText) : Lang.T("tour.aiReadyNoKey")) : Lang.T(Steps[i]), 0, next, new SpeechBubble.Choice(Lang.T("tour.skip"), Done));
 		}
 
 		static void Done()

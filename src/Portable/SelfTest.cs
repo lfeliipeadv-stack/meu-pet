@@ -288,6 +288,17 @@ namespace DesktopPet
 			Check("clipboard: a link is recognized", ClipboardWatch.IsLink("https://example.com/a?b=1", out var u) && u.Host == "example.com");
 			Check("clipboard: plain text is not a link", !ClipboardWatch.IsLink("olá mundo https://x.com", out _));
 			Check("clipboard: off unless turned on", !ClipboardWatch.Enabled || Program.MyData.GetSetting("ClipWatch").Length > 0);
+			Check("ask shortcut: off unless turned on", HideHotkey.AskEnabled == (Program.MyData.GetSetting("AskHotkey").Length > 0 && Program.MyData.GetSettingBool("AskHotkey", false)));
+
+			// every visitor drawing: rows of the same width, only letters that have a color
+			foreach (Visitors.Kind kind in Enum.GetValues(typeof(Visitors.Kind)))
+			{
+				var colors = Visitors.Colors(kind, new Random(1));
+				var bad = Visitors.Drawings(kind).SelectMany((d, i) => d.Select((row, j) => (i, j, row)))
+					.Where(r => r.row.Length != Visitors.Drawings(kind)[r.i][0].Length || r.row.Any(ch => ch != '.' && !colors.ContainsKey(ch)))
+					.Select(r => $"drawing {r.i} row {r.j}").ToList();
+				Check("visitor " + kind.ToString().ToLowerInvariant() + ": drawing is clean", bad.Count == 0, string.Join(", ", bad));
+			}
 
 			int from = NoticeOptions.QuietFrom, to = NoticeOptions.QuietTo;
 			try
@@ -403,25 +414,32 @@ namespace DesktopPet
 				pet.React("walk");
 				await Task.Delay(1500);
 
-				// ---- butterfly: flies to the pet, around it, and away
-				Visitors.Visit();
-				await Task.Delay(300);
-				var fly = Visitors.Flying;
-				Check("live butterfly: appears", fly != null);
-				if (fly != null)
+				// ---- visitors: each one flies to the pet, visits it, and goes on to the other side of the screen
+				foreach (Visitors.Kind kind in Enum.GetValues(typeof(Visitors.Kind)))
 				{
-					var start = fly.Location;
+					string who = "live visitor " + kind.ToString().ToLowerInvariant();
+					Visitors.Visit(kind);
+					await Task.Delay(300);
+					var fly = Visitors.Flying;
+					Check(who + ": appears", fly != null && Visitors.FlyingKind == kind);
+					if (fly == null) continue;
+					var area = Screen.FromControl(pet).WorkingArea;
+					bool fromRight = fly.Left > area.Left + area.Width / 2;
 					double nearest = double.MaxValue;
+					int lastLeft = fly.Left;
 					var clock = System.Diagnostics.Stopwatch.StartNew();
-					while (Visitors.Flying != null && clock.Elapsed.TotalSeconds < 60)
+					while (Visitors.Flying != null && clock.Elapsed.TotalSeconds < 90)
 					{
 						var c = new Point(fly.Left + fly.Width / 2, fly.Top + fly.Height / 2);
 						var head = new Point(pet.Left + pet.Width / 2, pet.Top + pet.Height / 3);
 						nearest = Math.Min(nearest, Math.Sqrt(Math.Pow(c.X - head.X, 2) + Math.Pow(c.Y - head.Y, 2)));
-						await Task.Delay(100);
+						lastLeft = fly.Left;
+						await Task.Delay(50);
 					}
-					Check("live butterfly: reaches the pet", nearest < 80, $"closest {nearest:0} px");
-					Check("live butterfly: flies away and closes", Visitors.Flying == null, $"{clock.Elapsed.TotalSeconds:0} s");
+					Check(who + ": reaches the pet", nearest < 80, $"closest {nearest:0} px");
+					Check(who + ": goes away and closes", Visitors.Flying == null, $"{clock.Elapsed.TotalSeconds:0} s");
+					Check(who + ": leaves on the other side of the screen", fromRight ? lastLeft < area.Left + 40 : lastLeft > area.Right - 80,
+						$"came from the {(fromRight ? "right" : "left")}, last seen at x={lastLeft}");
 				}
 
 				// ---- pushing: a small window standing on the pet's floor, just in front of it

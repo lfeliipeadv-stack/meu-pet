@@ -61,10 +61,10 @@ namespace DesktopPet
             set { Program.MyData.SetSetting("AskKey", value); ApplyAsk(); }
         }
 
-        /// <summary>The shortcut opens "Ask the pet" (when the AI is set up). On unless turned off.</summary>
+        /// <summary>The shortcut opens "Ask the pet" (when the AI is set up). Off until the user turns it on.</summary>
         public static bool AskEnabled
         {
-            get => Program.MyData.GetSettingBool("AskHotkey", true);
+            get => Program.MyData.GetSettingBool("AskHotkey", false);
             set { Program.MyData.SetSetting("AskHotkey", value); ApplyAsk(); }
         }
 
