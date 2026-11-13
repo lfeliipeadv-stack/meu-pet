@@ -234,6 +234,7 @@
   "whatsnew.2.5.1": "emojis a color, llego del cielo la primera vez y te miro mientras hablo.",
   "whatsnew.2.6.0": "panel nuevo con Inicio y plugins en tarjetas, un chat sobre mí, el tiempo (Open-Meteo), recordatorios con una frase, sugiero pausas y las mascotas charlan entre sí.",
   "whatsnew.2.6.1": "panel nuevo con Inicio y plugins en tarjetas, un chat sobre mí, el tiempo, recordatorios con una frase, sugiero pausas, las mascotas charlan entre sí, el ícono de Claude en Integraciones y las escenas con un acompañante ya no se rompen cuando aparece un globo.",
+  "whatsnew.2.6.2": "plugins nuevos (pantalla completa, notas y tareas, historial del portapapeles, Codex y Cursor), el baño de las ovejas vuelve a salpicar, Rex hace malabares de verdad y las animaciones que estaban quietas ahora se mueven.",
   "plug.battery.status": "avisa en {0}%",
   "plug.batteryLow.title": "Aviso de batería baja",
   "plug.batteryLow.desc": "Por debajo de este nivel la mascota avisa que la batería se está acabando.",

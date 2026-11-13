@@ -234,6 +234,7 @@
   "whatsnew.2.5.1": "emojis coloridos, chego do céu na primeira vez e olho para você enquanto falo.",
   "whatsnew.2.6.0": "painel novo com Início e plugins em cards, caixinha de conversa em mim, clima (Open-Meteo), lembretes por texto, sugiro pausas e os pets conversam entre si.",
   "whatsnew.2.6.1": "painel novo com Início e plugins em cards, caixinha de conversa em mim, clima, lembretes por texto, sugiro pausas, os pets conversam entre si, ícone do Claude nas Integrações e cenas com acessórios não se desfazem quando aparece um balão.",
+  "whatsnew.2.6.2": "plugins novos (tela cheia, notas e tarefas, histórico da área de transferência, Codex e Cursor), o banho das ovelhas com respingo de novo, o Rex faz malabarismo de verdade e animações que estavam paradas agora se mexem.",
   "plug.battery.status": "avisa em {0}%",
   "plug.batteryLow.title": "Aviso de bateria fraca",
   "plug.batteryLow.desc": "Abaixo deste nível o pet avisa que a bateria está acabando.",

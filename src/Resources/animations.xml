@@ -706,12 +706,13 @@
         <frame>174</frame>
         <frame>174</frame>
         <frame>174</frame>
-        <next probability="100" only="none">47</next>
+        <next probability="100" only="none">58</next>
       </sequence>
       <border>
-        <next probability="100" only="none">47</next>
+        <next probability="100" only="none">58</next>
       </border>
     </animation>
+    <animation id="58"><name>bathsplash</name><start><x>0</x><y>0</y><offsety>0</offsety><opacity>1</opacity><interval>70</interval></start><end><x>0</x><y>0</y><offsety>0</offsety><opacity>1</opacity><interval>70</interval></end><sequence repeatfrom="0" repeat="0"><frame>147</frame><frame>147</frame><frame>148</frame><frame>148</frame><frame>148</frame><frame>147</frame><frame>147</frame><frame>146</frame><frame>146</frame><next probability="100" only="none">47</next></sequence></animation>
     <animation id="23">
       <name>bathw</name>
       <start>
@@ -749,7 +750,7 @@
         <opacity>1</opacity>
         <interval>50</interval>
       </end>
-      <sequence repeatfrom="20" repeat="5">
+      <sequence repeatfrom="20" repeat="12">
         <frame>146</frame>
         <frame>146</frame>
         <frame>146</frame>
@@ -762,13 +763,13 @@
         <frame>146</frame>
         <frame>146</frame>
         <frame>146</frame>
-        <frame>147</frame>
-        <frame>147</frame>
-        <frame>148</frame>
-        <frame>148</frame>
-        <frame>148</frame>
-        <frame>147</frame>
-        <frame>147</frame>
+        <frame>146</frame>
+        <frame>146</frame>
+        <frame>146</frame>
+        <frame>146</frame>
+        <frame>146</frame>
+        <frame>146</frame>
+        <frame>146</frame>
         <frame>146</frame>
         <frame>146</frame>
         <frame>146</frame>

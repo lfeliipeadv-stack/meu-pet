@@ -5,7 +5,7 @@
       "name" : "Rex",
       "author" : "Luan Felipe",
       "lastupdate" : "2026-11-11 20:45",
-      "size" : 328180,
+      "size" : 334102,
       "animations" : 107,
       "sounds" : 16
     },
@@ -77,8 +77,8 @@
       "name" : "gSheep Blue",
       "author" : "Oliver B.",
       "lastupdate" : "2021-05-02",
-      "size" : 1149959,
-      "animations" : 268,
+      "size" : 1150460,
+      "animations" : 269,
       "sounds" : 35
     },
     {
@@ -86,8 +86,8 @@
       "name" : "eSheep",
       "author" : "Adriano",
       "lastupdate" : "2026-10-16",
-      "size" : 173775,
-      "animations" : 57,
+      "size" : 174273,
+      "animations" : 58,
       "sounds" : 0
     },
     {
@@ -95,8 +95,8 @@
       "name" : "gSheep Green",
       "author" : "Oliver B.",
       "lastupdate" : "2021-05-02",
-      "size" : 1149969,
-      "animations" : 268,
+      "size" : 1150470,
+      "animations" : 269,
       "sounds" : 35
     },
 	{
@@ -122,8 +122,8 @@
       "name" : "gSheep Orange",
       "author" : "Oliver B.",
       "lastupdate" : "2021-05-02",
-      "size" : 1150514,
-      "animations" : 268,
+      "size" : 1151015,
+      "animations" : 269,
       "sounds" : 35
     },
 	{
@@ -158,8 +158,8 @@
       "name" : "gSheep Pink",
       "author" : "Oliver B.",
       "lastupdate" : "2021-05-02",
-      "size" : 1151124,
-      "animations" : 268,
+      "size" : 1151625,
+      "animations" : 269,
       "sounds" : 35
     },
     {
@@ -167,8 +167,8 @@
       "name" : "gSheep Purple",
       "author" : "Oliver B.",
       "lastupdate" : "2021-05-02",
-      "size" : 1150117,
-      "animations" : 268,
+      "size" : 1150618,
+      "animations" : 269,
       "sounds" : 35
     },
     {
@@ -176,8 +176,8 @@
       "name" : "gSheep Red",
       "author" : "Oliver B.",
       "lastupdate" : "2021-05-02",
-      "size" : 1150428,
-      "animations" : 268,
+      "size" : 1150929,
+      "animations" : 269,
       "sounds" : 35
     },
 	{
@@ -221,8 +221,8 @@
       "name" : "gSheep Yellow",
       "author" : "Oliver B.",
       "lastupdate" : "2021-05-02",
-      "size" : 1150514,
-      "animations" : 268,
+      "size" : 1151015,
+      "animations" : 269,
       "sounds" : 35
     }
   ]

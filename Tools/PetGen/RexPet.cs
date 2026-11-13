@@ -586,12 +586,14 @@ static class RexPet
 		// Juggling: three balls travel around a loop in front of his face (thrown up from one hand, over the top,
 		// caught by the other), a third of the loop apart, so every ball really moves from frame to frame.
 		char[] orbColors = { Blue, Red, Mint };
-		const int JuggleFrames = 8;
+		// 24 frames: each ball moves about 2 px per frame, so the loop looks smooth (the body keeps an 8-step rhythm)
+		const int JuggleFrames = 24;
 		Frame Juggle(int k)
 		{
 			// the hand that is about to throw goes up, the other one waits low
-			bool throwNear = k % 4 < 2;
-			var f = Pose(eye: 5, jaw: k % 4 == 1 ? 4 : 0, arm: throwNear ? 1 : 2, farUp: !throwNear, tail: k % 2 == 0 ? 1 : -1);
+			int beat = k * 8 / JuggleFrames;
+			bool throwNear = beat % 4 < 2;
+			var f = Pose(eye: 5, jaw: beat % 4 == 1 ? 4 : 0, arm: throwNear ? 1 : 2, farUp: !throwNear, tail: beat % 2 == 0 ? 1 : -1);
 			for (int i = 0; i < 3; i++)
 			{
 				// position on the loop (0..1): up on the outside, down on the inside, faster at the bottom
@@ -855,7 +857,7 @@ static class RexPet
 		p.Childs.Add((75, "imageX", "imageY", 107));
 		var explore = p.A(76, "explorer").Move("-1", "0").Speed("260").Loop("random/3+4", 0); explore.Seq(fExplore1, fExplore2); explore.Then(100, 1).OnBorder(100, 2).OnGravity(100, 5);
 		Show(77, "builder", 150, (fBuild1, 2), (fBuild2, 2), (fBuild1, 2), (fBuild2, 2), (fBuild1, 2), (fBuild2, 2), (fHappy, 2));
-		Loop(80, "juggle", 100, "random/3+3", fJuggle);
+		Loop(80, "juggle", 45, "random/3+3", fJuggle);
 		Lead(82, "sing", 220, 84, (fSing1, 1));
 		var sing = p.A(84, "singing").Move("0", "0").Speed("220").Loop("random/3+4", 0); sing.Seq(fSing1, fSing2); sing.Then(100, 1);
 		p.Childs.Add((84, "imageX", "imageY", 107));

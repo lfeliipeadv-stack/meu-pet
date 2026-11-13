@@ -446,6 +446,7 @@ namespace DesktopPet
 				["whatsnew.2.5.1"] = "colourful emoji, I arrive from the sky the first time and I look at you while I talk.",
 				["whatsnew.2.6.0"] = "a new panel with Home and plugins in cards, a chat box on me, the weather (Open-Meteo), reminders written as a sentence, I suggest breaks and pets chat with each other.",
 				["whatsnew.2.6.1"] = "a new panel with Home and plugins in cards, a chat box on me, the weather, reminders written as a sentence, I suggest breaks, pets chat with each other, the Claude icon in Integrations and scenes with a companion no longer break when a bubble appears.",
+				["whatsnew.2.6.2"] = "new plugins (full screen, notes and tasks, clipboard history, Codex and Cursor), the sheep bath splashes again, Rex really juggles and animations that stood still now move.",
 				["plug.battery.status"] = "warns at {0}%",
 				["plug.batteryLow.title"] = "Low battery warning",
 				["plug.batteryLow.desc"] = "Below this level the pet warns that the battery is running out.",
