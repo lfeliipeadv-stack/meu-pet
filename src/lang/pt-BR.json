@@ -233,6 +233,7 @@
   "whatsnew.2.5.0": "me pergunte qualquer coisa (IA), botão ao passar o mouse, silêncio no foco, e-mails do Outlook, fico parado quando falo, crie seu próprio pet, espanhol e instalador que confere o .NET.",
   "whatsnew.2.5.1": "emojis coloridos, chego do céu na primeira vez e olho para você enquanto falo.",
   "whatsnew.2.6.0": "painel novo com Início e plugins em cards, caixinha de conversa em mim, clima (Open-Meteo), lembretes por texto, sugiro pausas e os pets conversam entre si.",
+  "whatsnew.2.6.1": "painel novo com Início e plugins em cards, caixinha de conversa em mim, clima, lembretes por texto, sugiro pausas, os pets conversam entre si, ícone do Claude nas Integrações e cenas com acessórios não se desfazem quando aparece um balão.",
   "opt.aiStyle.title": "Personalidade",
   "opt.aiStyle.desc": "O jeito como o pet responde.",
   "opt.aiStyle.friendly": "Simpático",

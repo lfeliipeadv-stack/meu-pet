@@ -445,6 +445,7 @@ namespace DesktopPet
 				["whatsnew.2.5.0"] = "ask me anything (AI), hover button, quiet focus time, Outlook e-mails, I stand still when talking, create your own pet, Spanish and an installer that checks .NET.",
 				["whatsnew.2.5.1"] = "colourful emoji, I arrive from the sky the first time and I look at you while I talk.",
 				["whatsnew.2.6.0"] = "a new panel with Home and plugins in cards, a chat box on me, the weather (Open-Meteo), reminders written as a sentence, I suggest breaks and pets chat with each other.",
+				["whatsnew.2.6.1"] = "a new panel with Home and plugins in cards, a chat box on me, the weather, reminders written as a sentence, I suggest breaks, pets chat with each other, the Claude icon in Integrations and scenes with a companion no longer break when a bubble appears.",
 				["opt.aiStyle.title"] = "Personality",
 				["opt.aiStyle.desc"] = "How the pet answers.",
 				["opt.aiStyle.friendly"] = "Friendly",

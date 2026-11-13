@@ -233,6 +233,7 @@
   "whatsnew.2.5.0": "pregúntame lo que quieras (IA), botón al pasar el ratón, silencio durante la concentración, correos de Outlook, me quedo quieto al hablar, crea tu propia mascota, español y un instalador que comprueba .NET.",
   "whatsnew.2.5.1": "emojis a color, llego del cielo la primera vez y te miro mientras hablo.",
   "whatsnew.2.6.0": "panel nuevo con Inicio y plugins en tarjetas, un chat sobre mí, el tiempo (Open-Meteo), recordatorios con una frase, sugiero pausas y las mascotas charlan entre sí.",
+  "whatsnew.2.6.1": "panel nuevo con Inicio y plugins en tarjetas, un chat sobre mí, el tiempo, recordatorios con una frase, sugiero pausas, las mascotas charlan entre sí, el ícono de Claude en Integraciones y las escenas con un acompañante ya no se rompen cuando aparece un globo.",
   "opt.aiStyle.title": "Personalidad",
   "opt.aiStyle.desc": "La forma en que responde la mascota.",
   "opt.aiStyle.friendly": "Simpática",

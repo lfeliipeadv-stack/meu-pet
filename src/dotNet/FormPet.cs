@@ -1680,6 +1680,8 @@ namespace DesktopPet
         public bool React(params string[] names)
         {
             if (IsDragging || IsTossing || IsLeaving || Animations?.SheepAnimations == null) return false;
+            // standing in a scene with a prop (dancing in front of a jukebox): let it finish
+            if (InStillScene) return false;
             int id = FindAnimation(names);
             // held still (bubble, menu or window open): only reactions that stay in place
             if (id >= 0 && Held && !IsChildWindow && !IsStill(Animations.GetAnimation(id)))
@@ -1814,11 +1816,24 @@ namespace DesktopPet
 
         bool talking => Held;
 
+        /// <summary>A child window this pet opened (a prop playing its own animation) is still on screen.</summary>
+        bool HasLiveChild => childs.Any(c => c != null && !c.IsDisposed && c.Visible);
+
+        /// <summary>
+        /// Standing in place in a scene with a prop (dancing in front of a jukebox). A pet that walks with one (the
+        /// eSheep's bath) is still stopped by a bubble or a window, like any walking pet.
+        /// </summary>
+        bool InStillScene => HasLiveChild && IsStill(CurrentAnimation);
+
         /// <summary>While talking, the next animation is the still one (not while falling or jumping).</summary>
         int WhileTalking(int next)
         {
-            if (!talking || afterDone != null || StillAnimation < 0 || !OnScreen) return next;
+            // a child window (a prop such as a jukebox or a bathtub) plays its own chain to the end: replacing it would
+            // turn the prop into a copy of the pet
+            if (!talking || afterDone != null || StillAnimation < 0 || !OnScreen || IsChildWindow) return next;
             var n = Animations.GetAnimation(next);
+            // a scene with a prop goes on as long as it stays in place (it does not walk off while a bubble is open)
+            if (HasLiveChild && IsStill(n)) return next;
             bool stays = n.Start.Y.Value == 0 && n.End.Y.Value == 0;
             // standing on the ground: never start going down (some pets dig or sink behind the taskbar); a falling pet keeps falling
             bool grounded = CurrentAnimation.Start.Y.Value == 0 && CurrentAnimation.End.Y.Value == 0 && CurrentAnimation.ID != Animations.AnimationFall;
