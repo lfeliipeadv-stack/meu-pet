@@ -56,30 +56,20 @@
   <section id="demo">
     <div class="wrap">
       <h2>O pet, andando pela sua página.</h2>
-      <p class="section-intro">A área abaixo é uma mini área de trabalho: tem uma janela e uma barra de tarefas, e o pet anda em cima delas como no Windows. Arraste-o, converse com ele e arraste a janela azul para ver o pet acompanhar o movimento.</p>
+      <p class="section-intro">A área abaixo é uma mini área de trabalho: duas janelas e uma barra de tarefas, e o pet anda em cima delas como no Windows. Arraste-o, converse com ele e arraste os títulos das janelas para ver o pet acompanhar o movimento.</p>
 
       <div class="demo-stage" id="stage">
         <div class="demo-wallpaper" aria-hidden="true"></div>
 
-        <!-- A janela em que o pet anda -->
-        <div class="demo-window" id="fake-window">
-          <div class="demo-window-bar" id="fake-window-bar">
-            <span class="dot min"></span><span class="dot max"></span><span class="dot close"></span>
-            <span class="demo-window-title">Meu Pet — Painel</span>
-          </div>
-          <div class="demo-window-body">
-            <div class="demo-line w60"></div>
-            <div class="demo-line w85"></div>
-            <div class="demo-line w40"></div>
-            <div class="demo-blocks">
-              <span></span><span></span><span></span>
-            </div>
-          </div>
-        </div>
+        <!-- Os ícones da área de trabalho -->
+        <div class="demo-icons" id="icons"></div>
+
+        <!-- As janelas são criadas aqui pelo demo.js -->
 
         <!-- A barra de tarefas -->
         <div class="demo-taskbar">
           <span class="demo-start">▦ Meu Pet</span>
+          <div class="demo-taskbar-apps" id="taskbar-apps"></div>
           <span class="demo-clock" id="clock">--:--</span>
         </div>
 
@@ -113,7 +103,10 @@
       <p class="demo-hint">
         <b>Como brincar:</b> arraste o pet com o mouse e solte com força — ele voa e quica.
         Clique nele para conversar. Clique com o botão direito para abrir o menu.
-        Arraste a janela azul pelo título: o pet anda em cima dela e acompanha o movimento.
+        As janelas do desktop também são de verdade: arraste o título para movê-las (o pet
+        anda em cima e acompanha), clique nelas para trazer para a frente, e use os
+        botões para minimizar, maximizar ou fechar — quando a janela some, o pet perde o
+        chão e cai. Os ícones do canto reabrem as janelas.
       </p>
     </div>
   </section>
@@ -137,7 +130,7 @@
           <div class="feature-copy">
             <h3>Isto aqui é a versão web</h3>
             <ul>
-              <li>Em vez das janelas do Windows, o pet anda nas janelas da página — a janelinha azul e a barra de tarefas da demo</li>
+              <li>Em vez das janelas do Windows, o pet anda nas janelas da página: há duas, com barra de título, e dá para movê-las, sobrepor, minimizar, maximizar e fechar — como no Windows, o pet perde o chão quando a janela some</li>
               <li>Não tem IA, agenda, e-mail do Outlook nem atalhos: essas partes vivem dentro do programa</li>
               <li>Os filhos (o balão, a bolinha) aparecem, mas a página não roda o plugin de memorial</li>
               <li>Roda em qualquer navegador moderno, sem instalar nada</li>

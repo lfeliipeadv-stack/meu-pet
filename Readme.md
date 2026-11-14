@@ -122,9 +122,11 @@ Quer ver o bichinho antes de instalar? Ele também roda dentro do navegador, na 
 
 **[lfeliipeadv-stack.github.io/meu-pet/demo.html](https://lfeliipeadv-stack.github.io/meu-pet/demo.html)**
 
-![A demo no navegador: a ovelha andando no topo da janela azul, dentro de uma mini área de trabalho](wiki/images/demo.png)
+![A demo no navegador: a ovelha andando no topo da janela, dentro de uma mini área de trabalho com duas janelas e barra de tarefas](wiki/images/demo.png)
 
-Não é vídeo: é o pet de verdade, com os mesmos desenhos e o mesmo `animations.xml` que o programa abre. Ele chega do céu, pousa no topo da janela, anda por ela, desce para a barra de tarefas e vira de frente na borda. Dá para arrastar e arremessar, conversar com ele, trocar de pet e mexer na janela azul — o pet acompanha o movimento, como no Windows.
+Não é vídeo: é o pet de verdade, com os mesmos desenhos e o mesmo `animations.xml` que o programa abre. Ele chega do céu, pousa no topo da janela, anda por ela, desce para a barra de tarefas e vira de frente na borda. Dá para arrastar e arremessar, conversar com ele e trocar de pet.
+
+A área de trabalho da demo imita a do Windows: duas janelas com barra de título, ícones na tela e barra de tarefas. Você arrasta os títulos (o pet acompanha), traz uma janela para a frente, minimiza, maximiza e fecha — quando a janela some, o pet perde o chão e cai, como no Windows de verdade.
 
 A demo é só o pet: IA, agenda, lembretes, Pomodoro e os outros plugins vivem dentro do [programa para Windows](https://github.com/lfeliipeadv-stack/meu-pet/releases/latest), que é gratuito. O [Wiki tem os detalhes](https://lfeliipeadv-stack.github.io/meu-pet/wiki/Demo-no-navegador.html).
 

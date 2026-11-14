@@ -8,9 +8,11 @@ Existe uma versão do pet que roda **dentro do navegador**, na página do projet
 
 Não é vídeo nem imagem: é o pet de verdade, desenhado quadro a quadro num `canvas`, usando o mesmo arquivo `animations.xml` que o programa para Windows abre. Você vê o bicho chegar do céu, cair, pousar no topo da janela, andar por ela, descer para a barra de tarefas e virar de frente quando chega na borda.
 
-![A demo no navegador: a ovelha andando no topo da janela azul, dentro de uma mini área de trabalho com papel de parede e barra de tarefas](images/demo.png)
+![A demo no navegador: a ovelha andando no título da janela do Bloco de Notas, dentro de uma mini área de trabalho com papel de parede, duas janelas e barra de tarefas](images/demo.png)
 
 *A demo no navegador: a ovelha andando no título da janela. Ao fundo, o papel de parede e, embaixo, a barra de tarefas.*
+
+A página principal do site tem um link **Demo** no menu, que leva para esta página.
 
 ## O que dá para fazer na demo
 
@@ -21,7 +23,16 @@ Não é vídeo nem imagem: é o pet de verdade, desenhado quadro a quadro num `c
 | Arremessar | Arraste o pet e solte com força: ele voa, bate na borda e quica |
 | Trocar de pet | Os botões embaixo do palco: eSheep 64, Claude, Rex, Boo, Pingo, Mago e Nuvi |
 | Ligar e desligar o som | O botão **Som**, ou o item do menu |
-| Mexer na janela | Arraste a barra azul da janela: o pet acompanha o movimento, como no Windows |
+| Mexer nas janelas | Arraste a barra de título: o pet acompanha o movimento, como no Windows |
+
+## A área de trabalho da demo
+
+A demo imita uma área de trabalho do Windows, com duas janelas (o painel do programa e um bloco de notas), os ícones no canto da tela e a barra de tarefas embaixo. As janelas se comportam como as de verdade:
+
+- **arrastar o título** move a janela, e o pet anda em cima dela e acompanha o movimento;
+- **clicar na janela** a traz para a frente — e, quando uma janela cobre a outra, o pet que estava na de baixo perde o chão e cai;
+- **minimizar, maximizar e fechar** funcionam como no Windows: quando a janela some, o pet perde o chão e cai para a barra de tarefas;
+- os **ícones da área de trabalho** reabrem as janelas que foram fechadas, e a **barra de tarefas** mostra as que estão abertas (clicar restaura e traz para a frente).
 
 ## O que a demo **não** tem
 
@@ -43,7 +54,7 @@ O motor do pet (`FormPet.cs`, `FormPet.Motion.cs`, `MotionTrack.cs` e `Xml.cs`) 
 - a queda sobre as janelas, o acompanhamento da janela, a borda da tela e o arremesso com quique são os mesmos do programa;
 - o `animations.xml` usado é o do próprio pet, sem alteração — é por isso que a demo tem as mesmas animações e os mesmos sons do programa.
 
-A página (`site/demo.html`, `site/demo/demo.js` e `site/demo/demo.css`) desenha o palco, a janela de mentira e a barra de tarefas, e cuida do mouse: arrastar o pet, arrastar a janela, o menu e o balão de fala.
+A página (`site/demo.html`, `site/demo/demo.js` e `site/demo/demo.css`) desenha o palco, as janelas, os ícones e a barra de tarefas, e cuida do mouse: arrastar o pet, arrastar as janelas, o menu e o balão de fala.
 
 ## Ver também
 
@@ -55,9 +66,9 @@ A página (`site/demo.html`, `site/demo/demo.js` e `site/demo/demo.css`) desenha
 
 ## Onde fica no código
 
-- `site/demo.html` — a página da demo (com o modo `?embed=1`, que a página principal usa dentro de um `iframe`).
+- `site/demo.html` — a página da demo (com o modo `?embed=1`, que mostra só o palco, e o modo `?shot=1`, usado para a imagem desta página).
 - `site/demo/pet-engine.js` — o motor do pet portado do C# para o navegador.
-- `site/demo/demo.js` — o palco, o desenho, o menu, o balão e as falas.
-- `site/demo/demo.css` — o papel de parede, a janela de mentira, a barra de tarefas e o modo embutido.
-- `site/index.html` — a seção "Demo" da página principal, com o `iframe` da demo.
+- `site/demo/demo.js` — o palco, as janelas, o desenho, o menu, o balão e as falas.
+- `site/demo/demo.css` — o papel de parede, as janelas, os ícones, a barra de tarefas e o modo embutido.
+- `site/index.html` — o link "Demo" do menu da página principal, que leva para a demo.
 - `.github/workflows/pages.yml` — publica a demo e copia os `animations.xml` dos pets que aparecem nela.
