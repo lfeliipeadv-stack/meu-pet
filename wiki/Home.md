@@ -1,6 +1,6 @@
 # Meu Pet (desktopPet)
 
-[Instalação](Instalacao.md) · [Primeiros passos](Primeiros-passos.md) · [Painel de pets](Painel-de-pets.md) · [Pergunte ao pet](Pergunte-ao-pet.md) · [Lembretes e Pomodoro](Lembretes-e-pomodoro.md) · [Agenda e e-mails](Agenda-e-e-mails.md) · [Pet virtual e brincadeiras](Pet-virtual-e-brinquedos.md) · [Plugins e integrações](Plugins-e-integracoes.md) · [Crie o seu pet](Crie-o-seu-pet.md) · [Atalhos e comandos](Atalhos-e-comandos.md) · [Para desenvolvedores](Para-desenvolvedores.md) · [Perguntas frequentes](Perguntas-frequentes.md) · [Changelog](Changelog.md)
+[Instalação](Instalacao.md) · [Primeiros passos](Primeiros-passos.md) · [Demo no navegador](Demo-no-navegador.md) · [Painel de pets](Painel-de-pets.md) · [Pergunte ao pet](Pergunte-ao-pet.md) · [Lembretes e Pomodoro](Lembretes-e-pomodoro.md) · [Agenda e e-mails](Agenda-e-e-mails.md) · [Pet virtual e brincadeiras](Pet-virtual-e-brinquedos.md) · [Plugins e integrações](Plugins-e-integracoes.md) · [Crie o seu pet](Crie-o-seu-pet.md) · [Atalhos e comandos](Atalhos-e-comandos.md) · [Para desenvolvedores](Para-desenvolvedores.md) · [Perguntas frequentes](Perguntas-frequentes.md) · [Changelog](Changelog.md)
 
 O **Meu Pet** (o programa se chama **desktopPet**) é um bichinho que vive na sua área de trabalho do Windows: ele anda pelo topo das suas janelas, cai na barra de tarefas, dorme, dança e pode ser arrastado e arremessado com o mouse.
 
@@ -50,6 +50,7 @@ O programa tem duas partes:
 | --- | --- |
 | Instalar o programa no Windows | [Instalação](Instalacao.md) |
 | Saber o que fazer depois de instalar | [Primeiros passos](Primeiros-passos.md) |
+| Ver o pet funcionando sem instalar nada | [Demo no navegador](Demo-no-navegador.md) |
 | Escolher, baixar ou adotar um pet | [Painel de pets](Painel-de-pets.md) |
 | Conversar com o pet e configurar a IA | [Pergunte ao pet](Pergunte-ao-pet.md) |
 | Criar lembretes, focar com Pomodoro e usar o Timer | [Lembretes e Pomodoro](Lembretes-e-pomodoro.md) |
@@ -99,6 +100,7 @@ Se algo aqui estiver errado ou desatualizado, prefira conferir no código: os ca
 ## Ver também
 
 - [Primeiros passos](Primeiros-passos.md)
+- [Demo no navegador](Demo-no-navegador.md)
 - [Painel de pets](Painel-de-pets.md)
 - [Pergunte ao pet](Pergunte-ao-pet.md)
 - [Atalhos e comandos](Atalhos-e-comandos.md)
@@ -130,3 +132,4 @@ Se algo aqui estiver errado ou desatualizado, prefira conferir no código: os ca
 - `src/Portable/SelfTest.cs` — autoteste (`--selftest`)
 - `Pets/pets.json` — índice da galeria de pets
 - `Tools/release.ps1` — publicação das releases
+- `site/demo/pet-engine.js` — o motor do pet portado para o navegador (a demo da página do projeto)

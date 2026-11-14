@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Demo no navegador — Wiki do Meu Pet</title>
+<link rel="icon" href="../img/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body class="wiki">
+<header class="topo">
+  <a class="volta" href="../">&larr; Voltar para a página do Meu Pet</a>
+  <span class="marca">Wiki do Meu Pet</span>
+</header>
+<div class="layout">
+  <nav class="lateral">
+    <p class="lateral-titulo">Páginas</p>
+    <ul>
+<li><a href="Home.html">Home</a></li><li><a href="Instalacao.html">Instalação</a></li><li><a href="Primeiros-passos.html">Primeiros passos</a></li><li class="on"><a href="Demo-no-navegador.html">Demo no navegador</a></li><li><a href="Painel-de-pets.html">Painel de pets</a></li><li><a href="Pergunte-ao-pet.html">Pergunte ao pet</a></li><li><a href="Lembretes-e-Pomodoro.html">Lembretes e Pomodoro</a></li><li><a href="Agenda-e-e-mails.html">Agenda e e-mails</a></li><li><a href="Pet-virtual-e-brinquedos.html">Pet virtual e brincadeiras</a></li><li><a href="Plugins-e-integracoes.html">Plugins e integrações</a></li><li><a href="Crie-o-seu-pet.html">Crie o seu pet</a></li><li><a href="Atalhos-e-comandos.html">Atalhos e comandos</a></li><li><a href="Para-desenvolvedores.html">Para desenvolvedores</a></li><li><a href="Perguntas-frequentes.html">Perguntas frequentes</a></li><li><a href="Changelog.html">Changelog</a></li>
+    </ul>
+  </nav>
+  <main class="conteudo wiki-corpo">
+<h1>Demo no navegador</h1>
+<p><a href="Home.html">Home</a> · <a href="Instalacao.html">Instalação</a> · <a href="Primeiros-passos.html">Primeiros passos</a> · <a href="Painel-de-pets.html">Painel de pets</a> · <a href="Pergunte-ao-pet.html">Pergunte ao pet</a> · <a href="Lembretes-e-Pomodoro.html">Lembretes e Pomodoro</a> · <a href="Agenda-e-e-mails.html">Agenda e e-mails</a> · <a href="Plugins-e-integracoes.html">Plugins e integrações</a> · <a href="Crie-o-seu-pet.html">Crie o seu pet</a> · <a href="Atalhos-e-comandos.html">Atalhos e comandos</a> · <a href="Para-desenvolvedores.html">Para desenvolvedores</a> · <a href="Perguntas-frequentes.html">Perguntas frequentes</a> · <a href="Changelog.html">Changelog</a></p>
+<p>Existe uma versão do pet que roda <strong>dentro do navegador</strong>, na página do projeto:</p>
+<p><strong><a href="https://lfeliipeadv-stack.github.io/meu-pet/demo.html" rel="nofollow">https://lfeliipeadv-stack.github.io/meu-pet/demo.html</a></strong></p>
+<p>Não é vídeo nem imagem: é o pet de verdade, desenhado quadro a quadro num <code class="notranslate">canvas</code>, usando o mesmo arquivo <code class="notranslate">animations.xml</code> que o programa para Windows abre. Você vê o bicho chegar do céu, cair, pousar no topo da janela, andar por ela, descer para a barra de tarefas e virar de frente quando chega na borda.</p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/demo.png"><img src="images/demo.png" alt="A demo no navegador: a ovelha andando no topo da janela azul, dentro de uma mini área de trabalho com papel de parede e barra de tarefas" style="max-width: 100%;"></a></p>
+<p><em>A demo no navegador: a ovelha andando no título da janela. Ao fundo, o papel de parede e, embaixo, a barra de tarefas.</em></p>
+<h2>O que dá para fazer na demo</h2>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Ação</th>
+<th>Como fazer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Conversar</td>
+<td>Clique no pet (o balão responde) ou use o botão <strong>Perguntar ao pet</strong></td>
+</tr>
+<tr>
+<td>Brincar</td>
+<td>Botão direito no pet: biscoito da sorte, bola 8 mágica, piada e "como você está hoje?"</td>
+</tr>
+<tr>
+<td>Arremessar</td>
+<td>Arraste o pet e solte com força: ele voa, bate na borda e quica</td>
+</tr>
+<tr>
+<td>Trocar de pet</td>
+<td>Os botões embaixo do palco: eSheep 64, Claude, Rex, Boo, Pingo, Mago e Nuvi</td>
+</tr>
+<tr>
+<td>Ligar e desligar o som</td>
+<td>O botão <strong>Som</strong>, ou o item do menu</td>
+</tr>
+<tr>
+<td>Mexer na janela</td>
+<td>Arraste a barra azul da janela: o pet acompanha o movimento, como no Windows</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<h2>O que a demo <strong>não</strong> tem</h2>
+<p>A demo é o mesmo pet com o mesmo motor, mas o mundo em que ele anda é a página, não o Windows. Por isso ela <strong>não</strong> tem:</p>
+<ul>
+<li>IA (o "Perguntar ao pet" da demo responde com as falas guardadas no programa, sem chamar nenhum serviço);</li>
+<li>agenda, e-mails do Outlook, lembretes, Pomodoro e os outros plugins;</li>
+<li>atalhos de teclado e menu da bandeja;</li>
+<li>multi-monitor, tamanhos 1×/2×/4× e o painel de Configurações.</li>
+</ul>
+<p>Tudo isso vive dentro do <a href="Instalacao.html">programa para Windows</a>, que é gratuito.</p>
+<h2>Como ela foi feita</h2>
+<p>O motor do pet (<code class="notranslate">FormPet.cs</code>, <code class="notranslate">FormPet.Motion.cs</code>, <code class="notranslate">MotionTrack.cs</code> e <code class="notranslate">Xml.cs</code>) foi portado para JavaScript em <code class="notranslate">site/demo/pet-engine.js</code>. A porta segue o C# passo a passo:</p>
+<ul>
+<li>as expressões do XML (<code class="notranslate">screenW</code>, <code class="notranslate">areaH</code>, <code class="notranslate">random</code>, <code class="notranslate">imageX</code>…) são avaliadas em inteiros, como o <code class="notranslate">DataTable.Compute</code> do .NET;</li>
+<li>a escolha da próxima animação respeita o <code class="notranslate">only</code> e as probabilidades de cada <code class="notranslate">&lt;next&gt;</code>;</li>
+<li>a queda sobre as janelas, o acompanhamento da janela, a borda da tela e o arremesso com quique são os mesmos do programa;</li>
+<li>o <code class="notranslate">animations.xml</code> usado é o do próprio pet, sem alteração — é por isso que a demo tem as mesmas animações e os mesmos sons do programa.</li>
+</ul>
+<p>A página (<code class="notranslate">site/demo.html</code>, <code class="notranslate">site/demo/demo.js</code> e <code class="notranslate">site/demo/demo.css</code>) desenha o palco, a janela de mentira e a barra de tarefas, e cuida do mouse: arrastar o pet, arrastar a janela, o menu e o balão de fala.</p>
+<h2>Ver também</h2>
+<ul>
+<li><a href="Instalacao.html">Instalação</a> — o programa para Windows, que é a versão completa.</li>
+<li><a href="Primeiros-passos.html">Primeiros passos</a> — o primeiro uso do programa e a tela de apresentação.</li>
+<li><a href="Painel-de-pets.html">Painel de pets</a> — a galeria de pets e o painel de detalhes de cada um.</li>
+<li><a href="Pergunte-ao-pet.html">Pergunte ao pet</a> — a conversa de verdade, com IA.</li>
+<li><a href="Para-desenvolvedores.html">Para desenvolvedores</a> — compilar, publicar e a estrutura do repositório.</li>
+</ul>
+<h2>Onde fica no código</h2>
+<ul>
+<li><code class="notranslate">site/demo.html</code> — a página da demo (com o modo <code class="notranslate">?embed=1</code>, que a página principal usa dentro de um <code class="notranslate">iframe</code>).</li>
+<li><code class="notranslate">site/demo/pet-engine.js</code> — o motor do pet portado do C# para o navegador.</li>
+<li><code class="notranslate">site/demo/demo.js</code> — o palco, o desenho, o menu, o balão e as falas.</li>
+<li><code class="notranslate">site/demo/demo.css</code> — o papel de parede, a janela de mentira, a barra de tarefas e o modo embutido.</li>
+<li><code class="notranslate">site/index.html</code> — a seção "Demo" da página principal, com o <code class="notranslate">iframe</code> da demo.</li>
+<li><code class="notranslate">.github/workflows/pages.yml</code> — publica a demo e copia os <code class="notranslate">animations.xml</code> dos pets que aparecem nela.</li>
+</ul>
+  </main>
+</div>
+<footer class="rodape">
+  <p>O <strong>Meu Pet</strong> é um bichinho de área de trabalho para Windows 10 e 11.
+  <a href="https://github.com/lfeliipeadv-stack/meu-pet">Ver no GitHub</a></p>
+</footer>
+</body>
+</html>

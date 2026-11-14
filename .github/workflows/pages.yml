@@ -42,11 +42,20 @@ jobs:
         run: |
           mkdir -p _site/pets _site/img/capturas
           cp -r site/index.html site/style.css _site/
+          cp -r site/demo _site/
           [ -d site/wiki ] && cp -r site/wiki _site/
           # As imagens do Wiki ficam na pasta wiki/images e vao junto.
           [ -d wiki/images ] && cp -r wiki/images _site/wiki/ 2>/dev/null || true
           cp Pets/pets.json _site/
           for d in Pets/*/; do f=$(basename "$d"); [ -f "$d/preview.gif" ] && cp "$d/preview.gif" "_site/pets/$f.gif"; done
+          # As animacoes dos pets que aparecem na demo: a pagina roda o mesmo
+          # animations.xml que o programa para Windows abre.
+          for p in esheep64 claude rex boo pingo mago nuvi; do
+            if [ -f "Pets/$p/animations.xml" ]; then
+              mkdir -p "_site/pets/$p"
+              cp "Pets/$p/animations.xml" "_site/pets/$p/animations.xml"
+            fi
+          done
           cp .github/readme/painel-meus-pets.png .github/readme/painel-detalhe.png _site/img/
           cp Pets/esheep64/icon.png _site/img/icon.png
           # as capturas de tela do programa, tiradas pelo próprio app (--snapshot)

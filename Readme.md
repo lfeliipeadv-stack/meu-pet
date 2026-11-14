@@ -22,6 +22,8 @@
   <a href="https://github.com/lfeliipeadv-stack/meu-pet/releases/latest">Todas as versões</a>
   &nbsp;·&nbsp;
   <a href="https://lfeliipeadv-stack.github.io/meu-pet/">Página do Meu Pet</a>
+  &nbsp;·&nbsp;
+  <a href="https://lfeliipeadv-stack.github.io/meu-pet/demo.html">Demo no navegador</a>
 </p>
 
 ---
@@ -34,6 +36,7 @@ O manual inteiro está no [Wiki do projeto](https://lfeliipeadv-stack.github.io/
 | --- | --- |
 | [Instalação](https://lfeliipeadv-stack.github.io/meu-pet/wiki/Instalacao.html) | Os três downloads, o que o instalador confere, como desinstalar |
 | [Primeiros passos](https://lfeliipeadv-stack.github.io/meu-pet/wiki/Primeiros-passos.html) | O que fazer depois de instalar, em ordem |
+| [Demo no navegador](https://lfeliipeadv-stack.github.io/meu-pet/wiki/Demo-no-navegador.html) | O pet de verdade rodando dentro da página, sem instalar nada |
 | [Painel de pets](https://lfeliipeadv-stack.github.io/meu-pet/wiki/Painel-de-pets.html) | Baixar, adotar, remover, exportar e importar pets |
 | [Pergunte ao pet](https://lfeliipeadv-stack.github.io/meu-pet/wiki/Pergunte-ao-pet.html) | A conversa, os provedores de IA e onde fica a chave |
 | [Lembretes e Pomodoro](https://lfeliipeadv-stack.github.io/meu-pet/wiki/Lembretes-e-Pomodoro.html) | Os lembretes em português e o foco que silencia o pet |
@@ -112,6 +115,18 @@ Na galeria também estão pets da comunidade do eSheep: as ovelhas coloridas (gS
 - Os pets vêm direto deste repositório (pasta [`Pets`](Pets)), com prévia animada no painel, sem precisar de um exe novo
 - Português, inglês e espanhol, em arquivos simples (`src/lang`) fáceis de editar
 - Na primeira vez o pet se apresenta; depois de cada atualização, conta as novidades
+
+## Demo no navegador
+
+Quer ver o bichinho antes de instalar? Ele também roda dentro do navegador, na página do projeto:
+
+**[lfeliipeadv-stack.github.io/meu-pet/demo.html](https://lfeliipeadv-stack.github.io/meu-pet/demo.html)**
+
+![A demo no navegador: a ovelha andando no topo da janela azul, dentro de uma mini área de trabalho](wiki/images/demo.png)
+
+Não é vídeo: é o pet de verdade, com os mesmos desenhos e o mesmo `animations.xml` que o programa abre. Ele chega do céu, pousa no topo da janela, anda por ela, desce para a barra de tarefas e vira de frente na borda. Dá para arrastar e arremessar, conversar com ele, trocar de pet e mexer na janela azul — o pet acompanha o movimento, como no Windows.
+
+A demo é só o pet: IA, agenda, lembretes, Pomodoro e os outros plugins vivem dentro do [programa para Windows](https://github.com/lfeliipeadv-stack/meu-pet/releases/latest), que é gratuito. O [Wiki tem os detalhes](https://lfeliipeadv-stack.github.io/meu-pet/wiki/Demo-no-navegador.html).
 
 ## Telas
 

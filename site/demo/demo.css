@@ -1,0 +1,221 @@
+/* ---------------------------------------------------------------
+   Demo — a ovelhinha dentro da página.
+
+   O palco imita uma área de trabalho: papel de parede, uma janela
+   e uma barra de tarefas. O pet é desenhado num canvas por cima de
+   tudo, andando no topo da janela como no Windows.
+   --------------------------------------------------------------- */
+
+[hidden] { display: none !important; }
+
+.demo-stage {
+  position: relative;
+  height: clamp(340px, 54vh, 520px);
+  border: 1px solid #0b0c0e;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  background: #0e1216;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.demo-wallpaper {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(900px 380px at 22% -5%, #2c4c58 0%, transparent 62%),
+    radial-gradient(700px 320px at 92% 110%, #24403a 0%, transparent 60%),
+    linear-gradient(180deg, #1b262e, #10151a 62%, #0c1013);
+}
+
+/* --------------------------------------------------- a janela do desktop */
+.demo-window {
+  position: absolute;
+  left: 10%; top: 96px;
+  width: min(540px, 60%);
+  background: #f6f7f5;
+  color: #16191c;
+  border-radius: 7px 7px 0 0;
+  box-shadow: 0 20px 46px rgba(0,0,0,.5);
+  pointer-events: none;
+  overflow: hidden;
+}
+.demo-window-bar {
+  background: linear-gradient(90deg, var(--navy), var(--navy-2));
+  color: #fff;
+  font-size: 12.5px;
+  padding: 7px 10px 7px 12px;
+  display: flex; align-items: center; gap: 9px;
+  cursor: grab;
+}
+.demo-window-bar .dot { width: 11px; height: 11px; flex: none; }
+.demo-window-bar .dot.min { background: #d0d0d0; }
+.demo-window-bar .dot.max { background: #4a6fa5; }
+.demo-window-bar .dot.close { background: #a63c34; }
+.demo-window-title { margin-left: 4px; opacity: .95; }
+.demo-window-body { padding: 16px 18px 20px; }
+.demo-line {
+  height: 8px; border-radius: 4px; background: #dfe3e0; margin-bottom: 9px;
+}
+.demo-line.w60 { width: 60%; } .demo-line.w85 { width: 85%; } .demo-line.w40 { width: 40%; }
+.demo-blocks { display: flex; gap: 8px; margin-top: 14px; }
+.demo-blocks span {
+  height: 26px; flex: 1; border-radius: 4px; background: #e8ebe9;
+}
+
+/* ------------------------------------------------------- a barra de tarefas */
+.demo-taskbar {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 36px;
+  background: rgba(9,17,24,.86);
+  border-top: 1px solid rgba(255,255,255,.12);
+  color: #cbd9e4;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 14px;
+  font-family: var(--font-pixel); font-size: 11px;
+  backdrop-filter: blur(3px);
+}
+.demo-start { color: #e7eef5; }
+.demo-clock { opacity: .85; }
+
+/* ---------------------------------------------------------------- o pet */
+.demo-canvas {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  image-rendering: pixelated;
+}
+
+/* --------------------------------------------------------- o balão de fala */
+.demo-bubble {
+  position: absolute; z-index: 5;
+  max-width: 250px;
+  background: #fff;
+  color: #16191c;
+  border: 2px solid #101318;
+  border-radius: 12px;
+  padding: 11px 13px;
+  font-size: .93rem;
+  line-height: 1.45;
+  box-shadow: 0 10px 24px rgba(0,0,0,.4);
+}
+.demo-bubble p { margin: 0; }
+.demo-bubble::after {
+  content: "";
+  position: absolute; left: 22px; bottom: -9px;
+  border-left: 9px solid transparent;
+  border-right: 9px solid transparent;
+  border-top: 9px solid #101318;
+}
+.demo-bubble::before {
+  content: "";
+  position: absolute; left: 24px; bottom: -6px; z-index: 1;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-top: 7px solid #fff;
+}
+.demo-choices { display: flex; gap: 6px; margin-top: 9px; }
+.demo-choices button {
+  border: 1px solid var(--line); background: var(--surface);
+  border-radius: 6px; padding: 4px 7px; cursor: pointer;
+  font-size: 1.05rem; line-height: 1;
+}
+.demo-choices button:hover { border-color: var(--accent); background: var(--accent-lo); }
+
+/* ------------------------------------------------------------- o menu */
+.demo-menu {
+  position: absolute; z-index: 6;
+  min-width: 210px;
+  background: #fff;
+  border: 1px solid #cfd6d2;
+  border-radius: 8px;
+  padding: 6px;
+  box-shadow: 0 14px 34px rgba(0,0,0,.4);
+}
+.demo-menu button {
+  display: block; width: 100%; text-align: left;
+  padding: 8px 10px; border: 0; border-radius: 5px;
+  background: transparent; color: #16191c;
+  font: inherit; font-size: .92rem; cursor: pointer;
+}
+.demo-menu button:hover { background: var(--accent-lo); color: var(--accent); }
+.demo-menu hr { border: 0; border-top: 1px solid var(--line); margin: 5px 2px; }
+.demo-menu .demo-menu-head {
+  padding: 6px 10px 7px; font-weight: 700; font-size: .82rem; color: var(--muted);
+  text-transform: uppercase; letter-spacing: .04em;
+}
+
+/* ------------------------------------------------------ o carregamento */
+.demo-loading {
+  position: absolute; inset: 0; z-index: 8;
+  display: grid; place-content: center; justify-items: center; gap: 12px;
+  background: rgba(10,15,20,.78); color: #dfe8f4; font-size: .9rem;
+}
+.demo-loading p { margin: 0; }
+.demo-loading-bar {
+  width: 190px; height: 6px; border-radius: 3px;
+  background: rgba(255,255,255,.16); overflow: hidden;
+}
+.demo-loading-bar i {
+  display: block; width: 40%; height: 100%;
+  background: var(--accent); border-radius: 3px;
+  animation: demo-loading 1.1s ease-in-out infinite;
+}
+@keyframes demo-loading {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(250%); }
+}
+
+/* --------------------------------------------------------- os controles */
+.demo-controls {
+  display: flex; flex-wrap: wrap; gap: 16px;
+  align-items: center; justify-content: space-between;
+  margin-top: 18px;
+}
+.demo-pets { display: flex; flex-wrap: wrap; gap: 8px; }
+.demo-pet {
+  display: flex; align-items: center; gap: 9px;
+  border: 1px solid var(--line); background: var(--bg);
+  border-radius: 8px; padding: 6px 12px 6px 7px;
+  cursor: pointer; font: inherit; color: var(--ink);
+}
+.demo-pet img {
+  width: 42px; height: 42px; object-fit: contain;
+  image-rendering: pixelated;
+}
+.demo-pet span { font-size: .9rem; }
+.demo-pet:hover { border-color: var(--accent); }
+.demo-pet[aria-pressed="true"] {
+  border-color: var(--accent); background: var(--accent-lo); color: var(--accent);
+}
+.demo-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+.demo-hint {
+  margin: 16px 0 0; color: var(--muted); font-size: .92rem; max-width: 70ch;
+}
+.demo-hint b { color: var(--ink); }
+
+/* A janela do desktop se move: ela ganha a mão. */
+.demo-stage.dragging-window .demo-window-bar { cursor: grabbing; }
+.demo-stage.dragging-pet { cursor: grabbing; }
+
+@media (max-width: 760px) {
+  .demo-window { width: 78%; left: 6%; top: 74px; }
+  .demo-controls { flex-direction: column; align-items: stretch; }
+}
+
+/* --------------------------------------------------------------- o modo
+   embutido: a mesma página, mostrada dentro de um iframe do site
+   principal. Some tudo, menos o palco.                            */
+body.embed .titlebar,
+body.embed .hero,
+body.embed footer,
+body.embed #o-que-e-real,
+body.embed #demo h2,
+body.embed #demo .section-intro,
+body.embed .demo-hint { display: none; }
+body.embed #demo { padding: 0; border: 0; }
+body.embed #demo .wrap { padding: 0; max-width: none; }
+body.embed .demo-stage { border-radius: 0; border: 0; box-shadow: none; }
+body.embed .demo-controls { padding: 10px 0 0; margin-top: 0; }
+
