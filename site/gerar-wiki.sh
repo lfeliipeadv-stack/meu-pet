@@ -32,6 +32,7 @@ PAGINAS=(
   "Home:Home"
   "Instalacao:Instalação"
   "Primeiros-passos:Primeiros passos"
+  "Demo-no-navegador:Demo no navegador"
   "Painel-de-pets:Painel de pets"
   "Pergunte-ao-pet:Pergunte ao pet"
   "Lembretes-e-Pomodoro:Lembretes e Pomodoro"
