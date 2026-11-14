@@ -750,7 +750,7 @@
         <opacity>1</opacity>
         <interval>50</interval>
       </end>
-      <sequence repeatfrom="20" repeat="12">
+      <sequence repeatfrom="20" repeat="45">
         <frame>146</frame>
         <frame>146</frame>
         <frame>146</frame>

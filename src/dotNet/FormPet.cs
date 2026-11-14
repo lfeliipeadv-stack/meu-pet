@@ -1856,6 +1856,44 @@ namespace DesktopPet
             bool grounded = CurrentAnimation.Start.Y.Value == 0 && CurrentAnimation.End.Y.Value == 0 && CurrentAnimation.ID != Animations.AnimationFall;
             return stays || grounded ? StillAnimation : next;
         }
+        /// <summary>
+        /// If <paramref name="id"/> belongs to a scene that only a spawn starts, the index of that spawn (for <see cref="Play"/>), else -1.
+        /// A scene: the first animation of a spawn that no other animation leads to, plus every animation that only
+        /// the scene itself leads to (the bath: fall → dive → splash → in the tub → out of the tub). Played alone,
+        /// such an animation would start in the wrong place and without the windows the scene opens on the way.
+        /// </summary>
+        internal int SpawnSceneOf(int id)
+        {
+            if (Animations?.SheepAnimations == null || Animations.SheepSpawn == null) return -1;
+            var preds = new Dictionary<int, HashSet<int>>();
+            foreach (var kv in Animations.SheepAnimations)
+                foreach (var n in (kv.Value.EndAnimation ?? new List<TNextAnimation>())
+                                  .Concat(kv.Value.EndBorder ?? new List<TNextAnimation>())
+                                  .Concat(kv.Value.EndGravity ?? new List<TNextAnimation>()))
+                {
+                    if (!preds.TryGetValue(n.ID, out var set)) preds[n.ID] = set = new HashSet<int>();
+                    set.Add(kv.Key);
+                }
+            var keys = Animations.SheepSpawn.Keys.ToList();
+            for (int i = 0; i < keys.Count; i++)
+            {
+                int first = Animations.SheepSpawn[keys[i]].Next;
+                if (preds.ContainsKey(first)) continue;   // also reached in normal play (walk, fall…): not a scene of its own
+                var scene = new HashSet<int> { first };
+                for (bool grew = true; grew;)
+                {
+                    grew = false;
+                    foreach (var kv in preds)
+                        if (!scene.Contains(kv.Key) && kv.Value.All(scene.Contains)) { scene.Add(kv.Key); grew = true; }
+                }
+                if (scene.Contains(id)) return i;
+            }
+            return -1;
+        }
+
+        /// <summary>Self-test: open the animation picker (as a middle click does) and return it.</summary>
+        internal FormAnimPicker TestOpenPicker() { ShowAnimationPicker(); return animPicker; }
+
         private void ShowAnimationPicker()
         {
             if (Animations?.SheepAnimations == null || Animations.SheepAnimations.Count == 0) return;
@@ -1871,6 +1909,14 @@ namespace DesktopPet
                 id =>
                 {
                     // play now and keep the window open, so more animations can be tried
+                    int spawn = SpawnSceneOf(id);
+                    if (spawn >= 0)
+                    {
+                        // a scene that only starts from its own spawn (the bath falling from the sky, the black sheep…):
+                        // it starts from that spawn, with the windows it opens on the way (the tub), not from where the pet is
+                        Play(false, spawn);
+                        return;
+                    }
                     SetNewAnimation(id);
                     timer1.Interval = 1;
                     timer1.Enabled = true;

@@ -321,7 +321,11 @@ namespace DesktopPet
 					ConfigureKey = "plug.visitors.button", Configure = Visitors.Visit },
 				new Card { Id = "push", Emoji = "🪟", Key = "plug.push", Category = "fun",
 					Get = () => WindowPush.Enabled, Set = on => WindowPush.Enabled = on },
-				new Card { Id = "memory", Emoji = "🧠", Key = "plug.memory", Category = "pc",
+				new Card { Id = "timer", Emoji = "⏱️", Key = "plug.timer", Category = "day",
+					Get = () => PluginSwitch.On("timer"), Set = on => { PluginSwitch.Set("timer", on); if (!on) SimpleTimer.Close(); },
+					Status = () => SimpleTimer.Active ? "⏱ " + (SimpleTimer.Finished ? Lang.T("timer.doneShort") : SimpleTimer.LeftText) : null,
+					ConfigureKey = "plug.timer.button", Configure = () => { if (!PluginSwitch.On("timer")) PluginSwitch.Set("timer", true); SimpleTimer.AskAndStart(); } },
+				new Card { Id = "memory", Emoji = "💾", Key = "plug.memory", Category = "pc", Icon = DrawRamIcon,
 					Get = () => MemoryCare.Enabled, Set = on => MemoryCare.Enabled = on,
 					Status = () => Lang.T("plug.memory.status", MemoryCare.Status().load),
 					Configure = () => ShowPluginOptions("plug.memory.title", v =>
@@ -445,6 +449,35 @@ namespace DesktopPet
 			}
 			catch (Exception ex) { LogFile.Write("claude icon: " + ex.Message); return null; }
 		});
+
+		/// <summary>A memory (RAM) stick: there is no emoji for it. Green board, black chips, gold contacts and the notch.</summary>
+		internal static void DrawRamIcon(Graphics g, Rectangle r)
+		{
+			var oldSmooth = g.SmoothingMode;
+			g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+			float w = r.Width * 0.84f, h = w * 0.42f;
+			float x = r.X + (r.Width - w) / 2, y = r.Y + (r.Height - h) / 2;
+			using (var board = new SolidBrush(Color.FromArgb(46, 140, 82)))
+			using (var edge = new Pen(Color.FromArgb(26, 92, 52), Math.Max(1f, w / 40)))
+			using (var chip = new SolidBrush(Color.FromArgb(38, 38, 44)))
+			using (var gold = new SolidBrush(Color.FromArgb(232, 184, 64)))
+			using (var notch = new SolidBrush(Theme.Surface))
+			{
+				g.FillRectangle(board, x, y, w, h);
+				g.DrawRectangle(edge, x, y, w, h);
+				// four chips
+				float cw = w * 0.17f, ch = h * 0.46f, gap = (w - 4 * cw) / 5;
+				for (int i = 0; i < 4; i++) g.FillRectangle(chip, x + gap + i * (cw + gap), y + h * 0.14f, cw, ch);
+				// gold contacts along the bottom edge
+				float pinY = y + h * 0.74f, pinH = h * 0.2f;
+				int pins = 9;
+				float pw = w / (pins * 2 + 1);
+				for (int i = 0; i < pins; i++) g.FillRectangle(gold, x + pw * (1 + i * 2), pinY, pw, pinH);
+				// the key notch, a little off center
+				g.FillRectangle(notch, x + w * 0.58f, y + h * 0.84f, w * 0.06f, h * 0.17f);
+			}
+			g.SmoothingMode = oldSmooth;
+		}
 
 		/// <summary>The Claude mark: the embedded icon, or a drawn starburst if it is missing.</summary>
 		private static void DrawClaudeLogo(Graphics g, Rectangle r)

@@ -121,6 +121,8 @@ namespace DesktopPet
 			/// <summary>The plate shows while the mouse is over the pet (it is click-through, so the pet stays usable).</summary>
 			void HoverCheck()
 			{
+				// closed before it was ever shown, a form is disposed without FormClosed: the timer must stop here too
+				if (IsDisposed || Disposing) { follow.Stop(); return; }
 				if (pet == null || pet.IsDisposed || !pet.Visible || HideHotkey.Hidden) { if (Visible) Hide(); return; }
 				bool over = Rectangle.Inflate(pet.Bounds, 6, 6).Contains(Cursor.Position);
 				if (over)
@@ -163,7 +165,7 @@ namespace DesktopPet
 				Theme.DrawText(g, Disk, font, new Rectangle(10, 47, Width - 14, 16), Theme.TextMuted, TextFormatFlags.SingleLine | TextFormatFlags.EndEllipsis);
 			}
 
-			protected override void Dispose(bool disposing) { if (disposing) { font.Dispose(); bold.Dispose(); } base.Dispose(disposing); }
+			protected override void Dispose(bool disposing) { if (disposing) { follow.Stop(); follow.Dispose(); font.Dispose(); bold.Dispose(); } base.Dispose(disposing); }
 		}
 	}
 }

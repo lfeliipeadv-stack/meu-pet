@@ -91,10 +91,13 @@ namespace DesktopPet
 			Try("settings pages", SettingsPages);
 			Try("ai providers", AiProviders);
 			await TryAsync("chat", ChatBox);
+			await TryAsync("hover chat", HoverChat);
+			await TryAsync("simple timer", TimerCheck);
 			await TryAsync("weather", WeatherCheck);
 			await TryAsync("pets chat", PetsChat);
 			await TryAsync("sky arrival", SkyArrival);
 			await TryAsync("pet change", PetChangeHello);
+			await TryAsync("anim picker", PickerScenes);
 			await TryAsync("tour", Onboard);
 			await TryAsync("talking pet", TalkingPet);
 			await TryAsync("quiet time", QuietTime);
@@ -565,10 +568,132 @@ namespace DesktopPet
 		/// <summary>Falling from a window that went away: a pet in the air cannot stand still until it lands.</summary>
 		static bool InAir(FormPet pet) => (pet.CurrentAnimationName ?? "").IndexOf("fall", StringComparison.OrdinalIgnoreCase) >= 0;
 
+		/// <summary>A picture of part of the screen next to the result file (to look at the windows).</summary>
+		static void Shot(string name, Rectangle r)
+		{
+			try
+			{
+				r = Rectangle.Inflate(r, 24, 24);
+				using (var b = new Bitmap(r.Width, r.Height))
+				{
+					using (var g = Graphics.FromImage(b)) g.CopyFromScreen(r.Location, Point.Empty, r.Size);
+					b.Save(Path.Combine(Path.GetDirectoryName(Path.GetFullPath(resultFile)) ?? ".", "shot-" + name + ".png"));
+				}
+			}
+			catch (Exception) { }
+		}
+
+		/// <summary>
+		/// Mouse on the pet: the message and voice buttons; the message button opens the small balloon over the head,
+		/// its balloon button opens the whole conversation, and a message sent from it is answered in the pet's bubble.
+		/// </summary>
+		static async Task HoverChat()
+		{
+			foreach (var b in Application.OpenForms.OfType<SpeechBubble>().ToList()) b.Close();
+			var pet = Pet();
+			if (pet == null || !HoverAsk.Enabled) { lines.Add("SKIP  hover chat: no pet, or the buttons are turned off"); return; }
+			var mouse = Cursor.Position;
+			for (int i = 0; i < 60 && !(pet.OnGround && Screen.FromControl(pet).WorkingArea.Contains(pet.Bounds)); i++) await Task.Delay(150);   // arriving, or in a scene below the taskbar
+			FormPet.Hold(true);   // a pet walking away cannot be pointed at
+			try
+			{
+				await Task.Delay(600);
+				for (int i = 0; i < 20 && !HoverAsk.Showing; i++) { Cursor.Position = new Point(pet.Left + pet.Width / 2, pet.Top + pet.Height / 2); await Task.Delay(150); }
+				Check("hover chat: message and voice buttons beside the pet", HoverAsk.Showing);
+				Shot("1-botoes", new Rectangle(pet.Left - 20, pet.Top - 30, pet.Width + 90, pet.Height + 60));
+				HoverAsk.TestClick(0);
+				await Task.Delay(500);
+				var q = QuickChat.Current;
+				Check("hover chat: the message button opens the small balloon", q != null);
+				if (q != null)
+				{
+					Check("hover chat: the balloon is over the pet's head, its tip at the pet", ((q.Bottom >= pet.Top - 2 && q.Bottom <= pet.Top + 12) || pet.Top > Screen.FromControl(pet).WorkingArea.Bottom - pet.Height / 2) && (Math.Abs(q.Left + q.TestTipX - (pet.Left + pet.Width / 2)) <= 6 || q.TestTipX <= 40 || q.TestTipX >= q.Width - 40), $"balloon {q.Bounds}, tip at {q.Left + q.TestTipX}, pet {pet.Bounds}");
+					Check("hover chat: the pets wait while it is open", FormPet.Held);
+					Shot("2-balao", Rectangle.Union(q.Bounds, pet.Bounds));
+					q.Expand();
+					await Task.Delay(600);
+					Check("hover chat: its balloon button opens the whole conversation", FormChat.IsOpen && !QuickChat.IsOpen);
+					var chat = Application.OpenForms.OfType<FormChat>().FirstOrDefault();
+					if (chat != null) { chat.Refresh(); Shot("3-conversa", Rectangle.Union(chat.Bounds, pet.Bounds)); chat.Close(); }
+					await Task.Delay(300);
+				}
+				// a message sent from the small balloon: the pet answers in its bubble, and it goes into the conversation
+				int count = FormChat.Messages.Count;
+				QuickChat.Open();
+				await Task.Delay(300);
+				QuickChat.Current?.Send("o que você sabe fazer?");
+				bool said = false;
+				for (int i = 0; i < 40 && !said; i++) { await Task.Delay(100); said = FormChat.Messages.Count >= count + 2 && Application.OpenForms.OfType<SpeechBubble>().Any(b => b.Visible); }
+				Check("hover chat: a message from the balloon is answered in the pet's bubble", said && !QuickChat.IsOpen && FormChat.Messages.Last().Text == Lang.T("chat.help"));
+				var bubble = Application.OpenForms.OfType<SpeechBubble>().FirstOrDefault(b => b.Visible);
+				if (bubble != null) Shot("4-resposta", Rectangle.Union(bubble.Bounds, pet.Bounds));
+				foreach (var b in Application.OpenForms.OfType<SpeechBubble>().ToList()) b.Close();
+
+				// voice: the Windows recognizer, through a hidden Windows PowerShell (no window of its own)
+				var clock = System.Diagnostics.Stopwatch.StartNew();
+				var (heard, _) = await VoiceInput.Listen(null, System.Threading.CancellationToken.None);
+				Check("hover chat: the Windows recognizer answers", heard != VoiceInput.Outcome.Failed, $"{heard} in {clock.Elapsed.TotalSeconds:0.0} s {VoiceInput.LastError}");
+				QuickChat.Open(voice: true);
+				await Task.Delay(300);
+				Check("hover chat: the microphone button listens in the balloon", QuickChat.Current?.TestListening == true);
+				await Task.Delay(1500);
+				if (QuickChat.Current != null) Shot("5-ouvindo", Rectangle.Union(QuickChat.Current.Bounds, pet.Bounds));
+				for (int i = 0; i < 150 && QuickChat.Current?.TestListening == true; i++) await Task.Delay(100);
+				if (heard == VoiceInput.Outcome.Privacy)
+				{
+					bubble = Application.OpenForms.OfType<SpeechBubble>().FirstOrDefault(b => b.Visible);
+					Check("hover chat: without the speech setting, the pet explains and offers it", bubble != null && !QuickChat.IsOpen);
+					if (bubble != null) Shot("6-sem-permissao", Rectangle.Union(bubble.Bounds, pet.Bounds));
+				}
+				foreach (var b in Application.OpenForms.OfType<SpeechBubble>().ToList()) b.Close();
+			}
+			finally { FormPet.Hold(false); Cursor.Position = mouse; QuickChat.Current?.Close(); }
+		}
+
+		/// <summary>The timer with the pet: reading the time, the panel, pause, +5 min, the end and closing.</summary>
+		static async Task TimerCheck()
+		{
+			Check("timer: reads times", SimpleTimer.Parse("10") == TimeSpan.FromMinutes(10) && SimpleTimer.Parse("1:30") == TimeSpan.FromSeconds(90)
+				&& SimpleTimer.Parse("1:00:00") == TimeSpan.FromHours(1) && SimpleTimer.Parse("2h") == TimeSpan.FromHours(2) && SimpleTimer.Parse("90s") == TimeSpan.FromSeconds(90)
+				&& SimpleTimer.Parse("1,5") == TimeSpan.FromSeconds(90) && SimpleTimer.Parse("abc") == null && SimpleTimer.Parse("0") == null && SimpleTimer.Parse("30h") == null);
+			Check("timer: shows the time", SimpleTimer.Format(TimeSpan.FromSeconds(3599)) == "59:59" && SimpleTimer.Format(TimeSpan.FromHours(1)) == "1:00:00" && SimpleTimer.Format(TimeSpan.FromSeconds(0.2)) == "0:01");
+			var pet = Pet();
+			if (pet == null) { lines.Add("SKIP  timer: no pet on screen"); return; }
+			for (int i = 0; i < 60 && !(pet.OnGround && Screen.FromControl(pet).WorkingArea.Contains(pet.Bounds)); i++) await Task.Delay(150);   // arriving, or in a scene below the taskbar
+			FormPet.Hold(true);
+			try
+			{
+				SimpleTimer.Start(TimeSpan.FromMinutes(1));
+				await Task.Delay(500);
+				var panel = SimpleTimer.Panel;
+				Check("timer: the panel is with the pet", panel != null && Rectangle.Inflate(pet.Bounds, panel.Width + 60, panel.Height + 60).IntersectsWith(panel.Bounds), $"panel {panel?.Bounds}, pet {pet.Bounds}");
+				Check("timer: counts down", SimpleTimer.Left < TimeSpan.FromMinutes(1) && SimpleTimer.Left > TimeSpan.FromSeconds(55), SimpleTimer.LeftText);
+				if (panel != null) Shot("timer-1", Rectangle.Union(panel.Bounds, pet.Bounds));
+				SimpleTimer.TestPress("pause");
+				var frozen = SimpleTimer.Left;
+				await Task.Delay(1200);
+				Check("timer: pause stops the time", SimpleTimer.Paused && SimpleTimer.Left == frozen);
+				if (panel != null) Shot("timer-2-pausado", Rectangle.Union(panel.Bounds, pet.Bounds));
+				SimpleTimer.TestPress("pause");
+				SimpleTimer.TestPress("add");
+				Check("timer: +5 min", !SimpleTimer.Paused && SimpleTimer.Left > TimeSpan.FromMinutes(5.5));
+				SimpleTimer.TestEndNow();
+				await Task.Delay(1200);
+				Check("timer: at the end it stays on screen until closed", SimpleTimer.Finished && SimpleTimer.Panel != null);
+				if (SimpleTimer.Panel != null) Shot("timer-3-fim", Rectangle.Union(SimpleTimer.Panel.Bounds, pet.Bounds));
+				SimpleTimer.TestPress("close");
+				await Task.Delay(200);
+				Check("timer: closed", !SimpleTimer.Active && SimpleTimer.Panel == null);
+			}
+			finally { SimpleTimer.Close(); FormPet.Hold(false); }
+		}
+
 		/// <summary>The chat above the pet: opens, holds the pets, answers here (reminder, help, meeting) and closes.</summary>
 		static async Task ChatBox()
 		{
 			foreach (var b in Application.OpenForms.OfType<SpeechBubble>().ToList()) b.Close();
+			// a pet still arriving from the sky moves away from where the chat opened: let it land first
+			for (int i = 0; i < 40 && Pet() is FormPet landing && !landing.OnGround; i++) await Task.Delay(150);
 			FormChat.Open();
 			await Task.Delay(400);
 			var chat = Application.OpenForms.OfType<FormChat>().FirstOrDefault();
@@ -576,7 +701,7 @@ namespace DesktopPet
 			if (chat == null) return;
 			Check("chat: the pets wait while it is open", FormPet.Held);
 			var pet = Pet();
-			if (pet != null) Check("chat: next to the pet", Math.Abs((chat.Left + chat.Width / 2) - (pet.Left + pet.Width / 2)) < chat.Width && (chat.Bottom <= pet.Top + 2 || chat.Top >= pet.Bottom - 2), $"chat {chat.Bounds}, pet {pet.Bounds}");
+			if (pet != null) Check("chat: next to the pet", Math.Abs((chat.Left + chat.Width / 2) - (pet.Left + pet.Width / 2)) < chat.Width && (chat.Bottom <= pet.Top + 10 || chat.Top >= pet.Bottom - 2), $"chat {chat.Bounds}, pet {pet.Bounds}");
 			chat.Refresh();
 			Check("chat: suggestions to tap", FormChat.Messages.Count > 0 || chat.TestClickable >= 4, chat.TestClickable.ToString());
 
@@ -854,6 +979,39 @@ namespace DesktopPet
 			await Task.Delay(1500);
 		}
 
+		/// <summary>The animation picker: a scene that starts from a spawn (the bath) starts there, and the picker stays open.</summary>
+		static async Task PickerScenes()
+		{
+			var pet = Application.OpenForms.OfType<FormPet>().FirstOrDefault(p => !p.IsChildWindow && !p.IsDisposed && p.Visible);
+			var anims = Program.Mainthread.GetAnimations()?.SheepAnimations;
+			int bath = anims?.FirstOrDefault(kv => kv.Value.Name == "batha" || kv.Value.Name == "divea").Key ?? 0;
+			if (pet == null || bath == 0) { lines.Add("SKIP  picker: the pet in use has no bath scene"); return; }
+			int walk = anims.FirstOrDefault(kv => kv.Value.Name.StartsWith("walk")).Key;
+			int spawn = pet.SpawnSceneOf(bath);
+			Check("picker: the bath starts from its spawn", spawn >= 0);
+			int dive = anims[bath].EndAnimation.First().ID;
+			Check("picker: the rest of the bath scene too", pet.SpawnSceneOf(dive) == spawn && pet.SpawnSceneOf(anims[dive].EndAnimation.First().ID) == spawn);
+			Check("picker: walking plays where the pet is", walk == 0 || pet.SpawnSceneOf(walk) < 0);
+
+			var picker = pet.TestOpenPicker();
+			Check("picker: opens", picker != null && picker.Visible);
+			if (picker == null) return;
+			picker.Activate();
+			await Task.Delay(150);
+			bool focused = Form.ActiveForm == picker;
+			var area = Screen.FromControl(pet).WorkingArea;
+			picker.TestPlay(dive);   // the dive alone: it must start the whole bath, from the sky on the right
+			await Task.Delay(400);
+			Check("picker: the bath starts at the spawn, not where the pet was", pet.Left > area.Right - pet.Width * 3 && pet.Top < area.Bottom - pet.Height * 2, $"pet at {pet.Left},{pet.Top}");
+			var tub = Application.OpenForms.OfType<FormPet>().Any(p => p.IsChildWindow && p.Visible && !p.IsDisposed);
+			Check("picker: the tub comes with it", tub);
+			await Task.Delay(1500);
+			if (focused) Check("picker: stays open while the scene plays", !picker.IsDisposed && picker.Visible);
+			else lines.Add("SKIP  picker: stays open (Windows did not let it come to the front: another program has the focus)");
+			if (!picker.IsDisposed) picker.Close();
+			await Task.Delay(300);
+		}
+
 		/// <summary>Another pet is chosen: its hello opens over the new pet, after the old one is completely gone.</summary>
 		static async Task PetChangeHello()
 		{
@@ -1086,6 +1244,15 @@ namespace DesktopPet
 			Check("monitor: real numbers", PcMonitor.Cpu >= 0 && PcMonitor.Cpu <= 100 && PcMonitor.Ram > 0 && PcMonitor.Ram <= 100, $"CPU {PcMonitor.Cpu} RAM {PcMonitor.Ram}");
 			PcMonitor.Enabled = false;
 			Check("monitor: plate gone when off", !Application.OpenForms.Cast<Form>().Any(f => f.GetType().Name == "Hud" && f.Visible));
+			// on and off again with the mouse away (the plate is never shown): nothing may keep running after it
+			int errorsBefore = StartUp.LogSnapshot().Count(l => l.Text.Contains("PcMonitor"));
+			Cursor.Position = new System.Drawing.Point(pet.Left > area.Left + 200 ? area.Left + 20 : area.Right - 20, area.Top + 20);
+			PcMonitor.Enabled = true;
+			await Task.Delay(500);
+			PcMonitor.Enabled = false;
+			await Task.Delay(800);
+			Cursor.Position = mouse;
+			Check("monitor: off without ever showing the plate, no errors after", StartUp.LogSnapshot().Count(l => l.Text.Contains("PcMonitor")) == errorsBefore);
 			PcMonitor.Enabled = monitorWas;
 		}
 

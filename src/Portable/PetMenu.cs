@@ -69,6 +69,23 @@ namespace DesktopPet
 			if (Launchers.All.Count > 0) shortcuts.DropDownItems.Add(new ToolStripSeparator());
 			Item(shortcuts.DropDownItems, Lang.T("menu.shortcutsManage"), () => { FormPet.Hold(true); try { using (var f = new FormLaunchers()) f.ShowDialog(); } finally { FormPet.Hold(false); } });
 
+			// ⏱ Timer: lengths to start, or the one running (pause, +5 min, cancel)
+			var timer = Item(cm.Items, SimpleTimer.Active ? Lang.T("menu.timerRunning", SimpleTimer.Finished ? Lang.T("timer.doneShort") : SimpleTimer.LeftText) : Lang.T("menu.timer"), null);
+			if (SimpleTimer.Running)
+			{
+				Item(timer.DropDownItems, Lang.T(SimpleTimer.Paused ? "timer.resume" : "timer.pause"), SimpleTimer.TogglePause);
+				Item(timer.DropDownItems, Lang.T("timer.add5"), () => SimpleTimer.AddMinutes(5));
+				Item(timer.DropDownItems, Lang.T("timer.cancel"), SimpleTimer.Close);
+			}
+			else
+			{
+				if (SimpleTimer.Finished) { Item(timer.DropDownItems, Lang.T("timer.close"), SimpleTimer.Close); timer.DropDownItems.Add(new ToolStripSeparator()); }
+				foreach (int m in SimpleTimer.Presets) { int min = m; Item(timer.DropDownItems, min < 60 ? Lang.T("timer.min", min) : Lang.T("timer.hours", min / 60), () => SimpleTimer.Start(TimeSpan.FromMinutes(min))); }
+				timer.DropDownItems.Add(new ToolStripSeparator());
+				Item(timer.DropDownItems, Lang.T("timer.other"), SimpleTimer.AskAndStart);
+			}
+			timer.Visible = PluginSwitch.On("timer") || SimpleTimer.Active;
+
 			var notes = Item(cm.Items, Notes.Counting ? Lang.T("menu.notesTime", Notes.Remaining) : Lang.T("menu.notes"), Notes.Open);
 			if (ClipboardWatch.Enabled && ClipboardWatch.History.Count > 0) Item(cm.Items, Lang.T("menu.clipHistory"), () => ClipboardWatch.ShowHistory(null));
 

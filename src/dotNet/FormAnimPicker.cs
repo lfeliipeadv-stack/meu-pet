@@ -124,7 +124,9 @@ namespace DesktopPet
             MouseWheel += (s, e) => ScrollBy(-e.Delta / 120 * S(TILE_H + GAP));
             MouseLeave += (s, e) => { hoverTile = -1; hoverClose = false; Invalidate(); };
             KeyDown += (s, e) => { if (e.KeyCode == Keys.Escape) Close(); };
-            Deactivate += (s, e) => { if (!IsDisposed) BeginInvoke(new Action(Close)); };
+            // clicking another program closes it; a window of the pet itself (a child window like the tub, a bubble)
+            // that takes the focus when an animation starts does not
+            Deactivate += (s, e) => { if (!IsDisposed) BeginInvoke(new Action(CloseIfAnotherProgram)); };
             // The search box is not focused at first, so its placeholder stays visible;
             // typing anywhere in the window starts the search.
             Shown += (s, e) => ActiveControl = null;
@@ -332,6 +334,25 @@ namespace DesktopPet
             playingId = t.Id;
             Invalidate();
             play(t.Id);
+            // the animation may have opened a window of the pet (tub, balloon…) that took the focus: take it back
+            var back = new Timer { Interval = 250 };
+            back.Tick += (s, e) => { back.Stop(); back.Dispose(); if (!IsDisposed && Visible) Activate(); };
+            back.Start();
+        }
+
+        /// <summary>Self-test: click the tile of an animation.</summary>
+        internal void TestPlay(int id) { var t = allTiles.FirstOrDefault(x => x.Id == id); if (t != null) Play(t); }
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")] static extern IntPtr GetForegroundWindow();
+        [System.Runtime.InteropServices.DllImport("user32.dll")] static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint pid);
+
+        /// <summary>Close when the focus went to another program (not when it went to a window of this one).</summary>
+        void CloseIfAnotherProgram()
+        {
+            if (IsDisposed) return;
+            GetWindowThreadProcessId(GetForegroundWindow(), out uint pid);
+            if (pid == (uint)Environment.ProcessId) return;
+            Close();
         }
 
         // drag the window by its header

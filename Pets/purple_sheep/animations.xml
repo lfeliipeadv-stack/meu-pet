@@ -871,7 +871,7 @@
         <opacity>1</opacity>
         <interval>50</interval>
       </end>
-      <sequence repeatfrom="8" repeat="7">
+      <sequence repeatfrom="8" repeat="34">
         <frame>146</frame>
         <frame>146</frame>
         <frame>146</frame>
@@ -3230,7 +3230,7 @@
         <frame>146</frame>
         <frame>146</frame>
         <frame>146</frame>
-        <next probability="100" only="none">3</next>
+        <next probability="100" only="none">94</next>
         <action>none</action>
       </sequence>
     </animation>
@@ -3286,7 +3286,7 @@
         <frame>82</frame>
         <frame>10</frame>
         <action>none</action>
-      </sequence>
+      <next probability="100" only="none">3</next></sequence>
     </animation>
     <animation id="96">
       <name>standblink</name>
@@ -7245,7 +7245,7 @@
         <action>none</action>
       </sequence>
       <border>
-        <next probability="100" only="taskbar">223</next>
+        <next probability="100" only="taskbar">217</next>
         <next probability="100" only="window">216</next>
         <next probability="25" only="horizontal">207</next>
         <next probability="75" only="horizontal">64</next>
@@ -7373,7 +7373,7 @@
         <opacity>1</opacity>
         <interval>100</interval>
       </end>
-      <sequence repeatfrom="0" repeat="100">
+      <sequence repeatfrom="0" repeat="30">
         <frame>146</frame>
         <next probability="100" only="none">224</next>
         <action>none</action>
@@ -8738,6 +8738,8 @@
         <action>none</action>
       </sequence>
     </animation>
+    <animation id="270"><name>bath_tub_stays</name><start><x>0</x><y>0</y><offsety>0</offsety><opacity>1</opacity><interval>100</interval></start><end><x>0</x><y>0</y><offsety>0</offsety><opacity>1</opacity><interval>100</interval></end><sequence repeatfrom="0" repeat="100"><frame>146</frame><next probability="100" only="none">271</next></sequence></animation>
+  <animation id="271"><name>bath_tub_fades</name><start><x>0</x><y>0</y><offsety>0</offsety><opacity>1</opacity><interval>100</interval></start><end><x>0</x><y>0</y><offsety>0</offsety><opacity>0</opacity><interval>100</interval></end><sequence repeatfrom="0" repeat="8"><frame>146</frame></sequence></animation>
   </animations>
   <childs>
     <child animationid="21">
@@ -8774,11 +8776,6 @@
       <x>0-imageW</x>
       <y>areaH-imageH</y>
       <next>252</next>
-    </child>
-    <child animationid="93">
-      <x>imageX</x>
-      <y>imageY</y>
-      <next>94</next>
     </child>
     <child animationid="98">
       <x>imageX</x>
@@ -8895,6 +8892,7 @@
       <y>imageY</y>
       <next>268</next>
     </child>
+    <child animationid="94"><x>imageX</x><y>imageY</y><next>270</next></child>
   </childs>
   <sounds>
     <sound animationid="61">

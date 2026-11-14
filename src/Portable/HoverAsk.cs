@@ -6,8 +6,9 @@ using System.Windows.Forms;
 namespace DesktopPet
 {
 	/// <summary>
-	/// With the AI set up, a small "Ask" button appears next to the pet while the mouse is on it (like the CPU plate):
-	/// one click and the question box opens, no menu needed. It goes away a moment after the mouse leaves.
+	/// While the mouse is on the pet, two round buttons appear beside its head: a message (the small chat balloon
+	/// above the pet) and the microphone (the same balloon, with the Windows dictation on). They go away a moment
+	/// after the mouse leaves.
 	/// </summary>
 	public static class HoverAsk
 	{
@@ -29,15 +30,18 @@ namespace DesktopPet
 			timer.Start();
 		}
 
-		/// <summary>Self-test: is the button on screen.</summary>
+		/// <summary>Self-test: are the buttons on screen.</summary>
 		internal static bool Showing => pill != null && !pill.IsDisposed && pill.Visible;
+
+		/// <summary>Self-test: click one of the buttons (0 message, 1 voice).</summary>
+		internal static void TestClick(int button) { if (Showing) pill.Press(button); }
 
 		static void Check()
 		{
 			var pet = Application.OpenForms.OfType<FormPet>().FirstOrDefault(p => p.Visible && !p.IsChildWindow && p.Opacity > 0);
 			bool can = Enabled && pet != null && !pet.Busy && !HideHotkey.Hidden
-				&& !Application.OpenForms.OfType<SpeechBubble>().Any(b => b.Visible)   // the bubble is above the pet: no button over it
-				&& !(Form.ActiveForm is FormAsk) && !FormChat.IsOpen;
+				&& !Application.OpenForms.OfType<SpeechBubble>().Any(b => b.Visible)   // the bubble is above the pet: no buttons over it
+				&& !(Form.ActiveForm is FormAsk) && !FormChat.IsOpen && !QuickChat.IsOpen;
 			if (!can) { if (pill != null && pill.Visible) pill.Hide(); return; }
 
 			var mouse = Cursor.Position;
@@ -51,23 +55,27 @@ namespace DesktopPet
 			if (!pill.Visible) pill.Show();
 		}
 
-		/// <summary>The button: rounded, themed, never takes the focus.</summary>
+		/// <summary>Two round buttons beside the pet: write a message, or talk. They never take the focus.</summary>
 		sealed class Pill : Form
 		{
-			readonly Font font = Theme.CreateFont(12.5f, FontStyle.Bold);
-			bool hover;
+			const int D = 28, Gap = 6;
+			int hover = -1;   // 0 message, 1 voice
+			readonly ToolTip tips = new ToolTip();
 
 			public Pill()
 			{
 				FormBorderStyle = FormBorderStyle.None;
 				ShowInTaskbar = false; StartPosition = FormStartPosition.Manual; DoubleBuffered = true;
 				Cursor = Cursors.Hand;
-				using (var g = CreateGraphics())
-					Size = new Size(Theme.MeasureText(g, Text2, font, int.MaxValue, TextFormatFlags.SingleLine).Width + 30, 30);
-				Theme.ApplyWindowChrome(this);
+				BackColor = Theme.Surface;
+				Size = new Size(D + 2, D * 2 + Gap + 2);
+				using (var path = new System.Drawing.Drawing2D.GraphicsPath())
+				{
+					path.AddEllipse(0, 0, D + 2, D + 2);
+					path.AddEllipse(0, D + Gap, D + 2, D + 2);
+					Region = new Region(path);
+				}
 			}
-
-			string Text2 => "💬 " + Lang.T("hover.ask");
 
 			protected override bool ShowWithoutActivation => true;
 
@@ -81,12 +89,15 @@ namespace DesktopPet
 				}
 			}
 
-			/// <summary>On the right of the pet, near its head (left when there is no room).</summary>
+			static Rectangle ButtonRect(int i) => new Rectangle(1, 1 + i * (D + Gap), D - 1, D - 1);
+			static int Which(Point p) => p.Y < D + Gap / 2 ? 0 : 1;
+
+			/// <summary>On the right of the pet, beside its head (left when there is no room).</summary>
 			public void Place(FormPet pet)
 			{
 				var wa = Screen.FromControl(pet).WorkingArea;
-				int x = pet.Right + 2, y = pet.Top + pet.Height / 3 - Height / 2;
-				if (x + Width > wa.Right) x = pet.Left - Width - 2;
+				int x = pet.Right + 4, y = pet.Top + pet.Height / 3 - Height / 2;
+				if (x + Width > wa.Right) x = pet.Left - Width - 4;
 				x = Math.Max(wa.Left, Math.Min(wa.Right - Width, x));
 				y = Math.Max(wa.Top, Math.Min(wa.Bottom - Height, y));
 				if (Left != x || Top != y) Location = new Point(x, y);
@@ -96,21 +107,38 @@ namespace DesktopPet
 			{
 				var g = e.Graphics;
 				Theme.Prepare(g);
-				g.Clear(hover ? ControlPaint.Light(Theme.Accent, 0.15f) : Theme.Accent);
-				Theme.DrawText(g, Text2, font, ClientRectangle, Theme.AccentText, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine);
+				g.Clear(Theme.Surface);
+				for (int i = 0; i < 2; i++)
+				{
+					var r = ButtonRect(i);
+					using (var b = new SolidBrush(hover == i ? Theme.Hover : Theme.Surface)) g.FillEllipse(b, r);
+					using (var p = new Pen(Theme.Border, 1.2f)) g.DrawEllipse(p, r);
+					var icon = Rectangle.Inflate(r, -7, -7);
+					if (i == 0) ChatIcons.Message(g, icon, ChatIcons.Blue); else ChatIcons.Mic(g, icon, ChatIcons.Green);
+				}
 			}
 
-			protected override void OnMouseEnter(EventArgs e) { base.OnMouseEnter(e); hover = true; Invalidate(); }
-			protected override void OnMouseLeave(EventArgs e) { base.OnMouseLeave(e); hover = false; Invalidate(); }
-
-			protected override void OnMouseClick(MouseEventArgs e)
+			protected override void OnMouseMove(MouseEventArgs e)
 			{
-				base.OnMouseClick(e);
-				Hide();
-				FormAsk.Open();
+				base.OnMouseMove(e);
+				int h = Which(e.Location);
+				if (h == hover) return;
+				hover = h;
+				tips.SetToolTip(this, Lang.T(h == 1 ? "hover.talk" : "hover.message"));
+				Invalidate();
 			}
 
-			protected override void Dispose(bool disposing) { if (disposing) font.Dispose(); base.Dispose(disposing); }
+			protected override void OnMouseLeave(EventArgs e) { base.OnMouseLeave(e); hover = -1; Invalidate(); }
+
+			protected override void OnMouseClick(MouseEventArgs e) { base.OnMouseClick(e); Press(Which(e.Location)); }
+
+			public void Press(int button)
+			{
+				Hide();
+				QuickChat.Open(voice: button == 1);
+			}
+
+			protected override void Dispose(bool disposing) { if (disposing) tips.Dispose(); base.Dispose(disposing); }
 		}
 	}
 }
