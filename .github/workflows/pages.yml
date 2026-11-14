@@ -5,7 +5,7 @@ name: Página de download
 on:
   push:
     branches: [master]
-    paths: ['site/**', 'Pets/**', '.github/readme/**', '.github/workflows/pages.yml']
+    paths: ['site/**', 'Pets/**', 'docs/capturas/**', '.github/readme/**', '.github/workflows/pages.yml']
   workflow_dispatch:
 
 permissions:
@@ -28,12 +28,14 @@ jobs:
 
       - name: Montar o site
         run: |
-          mkdir -p _site/pets _site/img
+          mkdir -p _site/pets _site/img/capturas
           cp site/* _site/
           cp Pets/pets.json _site/
           for d in Pets/*/; do f=$(basename "$d"); [ -f "$d/preview.gif" ] && cp "$d/preview.gif" "_site/pets/$f.gif"; done
           cp .github/readme/painel-meus-pets.png .github/readme/painel-detalhe.png _site/img/
           cp Pets/esheep64/icon.png _site/img/icon.png
+          # as capturas de tela do programa, tiradas pelo próprio app (--snapshot)
+          cp docs/capturas/*.png _site/img/capturas/ 2>/dev/null || true
           ls -R _site | head -50
 
       - uses: actions/configure-pages@v5

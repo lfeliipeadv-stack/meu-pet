@@ -3,150 +3,467 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Meu Pet – bichinhos para a área de trabalho do Windows</title>
+<title>Meu Pet — bichinhos que vivem na área de trabalho do Windows</title>
 <meta name="description" content="Um bichinho que anda pelas suas janelas, conversa com você, lembra de pausas e reuniões e responde perguntas. Grátis, para Windows 10 e 11.">
 <link rel="icon" href="img/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
+/* ---------------------------------------------------------------
+   Meu Pet — a página abre como uma área de trabalho do Windows.
+   A moldura da janela em cima é a referência; o conteúdo abaixo é
+   limpo e quieto, como uma documentação bem feita.
+   --------------------------------------------------------------- */
 :root {
-  --bg: #f6f8f6; --surface: #ffffff; --text: #17201b; --muted: #5b6b62; --border: #dfe7e2;
-  --accent: #1f7a4d; --accent-strong: #176040; --accent-soft: #e3f2ea; --on-accent: #ffffff;
-  --shadow: 0 1px 2px rgba(16,40,28,.06), 0 8px 24px rgba(16,40,28,.08);
+  --desk:      #16181c;   /* papel de parede */
+  --desk-2:    #1e2127;
+  --chrome:    #c0c0c0;   /* cinza do Windows 95 */
+  --chrome-lo: #8f8f8f;
+  --chrome-hi: #ffffff;
+  --navy:      #0a246a;
+  --navy-2:    #3a6ea5;
+  --teal:      #008080;   /* a mesa onde a ovelhina vivia em 1995 */
+
+  --bg:        #ffffff;
+  --surface:   #f6f7f5;
+  --ink:       #16191c;
+  --muted:     #5b6469;
+  --line:      #e0e4e1;
+  --accent:    #1f8a52;
+  --accent-lo: #e8f3ec;
+
+  --font-text: "Space Grotesk", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-pixel: "Silkscreen", "Courier New", monospace;
+  --shadow: 0 18px 50px rgba(0,0,0,.35);
 }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #0f1512; --surface: #18201c; --text: #e8efe9; --muted: #9db0a4; --border: #2a362f;
-    --accent: #3fae78; --accent-strong: #5cc492; --accent-soft: #1d3327; --on-accent: #0b1a12;
-    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+  :root {
+    --bg: #15171a; --surface: #1c1f23; --ink: #eef1f0; --muted: #9aa5a0;
+    --line: #2a2e33; --accent: #4cc278; --accent-lo: #1c2f24;
   }
 }
 * { box-sizing: border-box; }
-body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.55 "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 400 17px/1.6 var(--font-text);
+  -webkit-font-smoothing: antialiased;
+}
+img { max-width: 100%; }
 a { color: var(--accent); }
-.wrap { max-width: 1040px; margin: 0 auto; padding: 0 16px; }
-header { padding: 56px 0 32px; text-align: center; }
-.logo { width: 72px; height: 72px; image-rendering: pixelated; }
-h1 { font-size: clamp(2rem, 5vw, 3rem); line-height: 1.1; margin: 12px 0 8px; letter-spacing: -.02em; }
-.lead { font-size: 1.15rem; color: var(--muted); max-width: 640px; margin: 0 auto; }
-.download { margin: 32px auto 0; max-width: 560px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; box-shadow: var(--shadow); }
-.btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 22px; border-radius: 10px; font-weight: 600; text-decoration: none; font-size: 1.05rem; }
-.btn-primary { background: var(--accent); color: var(--on-accent); width: 100%; }
-.btn-primary:hover { background: var(--accent-strong); }
-.version { color: var(--muted); font-size: .9rem; margin-top: 10px; }
-.other { display: flex; flex-wrap: wrap; gap: 8px 16px; justify-content: center; margin-top: 14px; font-size: .92rem; }
-.other a { text-decoration: none; }
-.other a:hover { text-decoration: underline; }
-.hint { font-size: .85rem; color: var(--muted); margin-top: 14px; }
-section { padding: 40px 0; }
-h2 { font-size: 1.6rem; margin: 0 0 6px; text-align: center; }
-.sub { text-align: center; color: var(--muted); margin: 0 0 24px; }
-.pets { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
-.pet { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px 10px 12px; text-align: center; }
-.pet .stage { height: 120px; display: flex; align-items: flex-end; justify-content: center; }
-.pet img { max-height: 120px; max-width: 100%; image-rendering: pixelated; }
-.pet b { display: block; margin-top: 8px; }
-.pet small { color: var(--muted); }
-.features { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
-.feature { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px; }
-.feature .icon { font-size: 1.6rem; }
-.feature h3 { margin: 6px 0 4px; font-size: 1.05rem; }
-.feature p { margin: 0; color: var(--muted); font-size: .95rem; }
-.shots { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
-.shots img { width: 100%; border-radius: 12px; border: 1px solid var(--border); box-shadow: var(--shadow); }
-footer { padding: 32px 0 48px; color: var(--muted); font-size: .88rem; text-align: center; border-top: 1px solid var(--border); margin-top: 24px; }
-footer p { margin: 6px 0; }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+/* ---------------------------------------------------- barra de título
+   A navegação é a barra de título de uma janela do Windows.        */
+.titlebar {
+  background: linear-gradient(90deg, var(--navy), var(--navy-2));
+  color: #fff;
+  display: flex; align-items: center; gap: 20px;
+  padding: 0 16px; height: 46px;
+  font-size: 14px;
+  border-bottom: 2px solid #06174a;
+}
+.titlebar .tb-icon { width: 20px; height: 20px; image-rendering: pixelated; flex: none; }
+.titlebar .tb-name { font-family: var(--font-pixel); font-size: 12px; letter-spacing: .5px; opacity: .95; }
+.titlebar nav { margin-left: auto; display: flex; gap: 4px; flex-wrap: wrap; }
+.titlebar nav a {
+  color: #dfe8f4; text-decoration: none; padding: 6px 12px; border-radius: 3px;
+  font-weight: 500;
+}
+.titlebar nav a:hover { background: rgba(255,255,255,.16); color: #fff; }
+.titlebar .tb-tag {
+  font-family: var(--font-pixel); font-size: 10px; color: #b9cbe6;
+  border: 1px solid rgba(255,255,255,.3); padding: 3px 7px; border-radius: 3px;
+}
+
+/* ------------------------------------------------------------- herói */
+.hero {
+  background:
+    radial-gradient(1200px 500px at 70% -10%, #24424a 0%, transparent 60%),
+    linear-gradient(180deg, var(--desk-2), var(--desk));
+  color: #e9edee;
+  padding: 0 0 72px;
+  overflow: hidden;
+}
+.hero .wrap { position: relative; }
+
+/* A janela: moldura de verdade, com o pet andando no título. */
+.window {
+  margin: 56px auto 0;
+  max-width: 880px;
+  background: var(--bg);
+  color: var(--ink);
+  border: 1px solid #0b0c0e;
+  box-shadow: var(--shadow);
+  position: relative;
+  border-radius: 6px 6px 0 0;
+}
+.window-title {
+  background: linear-gradient(90deg, var(--navy), var(--navy-2));
+  color: #fff;
+  font-size: 13px; font-weight: 500;
+  padding: 7px 10px 7px 12px;
+  display: flex; align-items: center; gap: 10px;
+  border-radius: 5px 5px 0 0;
+}
+.window-title .dot { width: 11px; height: 11px; flex: none; }
+.window-title .dot.min { background: #d0d0d0; }
+.window-title .dot.max { background: #4a6fa5; }
+.window-title .dot.close { background: #a63c34; }
+.window-title .wtitle { margin-left: 4px; opacity: .95; }
+
+/* O pet: anda sobre o topo da janela, como na tela do programa. */
+.walker {
+  position: absolute; left: 12%; top: -34px;
+  width: 64px; height: auto;
+  image-rendering: pixelated;
+  animation: stroll 22s linear infinite;
+}
+@keyframes stroll {
+  0%   { left: 12%; transform: translateY(0); }
+  48%  { left: 62%; transform: translateY(-4px); }
+  50%  { transform: translateY(-4px) scaleX(-1); }
+  96%  { left: 12%; transform: translateY(0) scaleX(-1); }
+  100% { left: 12%; transform: translateY(0) scaleX(-1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .walker { animation: none; }
+}
+
+.window-body { padding: 44px 40px 40px; }
+.eyebrow {
+  font-family: var(--font-pixel); font-size: 11px; color: var(--muted);
+  text-transform: lowercase; margin: 0 0 18px;
+}
+h1 {
+  font-size: clamp(2.1rem, 5.2vw, 3.3rem);
+  line-height: 1.08; letter-spacing: -.025em; font-weight: 700;
+  margin: 0 0 18px; max-width: 17ch;
+}
+h1 em { font-style: normal; color: var(--accent); }
+.lead { font-size: 1.12rem; color: var(--muted); max-width: 58ch; margin: 0 0 30px; }
+
+.cta { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
+.btn {
+  display: inline-flex; align-items: center; gap: 9px;
+  padding: 13px 22px; border-radius: 5px;
+  font-weight: 700; font-size: 1rem; text-decoration: none;
+  border: 1px solid transparent; cursor: pointer;
+}
+.btn-main { background: var(--accent); color: #fff; }
+.btn-main:hover { filter: brightness(1.08); }
+.btn-ghost { border-color: var(--line); color: var(--ink); background: transparent; }
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+.version-line {
+  margin: 22px 0 0; font-size: .88rem; color: var(--muted);
+  font-family: var(--font-pixel); font-size: 11px;
+}
+
+/* ----------------------------------------------------------- seções */
+section { padding: 78px 0; }
+section + section { border-top: 1px solid var(--line); }
+h2 {
+  font-size: clamp(1.7rem, 3.4vw, 2.3rem); line-height: 1.15;
+  letter-spacing: -.02em; font-weight: 700; margin: 0 0 10px; max-width: 22ch;
+}
+.section-intro { color: var(--muted); max-width: 62ch; margin: 0 0 44px; }
+
+/* Galeria de pets: os GIFs reais de cada bichinho. */
+.pets-grid {
+  display: grid; gap: 1px;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  background: var(--line);
+  border: 1px solid var(--line);
+}
+.pet-card { background: var(--bg); padding: 20px 14px 16px; text-align: center; }
+.pet-stage {
+  height: 96px; display: flex; align-items: flex-end; justify-content: center;
+  background:
+    linear-gradient(180deg, transparent 60%, var(--surface));
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 12px;
+}
+.pet-stage img { max-height: 96px; image-rendering: pixelated; }
+.pet-card b { display: block; font-size: .98rem; }
+.pet-card small { color: var(--muted); font-size: .8rem; }
+.pet-card .by { display: block; color: var(--muted); font-size: .74rem; margin-top: 3px; }
+
+/* Recursos: coluna de texto + prints reais, sem cartão decorado. */
+.feature-rows { display: grid; gap: 56px; }
+.feature { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+.feature:nth-child(even) .feature-shot { order: -1; }
+.feature-shot img {
+  border: 1px solid var(--line); border-radius: 5px; width: 100%;
+  background: var(--surface);
+}
+.feature h3 { font-size: 1.3rem; margin: 0 0 8px; letter-spacing: -.015em; }
+.feature p { color: var(--muted); margin: 0 0 12px; max-width: 46ch; }
+.feature ul { margin: 0; padding-left: 18px; color: var(--muted); }
+.feature li { margin-bottom: 5px; }
+
+/* Galeria de telas. */
+.shots { display: grid; gap: 22px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.shot { margin: 0; }
+.shot img { border: 1px solid var(--line); border-radius: 5px; width: 100%; background: var(--surface); }
+.shot figcaption { font-size: .86rem; color: var(--muted); margin-top: 9px; }
+
+/* Wiki: lista de páginas, como um índice. */
+.wiki-index { border-top: 1px solid var(--line); }
+.wiki-index a {
+  display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: baseline;
+  padding: 15px 4px; border-bottom: 1px solid var(--line);
+  text-decoration: none; color: var(--ink);
+}
+.wiki-index a:hover { color: var(--accent); }
+.wiki-index .wtitle { font-weight: 500; }
+.wiki-index a:hover .wtitle { text-decoration: underline; }
+.wiki-index .wdesc { display: block; color: var(--muted); font-size: .88rem; font-weight: 400; margin-top: 2px; }
+.wiki-index .arrow {
+  color: var(--muted); font-family: var(--font-pixel); font-size: 10px;
+  border: 1px solid var(--line); border-radius: 3px; padding: 3px 7px;
+  white-space: nowrap;
+}
+.wiki-index a:hover .arrow { color: var(--accent); border-color: var(--accent); }
+footer {
+  background: var(--desk); color: #a9b3b0;
+  padding: 46px 0 52px; font-size: .9rem;
+}
+footer a { color: #7fd6a4; }
+footer p { margin: 0 0 8px; max-width: 70ch; }
+footer .foot-grid { display: flex; flex-wrap: wrap; gap: 30px; justify-content: space-between; align-items: flex-start; }
+.foot-links { display: flex; gap: 22px; flex-wrap: wrap; }
+
+@media (max-width: 760px) {
+  .feature { grid-template-columns: 1fr; gap: 20px; }
+  .feature:nth-child(even) .feature-shot { order: 0; }
+  .window-body { padding: 34px 24px 30px; }
+  /* o pet vai para a ponta direita da barra de título, onde não atrapalha o texto */
+  .walker { width: 44px; top: -22px; left: auto; right: 14px; animation: none; }
+  .titlebar { height: 44px; padding: 0 10px; gap: 10px; }
+  .titlebar .tb-name, .titlebar .tb-tag { display: none; }
+  .titlebar nav { margin-left: auto; gap: 0; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .titlebar nav::-webkit-scrollbar { display: none; }
+  .titlebar nav a { padding: 6px 9px; font-size: 13px; white-space: nowrap; }
+}
 </style>
 </head>
 <body>
-<header class="wrap">
-  <img class="logo" src="img/icon.png" alt="">
-  <h1>Meu Pet</h1>
-  <p class="lead">Um bichinho que anda pelas suas janelas, cai na barra de tarefas, conversa com você, lembra de pausas e reuniões e responde perguntas. Grátis, para Windows 10 e 11.</p>
 
-  <div class="download">
-    <a class="btn btn-primary" id="get" href="https://github.com/lfeliipeadv-stack/meu-pet/releases/latest/download/DesktopPet-Instalador.exe">⬇️ Baixar o instalador</a>
-    <div class="version" id="version">Versão mais recente</div>
-    <div class="other">
-      <a href="https://github.com/lfeliipeadv-stack/meu-pet/releases/latest/download/DesktopPet.exe">Só o programa (precisa do .NET 10)</a>
-      <a href="https://github.com/lfeliipeadv-stack/meu-pet/releases/latest/download/DesktopPet-completo.exe">Completo, sem instalar nada</a>
-      <a href="https://github.com/lfeliipeadv-stack/meu-pet/releases">Todas as versões</a>
-    </div>
-    <p class="hint">O instalador confere se o .NET 10 está no computador e oferece o instalador oficial da Microsoft quando falta. Se o Windows avisar que o editor é desconhecido, clique em “Mais informações” e depois em “Executar assim mesmo”.</p>
-  </div>
+<!-- Barra de título: a navegação do site é a de uma janela do Windows. -->
+<header class="titlebar">
+  <img class="tb-icon" src="img/icon.png" alt="">
+  <span class="tb-name">desktopPet</span>
+  <nav>
+    <a href="#pets">Pets</a>
+    <a href="#recursos">Recursos</a>
+    <a href="#telas">Telas</a>
+    <a href="#wiki">Wiki</a>
+    <a href="https://github.com/lfeliipeadv-stack/meu-pet">Código</a>
+  </nav>
+  <span class="tb-tag" id="tb-version">v2.6.2</span>
 </header>
 
-<main class="wrap">
-  <section>
-    <h2>Escolha o seu</h2>
-    <p class="sub">Pixel art feita para o Meu Pet, com dezenas de animações e sons. Há também pets da comunidade no painel do programa.</p>
-    <div class="pets" id="pets"></div>
-  </section>
+<!-- Herói: a área de trabalho, com o pet andando sobre a janela. -->
+<section class="hero" style="border-top:0">
+  <div class="wrap">
+    <div class="window">
+      <img class="walker" src="pets/rex.gif" alt="O Rex andando sobre o topo da janela" width="64" height="64">
+      <div class="window-title">
+        <span class="dot min"></span><span class="dot max"></span><span class="dot close"></span>
+        <span class="wtitle">Meu Pet — Painel</span>
+      </div>
+      <div class="window-body">
+        <p class="eyebrow">bichinho de área de trabalho para Windows</p>
+        <h1>Um bicho que mora <em>na sua área de trabalho</em>.</h1>
+        <p class="lead">Ele anda pelo topo das suas janelas, cai na barra de tarefas, dorme, dança e é arremessado com o mouse. Fica de olho na sua agenda, lembra de pausas e ainda responde perguntas — de graça, sem conta, no seu Windows 10 ou 11.</p>
+        <div class="cta">
+          <a class="btn btn-main" href="https://github.com/lfeliipeadv-stack/meu-pet/releases/latest/download/DesktopPet-Instalador.exe">⬇ Baixar o instalador</a>
+          <a class="btn btn-ghost" href="#recursos">Ver o que ele faz</a>
+        </div>
+        <p class="version-line" id="version">versão mais recente</p>
+      </div>
+    </div>
+  </div>
+</section>
 
-  <section>
-    <h2>O que ele faz</h2>
-    <p class="sub">Tudo opcional, tudo em português, inglês ou espanhol.</p>
-    <div class="features">
-      <div class="feature"><div class="icon">💬</div><h3>Pergunte ao pet</h3><p>Passe o mouse e clique em Perguntar. Funciona com IAs gratuitas, inclusive no seu computador, sem internet.</p></div>
-      <div class="feature"><div class="icon">⏰</div><h3>Lembretes por texto</h3><p>“Me lembra de ligar para a Ana às 15h” e pronto. Também água, alongamento e pausas.</p></div>
-      <div class="feature"><div class="icon">🍅</div><h3>Foco (Pomodoro)</h3><p>Durante o foco o pet fica em silêncio e guarda os avisos para depois.</p></div>
-      <div class="feature"><div class="icon">📅</div><h3>Agenda e e-mail</h3><p>Avisa antes das reuniões do Google ou do Outlook e quando chega e-mail novo.</p></div>
-      <div class="feature"><div class="icon">🚶</div><h3>Cuida de você</h3><p>Sugere uma pausa depois de muito tempo sem parar e comemora quando você volta.</p></div>
-      <div class="feature"><div class="icon">🎨</div><h3>Crie o seu pet</h3><p>Escolha algumas imagens e ele anda, dorme e cai como os outros.</p></div>
-      <div class="feature"><div class="icon">🐑</div><h3>Pets que conversam</h3><p>Quando dois pets se encontram na tela, eles batem um papo rápido.</p></div>
-      <div class="feature"><div class="icon">🤫</div><h3>Discreto</h3><p>Ctrl+Alt+P esconde todos na hora de uma reunião. Usa menos de 1% de CPU.</p></div>
+<main>
+  <!-- Os pets -->
+  <section id="pets">
+    <div class="wrap">
+      <h2>Dezesseis bichinhos, e contando.</h2>
+      <p class="section-intro">Cada um foi desenhado quadro a quadro em pixel art, com dezenas de animações e sons próprios. Você adota quantos quiser — todos de graça.</p>
+      <div class="pets-grid" id="pets-grid"></div>
     </div>
   </section>
 
-  <section>
-    <h2>Telas</h2>
-    <p class="sub">Um painel simples para adotar pets e ajustar tudo.</p>
-    <div class="shots">
-      <img src="img/painel-meus-pets.png" alt="Painel com os pets do computador" loading="lazy">
-      <img src="img/painel-detalhe.png" alt="Detalhe de um pet com animações e sons" loading="lazy">
+  <!-- Recursos, com os prints reais do programa -->
+  <section id="recursos">
+    <div class="wrap">
+      <h2>Um bichinho, muitas coisas para fazer.</h2>
+      <p class="section-intro">Tudo opcional, tudo em português, inglês ou espanhol, e desligado até você querer.</p>
+      <div class="feature-rows">
+        <div class="feature">
+          <div class="feature-copy">
+            <h3>Ele conversa com você</h3>
+            <p>Passe o mouse sobre o pet e clique em Perguntar. A resposta aparece no balão em cima dele.</p>
+            <ul>
+              <li>Funciona com Ollama, no seu próprio computador, sem enviar nada para a internet</li>
+              <li>Ou com Gemini, Groq e OpenRouter, se você preferir</li>
+              <li>Lembra da conversa e aceita ditado por voz</li>
+            </ul>
+          </div>
+          <figure class="feature-shot">
+            <img src="img/capturas/chat.png" alt="A conversa com o pet, em um balão sobre ele" loading="lazy">
+          </figure>
+        </div>
+
+        <div class="feature">
+          <div class="feature-copy">
+            <h3>Lembra das suas pausas</h3>
+            <p>Água, alongamento e pausa. Você também escreve o lembrete como falaria com um amigo:</p>
+            <ul>
+              <li>“me lembra de ligar para a Ana às 15h”</li>
+              <li>“daqui a 20 minutos”, “todo dia às 8”</li>
+              <li>O tempo em português é lido no seu computador, sem internet</li>
+            </ul>
+          </div>
+          <figure class="feature-shot">
+            <img src="img/capturas/reminders.png" alt="A página de lembretes do painel" loading="lazy">
+          </figure>
+        </div>
+
+        <div class="feature">
+          <div class="feature-copy">
+            <h3>Avisa antes da reunião</h3>
+            <p>Ligue a agenda do Google ou do Outlook por um link iCal e o pet avisa antes de cada encontro. No Outlook clássico, ele avisa quantos e-mails novos chegaram — nunca o conteúdo deles.</p>
+            <ul>
+              <li>Ele também sugere uma pausa depois de muito tempo sem parar</li>
+              <li>Fica feliz quando você volta, e comemora quando você fecha um programa aberto há horas</li>
+            </ul>
+          </div>
+          <figure class="feature-shot">
+            <img src="img/capturas/plugins.png" alt="A página de plugins do painel, com agenda e lembretes" loading="lazy">
+          </figure>
+        </div>
+
+        <div class="feature">
+          <div class="feature-copy">
+            <h3>Você também pode fazer o seu</h3>
+            <p>Escolha as imagens de andar, ficar parado, dormir, cair e ser arrastado. O pet nasce andando, vira, dorme, cai e vai junto no seu backup.</p>
+            <ul>
+              <li>Formatos: PNG, GIF e JPG</li>
+              <li>Se quiser ir além, o repositório traz as ferramentas que desenham pets quadro a quadro</li>
+            </ul>
+          </div>
+          <figure class="feature-shot">
+            <img src="img/capturas/win-petcreator.png" alt="A janela de criação de pet" loading="lazy">
+          </figure>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Telas -->
+  <section id="telas">
+    <div class="wrap">
+      <h2>O programa por dentro.</h2>
+      <p class="section-intro">O painel tem oito páginas, todas em português: Início, Pets, Lembretes, Assistente, Plugins, Integrações, Configurações e Sobre.</p>
+      <div class="shots">
+        <figure class="shot"><img src="img/capturas/home.png" alt="A página Início do painel, com o pet e o resumo do dia" loading="lazy"><figcaption>Início: seu pet, o que vem por aí e como foi o dia.</figcaption></figure>
+        <figure class="shot"><img src="img/capturas/pets.png" alt="A aba Meus pets do painel" loading="lazy"><figcaption>Meus pets: o que já está no seu computador.</figcaption></figure>
+        <figure class="shot"><img src="img/capturas/pets-tab2.png" alt="A aba Baixar pets do painel" loading="lazy"><figcaption>Baixar pets: com o tamanho de cada um antes de baixar.</figcaption></figure>
+        <figure class="shot"><img src="img/capturas/pets-detail.png" alt="O detalhe de um pet, com as animações e os sons" loading="lazy"><figcaption>Detalhe de um pet: as animações e os sons dele.</figcaption></figure>
+        <figure class="shot"><img src="img/capturas/ai.png" alt="A página do assistente de IA" loading="lazy"><figcaption>Assistente: a IA que responde quando você pergunta.</figcaption></figure>
+        <figure class="shot"><img src="img/capturas/application.png" alt="A página de configurações do programa" loading="lazy"><figcaption>Configurações: som, tema, idioma, multmonitor e atalhos.</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- Wiki -->
+  <section id="wiki">
+    <div class="wrap">
+      <h2>O Wiki tem o manual inteiro.</h2>
+      <p class="section-intro">Instalação, primeiros passos, cada recurso passo a passo, os atalhos de teclado, os comandos de linha de comando e o guia para quem quiser compilar.</p>
+      <div class="wiki-index">
+        <a href="https://github.com/lfeliipeadv-stack/meu-pet/wiki/Instalacao"><span><span class="wtitle">Instalação</span><span class="wdesc">Os três downloads, o que o instalador confere e como desinstalar.</span></span><span class="arrow">ver</span></a>
+        <a href="https://github.com/lfeliipeadv-stack/meu-pet/wiki/Primeiros-passos"><span><span class="wtitle">Primeiros passos</span><span class="wdesc">O que fazer depois de instalar, em ordem.</span></span><span class="arrow">ver</span></a>
+        <a href="https://github.com/lfeliipeadv-stack/meu-pet/wiki/Painel-de-pets"><span><span class="wtitle">Painel de pets</span><span class="wdesc">Baixar, adotar, remover, exportar e importar pets.</span></span><span class="arrow">ver</span></a>
+        <a href="https://github.com/lfeliipeadv-stack/meu-pet/wiki/Pergunte-ao-pet"><span><span class="wtitle">Pergunte ao pet</span><span class="wdesc">A conversa, os provedores de IA e onde fica a chave.</span></span><span class="arrow">ver</span></a>
+        <a href="https://github.com/lfeliipeadv-stack/meu-pet/wiki/Lembretes-e-Pomodoro"><span><span class="wtitle">Lembretes e Pomodoro</span><span class="wdesc">Os lembretes em português e o foco que silencia o pet.</span></span><span class="arrow">ver</span></a>
+        <a href="https://github.com/lfeliipeadv-stack/meu-pet/wiki/Plugins-e-integracoes"><span><span class="wtitle">Plugins e integrações</span><span class="wdesc">Os 22 plugins e a ponte com o Claude Code.</span></span><span class="arrow">ver</span></a>
+        <a href="https://github.com/lfeliipeadv-stack/meu-pet/wiki/Para-desenvolvedores"><span><span class="wtitle">Para desenvolvedores</span><span class="wdesc">Compilar, testar e publicar uma versão.</span></span><span class="arrow">ver</span></a>
+        <a href="https://github.com/lfeliipeadv-stack/meu-pet/wiki/Perguntas-frequentes"><span><span class="wtitle">Perguntas frequentes</span><span class="wdesc">Dúvidas comuns, respondidas.</span></span><span class="arrow">ver</span></a>
+      </div>
+      <p style="margin-top:26px"><a class="btn btn-ghost" href="https://github.com/lfeliipeadv-stack/meu-pet/wiki">Abrir o Wiki completo</a></p>
     </div>
   </section>
 </main>
 
-<footer class="wrap">
-  <p>Código aberto, licença MIT · <a href="https://github.com/lfeliipeadv-stack/meu-pet">Código no GitHub</a></p>
-  <p>Baseado no <a href="https://github.com/Adrianotiger/desktopPet">desktopPet</a> de Adriano Petrucci, a versão para Windows da ovelhinha clássica do eSheep. Os pets da comunidade pertencem aos seus autores.</p>
+<footer>
+  <div class="wrap foot-grid">
+    <div>
+      <p>Código aberto, licença MIT. Feito por Luan Felipe, a partir do <a href="https://github.com/Adrianotiger/desktopPet">desktopPet</a> de Adriano Petrucci — a versão para Windows moderno da ovelhinha clássica do eSheep.</p>
+      <p>Os pets da comunidade pertencem aos seus autores, indicados no painel do programa. O Claude é uma homenagem de fã: o mascote e o nome pertencem à Anthropic PBC, sem vínculo com este projeto.</p>
+    </div>
+    <div class="foot-links">
+      <a href="https://github.com/lfeliipeadv-stack/meu-pet">Código</a>
+      <a href="https://github.com/lfeliipeadv-stack/meu-pet/wiki">Wiki</a>
+      <a href="https://github.com/lfeliipeadv-stack/meu-pet/releases">Versões</a>
+      <a href="https://github.com/lfeliipeadv-stack/meu-pet/issues">Problemas</a>
+    </div>
+  </div>
 </footer>
 
 <script>
-// the project's own pets (the gallery in the program has the community ones too)
-const PETS = ["rex", "pingo", "boo", "mago", "nuvi", "esheep64"];
-const NAMES = { esheep64: "eSheep" };
+// Os pets do repositório: nome, quantas animações, quantos sons e de quem é.
+const PETS = [
+  "rex", "pingo", "boo", "mago", "nuvi", "claude", "thronglet", "pingus", "esheep64",
+  "blue_sheep", "green_sheep", "yellow_sheep", "orange_sheep", "red_sheep", "pink_sheep", "purple_sheep"
+];
+const NOME = { esheep64: "eSheep", blue_sheep: "gSheep azul", green_sheep: "gSheep verde",
+  yellow_sheep: "gSheep amarelo", orange_sheep: "gSheep laranja", red_sheep: "gSheep vermelho",
+  pink_sheep: "gSheep rosa", purple_sheep: "gSheep roxo" };
 
 fetch("pets.json").then(r => r.json()).then(data => {
   const byFolder = Object.fromEntries((data.pets || []).map(p => [p.folder, p]));
-  const box = document.getElementById("pets");
+  const grid = document.getElementById("pets-grid");
   for (const folder of PETS) {
-    const p = byFolder[folder] || { name: folder };
+    const p = byFolder[folder] || {};
     const card = document.createElement("div");
-    card.className = "pet";
+    card.className = "pet-card";
     const stage = document.createElement("div");
-    stage.className = "stage";
+    stage.className = "pet-stage";
     const img = document.createElement("img");
     img.src = "pets/" + folder + ".gif";
-    img.alt = NAMES[folder] || p.name;
+    img.alt = "Animação do pet " + (NOME[folder] || p.name || folder);
     img.loading = "lazy";
     stage.appendChild(img);
-    const name = document.createElement("b");
-    name.textContent = NAMES[folder] || p.name;
+    const nome = document.createElement("b");
+    nome.textContent = NOME[folder] || p.name || folder;
     const info = document.createElement("small");
-    info.textContent = p.animations ? p.animations + " animações" + (p.sounds ? " · " + p.sounds + " sons" : "") : "";
-    card.append(stage, name, info);
-    box.appendChild(card);
+    info.textContent = p.animations ? p.animations + " animações e " + p.sounds + " sons" : "";
+    const by = document.createElement("span");
+    by.className = "by";
+    by.textContent = p.author ? "de " + p.author : "";
+    card.append(stage, nome, info, by);
+    grid.appendChild(card);
   }
 }).catch(() => {});
 
-// the latest version and its size, from GitHub
-fetch("https://api.github.com/repos/lfeliipeadv-stack/meu-pet/releases/latest").then(r => r.ok ? r.json() : null).then(rel => {
-  if (!rel) return;
-  const setup = (rel.assets || []).find(a => a.name === "DesktopPet-Instalador.exe");
-  const date = rel.published_at ? new Date(rel.published_at).toLocaleDateString("pt-BR") : "";
-  document.getElementById("version").textContent =
-    "Versão " + String(rel.tag_name || "").replace(/^v/, "") + (date ? " · " + date : "") + (setup ? " · " + (setup.size / 1048576).toFixed(1).replace(".", ",") + " MB" : "");
-}).catch(() => {});
+// A versão publicada e o tamanho do instalador, direto do GitHub.
+fetch("https://api.github.com/repos/lfeliipeadv-stack/meu-pet/releases/latest")
+  .then(r => r.ok ? r.json() : null).then(rel => {
+    if (!rel) return;
+    const v = String(rel.tag_name || "").replace(/^v/, "");
+    const data = rel.published_at ? new Date(rel.published_at).toLocaleDateString("pt-BR") : "";
+    document.getElementById("version").textContent = "versão " + v + (data ? " · " + data : "");
+    document.getElementById("tb-version").textContent = "v" + v;
+  }).catch(() => {});
 </script>
 </body>
 </html>

@@ -55,6 +55,15 @@
       "sounds" : 10
     },
     {
+      "folder" : "thronglet",
+      "name" : "Thronglet",
+      "author" : "Luan Felipe",
+      "lastupdate" : "2026-11-14 00:05",
+      "size" : 1041888,
+      "animations" : 49,
+      "sounds" : 6
+    },
+    {
       "folder" : "blue_sheep",
       "name" : "gSheep Blue",
       "author" : "Oliver B.",

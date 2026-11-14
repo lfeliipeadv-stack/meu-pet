@@ -15,12 +15,33 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/lfeliipeadv-stack/meu-pet/releases/latest/download/DesktopPet.exe"><b>⬇️ Baixar o DesktopPet.exe</b></a>
+  <a href="https://github.com/lfeliipeadv-stack/meu-pet/releases/latest/download/DesktopPet-Instalador.exe"><b>⬇️ Baixar o instalador</b></a>
+  &nbsp;·&nbsp;
+  <a href="https://github.com/lfeliipeadv-stack/meu-pet/wiki">Wiki</a>
   &nbsp;·&nbsp;
   <a href="https://github.com/lfeliipeadv-stack/meu-pet/releases/latest">Todas as versões</a>
   &nbsp;·&nbsp;
   <a href="https://lfeliipeadv-stack.github.io/meu-pet/">Página do Meu Pet</a>
 </p>
+
+---
+
+## O Wiki
+
+O manual inteiro está no [Wiki do projeto](https://github.com/lfeliipeadv-stack/meu-pet/wiki): instalação, primeiros passos, cada recurso passo a passo, os atalhos de teclado, os comandos de linha de comando e o guia para compilar.
+
+| Página | O que tem |
+| --- | --- |
+| [Instalação](https://github.com/lfeliipeadv-stack/meu-pet/wiki/Instalacao) | Os três downloads, o que o instalador confere, como desinstalar |
+| [Primeiros passos](https://github.com/lfeliipeadv-stack/meu-pet/wiki/Primeiros-passos) | O que fazer depois de instalar, em ordem |
+| [Painel de pets](https://github.com/lfeliipeadv-stack/meu-pet/wiki/Painel-de-pets) | Baixar, adotar, remover, exportar e importar pets |
+| [Pergunte ao pet](https://github.com/lfeliipeadv-stack/meu-pet/wiki/Pergunte-ao-pet) | A conversa, os provedores de IA e onde fica a chave |
+| [Lembretes e Pomodoro](https://github.com/lfeliipeadv-stack/meu-pet/wiki/Lembretes-e-Pomodoro) | Os lembretes em português e o foco que silencia o pet |
+| [Plugins e integrações](https://github.com/lfeliipeadv-stack/meu-pet/wiki/Plugins-e-integracoes) | Os 22 plugins e a ponte com o Claude Code |
+| [Crie o seu pet](https://github.com/lfeliipeadv-stack/meu-pet/wiki/Crie-o-seu-pet) | Fazer um pet com as suas próprias imagens |
+| [Atalhos e comandos](https://github.com/lfeliipeadv-stack/meu-pet/wiki/Atalhos-e-comandos) | Teclado, mouse e os argumentos do executável |
+| [Para desenvolvedores](https://github.com/lfeliipeadv-stack/meu-pet/wiki/Para-desenvolvedores) | Compilar, testar e publicar uma versão |
+| [Perguntas frequentes](https://github.com/lfeliipeadv-stack/meu-pet/wiki/Perguntas-frequentes) | Dúvidas comuns, respondidas |
 
 ---
 
@@ -36,6 +57,7 @@ Feitos para o Meu Pet, em pixel art, com dezenas de animações e sons próprios
     <td align="center" valign="top" width="25%"><img src=".github/readme/mago.gif" height="120" alt="Mago"><br><b>Mago</b><br><sub>Faz feitiços, se teletransporta, voa de vassoura e é engolido pelo chapéu. 49 animações.</sub></td>
   </tr>
   <tr>
+    <td align="center" valign="top"><img src="Pets/thronglet/preview.gif" height="120" alt="Thronglet"><br><b>Thronglet</b><br><sub>Bichinho amarelo de antena que sai de um ovo, acha uma espada e uma jukebox e dança a música inteira. 49 animações.</sub></td>
     <td align="center" valign="top"><img src=".github/readme/nuvi.gif" height="120" alt="Nuvi"><br><b>Nuvi</b><br><sub>Nuvem-terminal que programa, dá erro, compila e faz trovão. 45 animações.</sub></td>
     <td align="center" valign="top"><img src=".github/readme/claude.gif" height="120" alt="Claude"><br><b>Claude</b><br><sub>Homenagem de fã ao mascote do Claude Code (sem vínculo com a Anthropic). 45 animações.</sub></td>
     <td align="center" valign="top"><img src="Pets/esheep64/icon.png" height="96" alt="eSheep"><br><b>eSheep</b><br><sub>A ovelhinha clássica. Vem dentro do programa e funciona sem internet.</sub></td>
@@ -93,14 +115,28 @@ Na galeria também estão pets da comunidade do eSheep: as ovelhas coloridas (gS
 
 ## Telas
 
+Todas as telas foram tiradas do próprio programa.
+
 <table>
   <tr>
-    <td width="50%"><img src=".github/readme/painel-meus-pets.png" alt="Painel: Meus pets"><br><sub>Meus pets</sub></td>
-    <td width="50%"><img src=".github/readme/painel-detalhe.png" alt="Detalhe de um pet"><br><sub>Detalhe do pet, com sons e descrição</sub></td>
+    <td width="50%"><img src="docs/capturas/home.png" alt="Painel: Início"><br><sub>Início: seu pet, o que vem por aí e como foi o dia</sub></td>
+    <td width="50%"><img src="docs/capturas/pets.png" alt="Painel: Meus pets"><br><sub>Meus pets: o que já está no seu computador</sub></td>
   </tr>
   <tr>
-    <td><img src=".github/readme/painel-baixar.png" alt="Painel: Baixar pets"><br><sub>Baixar pets</sub></td>
-    <td><img src=".github/readme/configuracoes.png" alt="Configurações"><br><sub>Configurações</sub></td>
+    <td><img src="docs/capturas/pets-tab2.png" alt="Painel: Baixar pets"><br><sub>Baixar pets: com o tamanho de cada um antes de baixar</sub></td>
+    <td><img src="docs/capturas/pets-detail.png" alt="Detalhe de um pet"><br><sub>Detalhe do pet, com as animações e os sons</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/capturas/chat.png" alt="Conversa com o pet"><br><sub>A conversa, no balão sobre o pet</sub></td>
+    <td><img src="docs/capturas/reminders.png" alt="Lembretes"><br><sub>Lembretes: água, alongamento e as suas anotações</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/capturas/plugins.png" alt="Plugins"><br><sub>Plugins: agenda, clima, foco e os outros</sub></td>
+    <td><img src="docs/capturas/application.png" alt="Configurações"><br><sub>Configurações: som, tema, idioma e atalhos</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/capturas/ai.png" alt="Assistente"><br><sub>Assistente: a IA que responde quando você pergunta</sub></td>
+    <td><img src="docs/capturas/win-petcreator.png" alt="Criar meu pet"><br><sub>Criar meu pet: as suas imagens viram um bichinho</sub></td>
   </tr>
 </table>
 

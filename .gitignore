@@ -226,3 +226,6 @@ publish/
 src/DesktopPet.config
 shots/
 DesktopPet.config
+
+# arquivos locais do Claude Code (nao fazem parte do projeto)
+.claude/
