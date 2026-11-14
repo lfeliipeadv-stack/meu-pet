@@ -23,7 +23,7 @@ namespace DesktopPet
 
 		public static bool Enabled
 		{
-			get => Program.MyData.GetSettingBool("OutlookMail", true);
+			get => Program.MyData.GetSettingBool("OutlookMail", false);
 			set { Program.MyData.SetSetting("OutlookMail", value); lastTotal = lastUnread = -1; }
 		}
 

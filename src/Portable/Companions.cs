@@ -20,7 +20,7 @@ namespace DesktopPet
 
 		public static bool Enabled
 		{
-			get => Program.MyData.GetSettingBool("PetsMeet", true);
+			get => Program.MyData.GetSettingBool("PetsMeet", false);
 			set => Program.MyData.SetSetting("PetsMeet", value);
 		}
 
@@ -114,7 +114,7 @@ namespace DesktopPet
 
 		public static bool Enabled
 		{
-			get => Program.MyData.GetSettingBool("PcEvents", true);
+			get => Program.MyData.GetSettingBool("PcEvents", false);
 			set { Program.MyData.SetSetting("PcEvents", value); Apply(); }
 		}
 

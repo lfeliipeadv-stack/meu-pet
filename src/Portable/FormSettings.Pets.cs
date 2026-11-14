@@ -40,6 +40,10 @@ namespace DesktopPet
 		/// <summary>Pets already seen (folder → lastupdate). Null until the gallery was loaded once.</summary>
 		private Dictionary<string, string> seenPets = Program.MyData.GetSeenPets();
 
+		/// <summary>The pet itself, or for a color card the color it shows now (its own object, whose folder never changes).</summary>
+		private static OptionsPet Real(OptionsPet pet) =>
+			pet?.Variants != null && pet.SelectedVariant >= 0 ? pet.Variants[pet.SelectedVariant] : pet;
+
 		private IEnumerable<OptionsPet> RealPets(OptionsPet pet) =>
 			pet.Variants != null ? pet.Variants.Where(v => v != null) : new[] { pet };
 
@@ -256,8 +260,11 @@ namespace DesktopPet
 		}
 
 		/// <summary>Download a pet from the gallery and keep it on disk (it is not adopted yet).</summary>
-		public async void DownloadPet(OptionsPet pet)
+		public async void DownloadPet(OptionsPet card)
 		{
+			// a color card changes its folder when another color is clicked: work on the color chosen now,
+			// so a click during the download can never save one color under the name of another
+			var pet = Real(card);
 			if (pet == null || BuiltInPets.IsBuiltIn(pet.folder) || petsView.DownloadingFolder != null) return;
 			StatusText = Lang.T("status.downloading", pet.DisplayName);
 			petsView.DownloadingFolder = pet.folder;
@@ -277,6 +284,7 @@ namespace DesktopPet
 					throw new System.IO.InvalidDataException(Lang.T("pets.errNotPet"));
 				PetStore.Save(pet.folder, xml.OuterXml, pet.lastupdate ?? "");
 				pet.Detail = xml;                           // real counts for the detail panel
+				if (card != pet && card.folder == pet.folder) card.SelectVariant(pet);   // the card still shows this color
 				MarkSeen(pet);
 				StatusText = Lang.T("status.downloaded", pet.DisplayName);
 				PetUpdates.Recount();
@@ -407,8 +415,9 @@ namespace DesktopPet
 		}
 
 		/// <summary>Set a pet (built in or already downloaded) as the current one.</summary>
-		public async void AdoptPet(OptionsPet pet)
+		public async void AdoptPet(OptionsPet card)
 		{
+			var pet = Real(card);   // the color chosen now (see DownloadPet)
 			if (pet == null) return;
 			try
 			{
@@ -441,10 +450,8 @@ namespace DesktopPet
 				// Persist the adopted pet folder so the gallery badge survives restart.
 				Program.MyData.SetCurrentPetFolder(pet.folder);
 				ContextMenus.UpdateTexts();   // "Sounds of <pet>" follows the new pet
-				// the new pet says hello once it is on screen
-				var hello = new Timer { Interval = 1800 };
-				hello.Tick += (s, e) => { hello.Stop(); hello.Dispose(); SpeechBubble.Say(Lang.T("bubble.hello", pet.DisplayName), 6); };
-				hello.Start();
+				// the new pet says hello once the old one is gone and it has been on screen for a moment
+				SpeechBubble.Introduce(Lang.T("bubble.hello", pet.DisplayName), 6);
 			}
 			catch (Exception ex)
 			{

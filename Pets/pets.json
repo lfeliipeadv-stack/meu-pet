@@ -19,15 +19,6 @@
       "sounds" : 16
     },
     {
-      "folder" : "sabio",
-      "name" : "Sábio",
-      "author" : "Luan Felipe",
-      "lastupdate" : "2026-11-11 21:20",
-      "size" : 202826,
-      "animations" : 30,
-      "sounds" : 10
-    },
-    {
       "folder" : "boo",
       "name" : "Boo",
       "author" : "Luan Felipe",
@@ -63,15 +54,6 @@
       "animations" : 45,
       "sounds" : 10
     },
-	{
-      "folder" : "bbunny",
-      "name" : "Buster Bunny",
-      "author" : "Adriano",
-      "lastupdate" : "2019-02-25",
-      "size" : 35069,
-      "animations" : 8,
-      "sounds" : 0
-    },
     {
       "folder" : "blue_sheep",
       "name" : "gSheep Blue",
@@ -99,24 +81,6 @@
       "animations" : 269,
       "sounds" : 35
     },
-	{
-      "folder" : "mareep",
-      "name" : "Mareep",
-      "author" : "Michelle!",
-      "lastupdate" : "2025-12-08",
-      "size" : 19406,
-      "animations" : 13,
-      "sounds" : 0
-    },
-    {
-      "folder" : "neko",
-      "name" : "Neko",
-      "author" : "Adriano",
-      "lastupdate" : "2019-06-28",
-      "size" : 163462,
-      "animations" : 27,
-      "sounds" : 5
-    },
     {
       "folder" : "orange_sheep",
       "name" : "gSheep Orange",
@@ -126,30 +90,12 @@
       "animations" : 269,
       "sounds" : 35
     },
-	{
-      "folder" : "pikachu",
-      "name" : "Pikachu",
-      "author" : "Michelle!",
-      "lastupdate" : "2025-12-08",
-      "size" : 18920,
-      "animations" : 13,
-      "sounds" : 0
-    },
     {
       "folder" : "pingus",
       "name" : "Pingus",
-      "author" : "Adriano",
-      "lastupdate" : "2019-07-08",
-      "size" : 119844,
-      "animations" : 28,
-      "sounds" : 0
-    },
-    {
-      "folder" : "pingus_expansion",
-      "name" : "Pingus Expansion",
-      "author" : "Zecheriah",
-      "lastupdate" : "2026-10-20",
-      "size" : 1244483,
+      "author" : "Adriano & Zecheriah",
+      "lastupdate" : "2026-11-13 19:32",
+      "size" : 1244618,
       "animations" : 69,
       "sounds" : 30
     },
@@ -179,42 +125,6 @@
       "size" : 1159969,
       "animations" : 269,
       "sounds" : 35
-    },
-	{
-      "folder" : "shiny_sylveon",
-      "name" : "Shiny Sylveon",
-      "author" : "Michelle!",
-      "lastupdate" : "2025-12-08",
-      "size" : 22274,
-      "animations" : 13,
-      "sounds" : 0
-    },
-    {
-      "folder" : "skywire_bean",
-      "name" : "Skywire Bean",
-      "author" : "Zecheriah",
-      "lastupdate" : "2026-09-15",
-      "size" : 304791,
-      "animations" : 17,
-      "sounds" : 12
-    },
-    {
-      "folder" : "ssj-goku",
-      "name" : "SSJ Goku",
-      "author" : "RedSparr0w",
-      "lastupdate" : "2026-11-12",
-      "size" : 55403,
-      "animations" : 25,
-      "sounds" : 0
-    },
-    {
-      "folder" : "twin_shot",
-      "name" : "Twin Shot",
-      "author" : "Zecheriah",
-      "lastupdate" : "2026-10-26",
-      "size" : 172455,
-      "animations" : 36,
-      "sounds" : 11
     },
     {
       "folder" : "yellow_sheep",

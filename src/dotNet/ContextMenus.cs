@@ -118,6 +118,7 @@ namespace DesktopPet
             manage.Click += (s, e) => FormSettings.ShowPage(FormSettings.Page.Reminders);
             remindersMenuItem.DropDownItems.Add(manage);
             menu.Items.Add(remindersMenuItem);
+            PluginSwitch.KeepOldDefaults();   // before any plugin starts
             Reminders.Start();
             Pomodoro.Changed += SpeechBubble.QuietChanged;   // notices held during focus or Ctrl+Alt+P
             HideHotkey.Changed += SpeechBubble.QuietChanged;
@@ -133,6 +134,7 @@ namespace DesktopPet
             MusicWatch.Apply();
             Visitors.Apply();
             WindowPush.Apply();
+            MemoryCare.Apply();
             Activity.Apply();
             Weather.Apply();
             Agenda.Start();

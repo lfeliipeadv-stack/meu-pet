@@ -227,7 +227,7 @@ namespace DesktopPet
 		private List<Card> BuildPlugins()
 		{
 			int[] focus = { 15, 25, 45, 50 }, pause = { 5, 10, 15 }, hours = { 10, 13, 15, 17 }, lead = { 5, 10, 15 };
-			int[] battery = { 15, 20, 30, 40 }, quietFrom = { -1, 21, 22, 23, 0 }, quietTo = { 6, 7, 8, 9 };
+			int[] battery = { 15, 20, 30, 40 }, quietFrom = { -1, 21, 22, 23, 0 }, quietTo = { 6, 7, 8, 9 }, memLimit = { 70, 80, 85, 90 };
 			return new List<Card>
 			{
 				new Card { Id = "weather", Emoji = "🌦️", Key = "plug.weather", Category = "day",
@@ -321,6 +321,16 @@ namespace DesktopPet
 					ConfigureKey = "plug.visitors.button", Configure = Visitors.Visit },
 				new Card { Id = "push", Emoji = "🪟", Key = "plug.push", Category = "fun",
 					Get = () => WindowPush.Enabled, Set = on => WindowPush.Enabled = on },
+				new Card { Id = "memory", Emoji = "🧠", Key = "plug.memory", Category = "pc",
+					Get = () => MemoryCare.Enabled, Set = on => MemoryCare.Enabled = on,
+					Status = () => Lang.T("plug.memory.status", MemoryCare.Status().load),
+					Configure = () => ShowPluginOptions("plug.memory.title", v =>
+					{
+						v.AddChoice("", /* chart */ "plug.memoryLimit", () => MemoryCare.Limit, x => MemoryCare.Limit = x, memLimit, memLimit.Select(p => p + "%").ToArray());
+						v.AddToggle("", /* sync */ "plug.memoryAuto", () => MemoryCare.Auto, on => MemoryCare.Auto = on);
+						v.AddAction("", /* broom-ish: delete */ "plug.memoryTidy", "plug.memoryTidy.button", () => MemoryCare.Tidy(false));
+						v.AddAction("", /* admin shield */ "plug.memoryFull", "plug.memoryFull.button", () => MemoryCare.Tidy(true));
+					}) },
 			};
 		}
 

@@ -36,14 +36,13 @@ Feitos para o Meu Pet, em pixel art, com dezenas de animações e sons próprios
     <td align="center" valign="top" width="25%"><img src=".github/readme/mago.gif" height="120" alt="Mago"><br><b>Mago</b><br><sub>Faz feitiços, se teletransporta, voa de vassoura e é engolido pelo chapéu. 49 animações.</sub></td>
   </tr>
   <tr>
-    <td align="center" valign="top"><img src=".github/readme/sabio.gif" height="120" alt="Sábio"><br><b>Sábio</b><br><sub>Velho mago cinzento que lança feitiços com o cajado e invoca um gato.</sub></td>
     <td align="center" valign="top"><img src=".github/readme/nuvi.gif" height="120" alt="Nuvi"><br><b>Nuvi</b><br><sub>Nuvem-terminal que programa, dá erro, compila e faz trovão. 45 animações.</sub></td>
     <td align="center" valign="top"><img src=".github/readme/claude.gif" height="120" alt="Claude"><br><b>Claude</b><br><sub>Homenagem de fã ao mascote do Claude Code (sem vínculo com a Anthropic). 45 animações.</sub></td>
     <td align="center" valign="top"><img src="Pets/esheep64/icon.png" height="96" alt="eSheep"><br><b>eSheep</b><br><sub>A ovelhinha clássica. Vem dentro do programa e funciona sem internet.</sub></td>
   </tr>
 </table>
 
-Na galeria também estão pets da comunidade do eSheep, como as ovelhas coloridas (gSheep), Neko, Pingus e outros.
+Na galeria também estão pets da comunidade do eSheep: as ovelhas coloridas (gSheep) e o Pingus.
 
 ## O que ele faz
 
@@ -135,7 +134,7 @@ Os pets próprios são gerados por estas ferramentas:
 | Ferramenta | O que faz |
 | --- | --- |
 | [`Tools/PetGen`](Tools/PetGen) | Desenha Rex, Pingo, Boo, Mago, Nuvi e Claude pixel a pixel e sintetiza os sons (`Sfx.cs`) |
-| [`Tools/PetPack`](Tools/PetPack) | Monta pets a partir de quadros PNG (Sábio) |
+| [`Tools/PetPack`](Tools/PetPack) | Monta pets a partir de quadros PNG |
 | [`Tools/update-pets-json.ps1`](Tools/update-pets-json.ps1) | Atualiza tamanho, animações e sons de cada pet no `Pets/pets.json` |
 | [`Tools/make-previews.ps1`](Tools/make-previews.ps1) | Gera a prévia animada (`preview.gif`) de cada pet com o ffmpeg |
 | [`Tools/Setup`](Tools/Setup) | O instalador (.NET Framework 4.8, confere o .NET 10) |

@@ -43,13 +43,6 @@ namespace DesktopPet
 				[Act.Play] = new[] { "juggle", "fireworks", "dance", "bubbles" },
 				[Act.Sleep] = new[] { "sleep" },
 			},
-			["sabio"] = new Dictionary<Act, string[]>
-			{
-				[Act.Feed] = new[] { "think" },
-				[Act.Pet] = new[] { "wave" },
-				[Act.Play] = new[] { "summon cat", "spell" },
-				[Act.Sleep] = new[] { "sleep" },
-			},
 			["nuvi"] = new Dictionary<Act, string[]>
 			{
 				[Act.Feed] = new[] { "coffee", "download" },

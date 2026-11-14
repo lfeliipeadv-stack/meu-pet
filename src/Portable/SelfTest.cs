@@ -94,6 +94,7 @@ namespace DesktopPet
 			await TryAsync("weather", WeatherCheck);
 			await TryAsync("pets chat", PetsChat);
 			await TryAsync("sky arrival", SkyArrival);
+			await TryAsync("pet change", PetChangeHello);
 			await TryAsync("tour", Onboard);
 			await TryAsync("talking pet", TalkingPet);
 			await TryAsync("quiet time", QuietTime);
@@ -289,6 +290,36 @@ namespace DesktopPet
 			Check("clipboard: plain text is not a link", !ClipboardWatch.IsLink("olá mundo https://x.com", out _));
 			Check("clipboard: off unless turned on", !ClipboardWatch.Enabled || Program.MyData.GetSetting("ClipWatch").Length > 0);
 			Check("ask shortcut: off unless turned on", HideHotkey.AskEnabled == (Program.MyData.GetSetting("AskHotkey").Length > 0 && Program.MyData.GetSettingBool("AskHotkey", false)));
+
+			// memory: reading, when to offer, the simple tidy
+			var mem = MemoryCare.Status();
+			Check("memory: reads the RAM", mem.load > 0 && mem.load <= 100 && mem.total > 0 && mem.available > 0 && mem.available <= mem.total, $"{mem.load}% of {MemoryCare.Size(mem.total)}");
+			Check("memory: off unless turned on", !MemoryCare.Enabled || Program.MyData.GetSetting("MemoryCare").Length > 0);
+			Check("memory: sizes in words", MemoryCare.Size(1288490189) == 1.2.ToString("0.0") + " GB" && MemoryCare.Size(350L * 1048576) == "350 MB");
+			{
+				var t0 = new DateTime(2026, 1, 1, 10, 0, 0); DateTime? since = null; var never = DateTime.MinValue;
+				Check("memory: below the limit, nothing", MemoryCare.Decide(t0, 70, 85, false, ref since, never, never, false) == MemoryCare.Decision.None && since == null);
+				MemoryCare.Decide(t0, 90, 85, false, ref since, never, never, false);
+				Check("memory: just went high, it waits", since == t0 && MemoryCare.Decide(t0.AddMinutes(1), 90, 85, false, ref since, never, never, false) == MemoryCare.Decision.None);
+				Check("memory: high for a while, it asks", MemoryCare.Decide(t0.AddMinutes(3), 90, 85, false, ref since, never, never, false) == MemoryCare.Decision.Ask);
+				Check("memory: high for a while, tidies by itself when set", MemoryCare.Decide(t0.AddMinutes(3), 90, 85, true, ref since, never, never, false) == MemoryCare.Decision.Clean);
+				Check("memory: not during a game, video or quiet time", MemoryCare.Decide(t0.AddMinutes(3), 90, 85, true, ref since, never, never, true) == MemoryCare.Decision.None);
+				Check("memory: not again right after a tidy", MemoryCare.Decide(t0.AddMinutes(3), 90, 85, true, ref since, t0.AddMinutes(-5), never, false) == MemoryCare.Decision.None);
+				Check("memory: does not ask again soon", MemoryCare.Decide(t0.AddMinutes(3), 90, 85, false, ref since, never, t0.AddMinutes(-10), false) == MemoryCare.Decision.None);
+				MemoryCare.Decide(t0.AddMinutes(4), 60, 85, false, ref since, never, never, false);
+				Check("memory: back below the limit, the wait starts over", since == null);
+			}
+			{
+				var clock = System.Diagnostics.Stopwatch.StartNew();
+				int trimmed = MemoryCare.TrimPrograms();
+				Check("memory: simple tidy reaches the user's programs", trimmed > 0, $"{trimmed} programs, {clock.ElapsedMilliseconds} ms");
+				Check("memory: the pet keeps working after a tidy", Application.OpenForms.OfType<FormPet>().Any(p => !p.IsDisposed));
+				string tmp = Path.Combine(Path.GetTempPath(), "desktoppet-memtest.txt");
+				MemoryCare.FullCleanToFile(tmp);
+				var lines = File.Exists(tmp) ? File.ReadAllLines(tmp) : new string[0];
+				try { File.Delete(tmp); } catch (Exception) { }
+				Check("memory: full tidy writes how it went", MemoryCare.IsAdmin ? lines.Length == 4 : lines.SequenceEqual(new[] { "admin refused" }), string.Join(", ", lines));
+			}
 
 			// every visitor drawing: rows of the same width, only letters that have a color
 			foreach (Visitors.Kind kind in Enum.GetValues(typeof(Visitors.Kind)))
@@ -821,6 +852,35 @@ namespace DesktopPet
 			FormPet.Hold(false);
 			if (!Program.Mainthread.KillSheep(pet)) pet.Close();
 			await Task.Delay(1500);
+		}
+
+		/// <summary>Another pet is chosen: its hello opens over the new pet, after the old one is completely gone.</summary>
+		static async Task PetChangeHello()
+		{
+			foreach (var b in Application.OpenForms.OfType<SpeechBubble>().ToList()) b.Close();
+			Program.Mainthread.LoadNewXMLFromString(Program.MyData.GetXml());   // the same pet again: the old ones leave, new ones come
+			SpeechBubble.Introduce("self-test hello", 3);
+			var clock = System.Diagnostics.Stopwatch.StartNew();
+			double sawLeaving = -1, newSince = -1;
+			SpeechBubble bubble = null;
+			while (clock.Elapsed.TotalSeconds < 40 && bubble == null)
+			{
+				await Task.Delay(100);
+				var pets = Application.OpenForms.OfType<FormPet>().Where(p => !p.IsChildWindow && !p.IsDisposed && p.Visible).ToList();
+				if (pets.Any(p => p.Dying)) sawLeaving = clock.Elapsed.TotalSeconds;
+				if (newSince < 0 && pets.Any(p => !p.Dying) && !pets.Any(p => p.Dying)) newSince = clock.Elapsed.TotalSeconds;
+				bubble = Application.OpenForms.OfType<SpeechBubble>().FirstOrDefault(b => b.Visible);
+				if (bubble != null)
+				{
+					Check("pet change: the hello opens over the new pet", bubble.Owner != null && !bubble.Owner.Dying);
+					Check("pet change: the old pet is gone before the hello", !pets.Any(p => p.Dying), $"old pet last seen at {sawLeaving:0.0} s");
+					Check("pet change: the hello waits a moment after the new pet appears", newSince >= 0 && clock.Elapsed.TotalSeconds - newSince >= 2,
+						$"new pet at {newSince:0.0} s, hello at {clock.Elapsed.TotalSeconds:0.0} s");
+				}
+			}
+			Check("pet change: the new pet says hello", bubble != null, $"{clock.Elapsed.TotalSeconds:0} s");
+			foreach (var b in Application.OpenForms.OfType<SpeechBubble>().ToList()) b.Close();
+			await Task.Delay(500);
 		}
 
 		static async Task Onboard()

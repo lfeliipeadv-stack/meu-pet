@@ -431,8 +431,12 @@ namespace DesktopPet
             /// <remarks>
             /// Kill, Sync, Drag, Fall, Toss, "Fall Soft" and "Fall Hard" are "Key-names" in the XML file. If you use one of them, this program will automatically run the animation linked to this names.
             /// </remarks>
+        /// <summary>The pet is playing its goodbye (another pet was chosen, or the program closes): it is about to go.</summary>
+        public bool Dying { get; private set; }
+
         public void Kill()
         {
+            Dying = true;
             foreach(var c in childs)
             {
                 if(c != null && !c.IsDisposed)

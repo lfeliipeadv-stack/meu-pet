@@ -128,10 +128,35 @@ namespace DesktopPet
 		static FormPet MainPet()
 		{
 			if (HideHotkey.Hidden) return null;
-			return Application.OpenForms.OfType<FormPet>().FirstOrDefault(p => p.Visible && !p.IsChildWindow && p.Opacity > 0);
+			return Application.OpenForms.OfType<FormPet>().FirstOrDefault(p => p.Visible && !p.IsChildWindow && p.Opacity > 0 && !p.Dying);
+		}
+
+		/// <summary>
+		/// The new pet introduces itself: only once the pets that were leaving are completely gone and the new one has
+		/// been on the screen for a few seconds, so the bubble opens over the new pet and not over the one going away.
+		/// </summary>
+		public static void Introduce(string text, int seconds = 6)
+		{
+			var clock = System.Diagnostics.Stopwatch.StartNew();
+			DateTime? seenSince = null;
+			var t = new Timer { Interval = 250 };
+			t.Tick += (s, e) =>
+			{
+				bool leaving = Application.OpenForms.OfType<FormPet>().Any(p => p.Dying && !p.IsDisposed && p.Visible);
+				var pet = leaving ? null : MainPet();
+				if (pet == null) seenSince = null;
+				else if (seenSince == null) seenSince = DateTime.Now;
+				bool ready = seenSince != null && (DateTime.Now - seenSince.Value).TotalSeconds >= 2.5;
+				if (!ready && clock.Elapsed.TotalSeconds < 30) return;
+				t.Stop(); t.Dispose();
+				if ((pet ?? MainPet()) != null) Say(text, seconds);   // after 30 s it says hello anyway, over a pet that is staying
+			};
+			t.Start();
 		}
 
 		readonly FormPet pet;
+		/// <summary>The pet this bubble talks from (self-test).</summary>
+		internal FormPet Owner => pet;
 		readonly string text;
 		readonly Choice[] choices;
 		readonly Timer follow;

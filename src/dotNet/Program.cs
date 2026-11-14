@@ -118,6 +118,12 @@ namespace DesktopPet
                     Lang.ExportEnglish(s.Substring("--export-lang=".Length));
                     return;
                 }
+                // memory plugin: this copy was started as administrator only to do the full tidy (see MemoryCare)
+                if (s.StartsWith("--clean-memory=", StringComparison.OrdinalIgnoreCase))
+                {
+                    MemoryCare.FullCleanToFile(s.Substring("--clean-memory=".Length));
+                    return;
+                }
                 // developer: listen for Claude Code without changing the saved setting (events noted in %TEMP%\desktoppet-agent.log)
                 if (s.Equals("--listen", StringComparison.OrdinalIgnoreCase)) AgentBridge.DevListen = true;
                 // developer: write the hooks into another settings file (claude --settings <file>), not the user's one

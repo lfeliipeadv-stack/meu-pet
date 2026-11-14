@@ -203,10 +203,30 @@ namespace DesktopPet
 
 namespace DesktopPet
 {
-	/// <summary>On/off of the plugins that have no switch of their own (reminders, focus, games, shortcuts): on by default.</summary>
+	/// <summary>On/off of the plugins that have no switch of their own (reminders, focus, games, shortcuts, notes): off by default.</summary>
 	public static class PluginSwitch
 	{
-		public static bool On(string id) => Program.MyData.GetSettingBool("Plug." + id, true);
+		public static bool On(string id) => Program.MyData.GetSettingBool("Plug." + id, false);
+
+		/// <summary>Settings of every plugin that used to be on by default (since 2.6.2 they all start off).</summary>
+		internal static readonly string[] WereOnByDefault =
+		{
+			"Plug.reminders", "Plug.focus", "Plug.games", "Plug.shortcuts", "Plug.notes",
+			"ActivityCare", "PetsMeet", "PcEvents", "OutlookMail", "AutoHide", "HiddenToasts", "MusicGames", "Visitors",
+		};
+
+		/// <summary>
+		/// Once, at the start: on a new installation every plugin starts off. On a computer that already used an older
+		/// version, the plugins that were on (because they were on by default and never turned off) stay on.
+		/// </summary>
+		public static void KeepOldDefaults()
+		{
+			if (Program.MyData.GetSetting("PluginDefaults").Length > 0) return;
+			if (Program.MyData.GetSetting("LastVersion").Length > 0)
+				foreach (var key in WereOnByDefault)
+					if (Program.MyData.GetSetting(key).Length == 0) Program.MyData.SetSetting(key, true);
+			Program.MyData.SetSetting("PluginDefaults", "off");
+		}
 
 		public static void Set(string id, bool on)
 		{

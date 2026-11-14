@@ -29,7 +29,7 @@ namespace DesktopPet
 
 		public static bool Enabled
 		{
-			get => Program.MyData.GetSettingBool("ActivityCare", true);
+			get => Program.MyData.GetSettingBool("ActivityCare", false);
 			set { Program.MyData.SetSetting("ActivityCare", value); Apply(); }
 		}
 
