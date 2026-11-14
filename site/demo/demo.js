@@ -79,11 +79,9 @@ const ANSWERS = [
 ];
 
 /* --------------------------------------------------------------- o mundo */
-const EMBED = new URLSearchParams(window.location.search).has("embed");
 // Modo foto: usado para tirar a imagem da documentação. A simulação roda
 // adiantada e o quadro é desenhado uma vez só, com o pet já em cima da janela.
 const SHOT = new URLSearchParams(window.location.search).has("shot");
-if (EMBED) document.body.classList.add("embed");
 
 const world = new World();
 const stage = document.getElementById("stage");
@@ -113,10 +111,12 @@ let topZ = 2;              // a ordem das janelas (maior = na frente)
    a que se move.                                                    */
 
 const WINDOW_DEFS = [
-  { id: "notas", title: "Bloco de Notas", kind: "notes", icon: "📝",
-    x: 0.13, y: 0.52, w: 300, h: 190, z: 1 },
   { id: "painel", title: "Meu Pet — Painel", kind: "panel", icon: "🐑",
-    x: 0.34, y: 0.07, w: 460, h: 250, z: 2 }
+    x: 0.25, y: 0.06, w: 470, h: 250, z: 2 },
+  { id: "notas", title: "Bloco de Notas", kind: "notes", icon: "📝",
+    x: 0.07, y: 0.54, w: 300, h: 190, z: 1 },
+  { id: "sobre", title: "Sobre a demo", kind: "sobre", icon: "💡",
+    x: 0.68, y: 0.26, w: 330, h: 500, z: 3 }
 ];
 
 const windows = WINDOW_DEFS.map((def) => {
@@ -149,7 +149,9 @@ function windowOf(element) {
   return holder ? windowById(holder.dataset.window) : null;
 }
 
-/** O corpo de cada janela: o painel do programa e um bloco de notas. */
+/** O corpo de cada janela: o painel do programa, um bloco de notas e o
+    texto que explica a demo. O painel e o texto vêm do HTML (demo.html)
+    e são movidos para dentro da janela aqui. */
 function windowBody(win) {
   if (win.kind === "notes") {
     return `<div class="demo-note">
@@ -157,10 +159,10 @@ function windowBody(win) {
       <p>· pão de mel<br>· café<br>· mais uma ovelha<br>· Windows 11</p>
     </div>`;
   }
-  return `<div class="demo-line w60"></div>
-    <div class="demo-line w85"></div>
-    <div class="demo-line w40"></div>
-    <div class="demo-blocks"><span></span><span></span><span></span></div>`;
+  if (win.kind === "sobre") {
+    return `<div class="demo-slot" data-slot="demo-sobre"></div>`;
+  }
+  return `<div class="demo-slot" data-slot="demo-painel"></div>`;
 }
 
 /** Cria o elemento de cada janela na tela. */
@@ -180,6 +182,17 @@ function buildWindows() {
     el.querySelector(".demo-window-title").textContent = win.title;
     stage.appendChild(el);
     win.el = el;
+  }
+
+  // O painel do programa e o texto da demo vêm do HTML: cada um entra
+  // na janela que lhe pertence.
+  for (const win of windows) {
+    const slot = win.el.querySelector(".demo-slot");
+    if (!slot) continue;
+    const source = document.getElementById(slot.dataset.slot);
+    if (!source) continue;
+    source.hidden = false;
+    slot.appendChild(source);
   }
 }
 
@@ -282,7 +295,7 @@ function measure() {
     // A janela cabe inteira na tela quando dá; se não der, fica pelo menos
     // um pedaço visível, como no Windows.
     win.x = Math.round(Math.max(0, Math.min(world.width - size.w, win.x)));
-    win.y = Math.round(Math.max(0, Math.min(world.area.bottom - 40, win.y)));
+    win.y = Math.round(Math.max(0, Math.min(world.area.bottom - size.h, win.y)));
   }
 
   layoutWindows();
@@ -353,6 +366,9 @@ function drawPet(target) {
 
 function render(now) {
   if (!pet) return;
+  // Se a tela mudou de tamanho (janela redimensionada, celular girado),
+  // o mundo é remedido antes de desenhar.
+  if (stage.clientWidth !== world.width || stage.clientHeight !== world.height) measure();
   pet.update(now);
   context.clearRect(0, 0, world.width, world.height);
   drawPet(pet);
@@ -745,6 +761,12 @@ function advanceSimulation(milliseconds) {
 askButton.addEventListener("click", ask);
 soundButton.addEventListener("click", toggleSound);
 window.addEventListener("resize", measure);
+
+// O palco ocupa a janela inteira: quando ela muda de tamanho (ou quando a
+// página é aberta numa aba que ainda não tem medida), o mundo é remedido.
+if (window.ResizeObserver) {
+  new ResizeObserver(() => measure()).observe(stage);
+}
 
 // Um gancho para quem quiser inspecionar a demo pelo console do navegador.
 window.meuPetDemo = {

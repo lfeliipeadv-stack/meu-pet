@@ -1,20 +1,30 @@
 /* ---------------------------------------------------------------
    Demo — a ovelhinha dentro da página.
 
-   O palco imita uma área de trabalho: papel de parede, uma janela
-   e uma barra de tarefas. O pet é desenhado num canvas por cima de
-   tudo, andando no topo da janela como no Windows.
+   A página inteira é a área de trabalho: papel de parede, janelas
+   e barra de tarefas, sem moldura nenhuma. O pet é desenhado num
+   canvas por cima de tudo, andando pela tela como no Windows.
    --------------------------------------------------------------- */
 
 [hidden] { display: none !important; }
 
-.demo-stage {
-  position: relative;
-  height: clamp(340px, 54vh, 520px);
-  border: 1px solid #0b0c0e;
-  border-radius: 8px;
+/* A página da demo não tem rolagem: ela é a tela do computador. */
+body.demo-pagina {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
   overflow: hidden;
-  box-shadow: var(--shadow);
+  background: #0e1216;
+}
+
+.demo-stage {
+  position: fixed;
+  inset: 0;
+  height: 100vh;
+  border: 0;
+  border-radius: 0;
+  overflow: hidden;
+  box-shadow: none;
   background: #0e1216;
   touch-action: none;
   user-select: none;
@@ -55,7 +65,7 @@
 .demo-window-bar .dot.max { background: #4a6fa5; }
 .demo-window-bar .dot.close { background: #a63c34; }
 .demo-window-title { margin-left: 4px; opacity: .95; }
-.demo-window-body { padding: 16px 18px 20px; }
+.demo-window-body { padding: 16px 18px 20px; overflow: auto; }
 .demo-line {
   height: 8px; border-radius: 4px; background: #dfe3e0; margin-bottom: 9px;
 }
@@ -207,62 +217,44 @@
   100% { transform: translateX(250%); }
 }
 
-/* --------------------------------------------------------- os controles */
-.demo-controls {
-  display: flex; flex-wrap: wrap; gap: 16px;
-  align-items: center; justify-content: space-between;
-  margin-top: 18px;
-}
-.demo-pets { display: flex; flex-wrap: wrap; gap: 8px; }
+/* --------------------------------------------------------- os controles
+   Eles moram dentro da janela do painel, como no programa: os pets
+   que podem ser trocados e os botões de conversa e de som.        */
+.demo-pets { display: flex; flex-wrap: wrap; gap: 6px; }
 .demo-pet {
-  display: flex; align-items: center; gap: 9px;
-  border: 1px solid var(--line); background: var(--bg);
-  border-radius: 8px; padding: 6px 12px 6px 7px;
-  cursor: pointer; font: inherit; color: var(--ink);
+  display: flex; align-items: center; gap: 7px;
+  border: 1px solid #cfd6d2; background: #fff;
+  border-radius: 7px; padding: 4px 9px 4px 5px;
+  cursor: pointer; font: inherit; color: #16191c;
 }
 .demo-pet img {
-  width: 42px; height: 42px; object-fit: contain;
+  width: 30px; height: 30px; object-fit: contain;
   image-rendering: pixelated;
 }
-.demo-pet span { font-size: .9rem; }
-.demo-pet:hover { border-color: var(--accent); }
+.demo-pet span { font-size: .78rem; }
+.demo-pet:hover { border-color: #2f7d5f; }
 .demo-pet[aria-pressed="true"] {
-  border-color: var(--accent); background: var(--accent-lo); color: var(--accent);
+  border-color: #2f7d5f; background: #e4f2ea; color: #1f5f45;
 }
-.demo-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.demo-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.demo-actions .btn { font-size: .82rem; padding: 6px 12px; }
 
-.demo-hint {
-  margin: 16px 0 0; color: var(--muted); font-size: .92rem; max-width: 70ch;
+/* O texto da janela "Sobre a demo". */
+.demo-sobre-lead { font-weight: 600; }
+#demo-sobre p { margin: 0 0 10px; line-height: 1.5; font-size: .84rem; color: #333b3f; }
+#demo-sobre p:last-child { margin-bottom: 0; }
+.demo-sobre-nota {
+  border-top: 1px solid #e2e6e3; padding-top: 10px;
+  color: #5c666a !important; font-size: .78rem !important;
 }
-.demo-hint b { color: var(--ink); }
 
 /* A janela do desktop se move: ela ganha a mão. */
 .demo-stage.dragging-window .demo-window-bar { cursor: grabbing; }
 .demo-stage.dragging-pet { cursor: grabbing; }
 
 @media (max-width: 760px) {
-  .demo-controls { flex-direction: column; align-items: stretch; }
   .demo-icon { width: 62px; }
   .demo-icon b { font-size: 20px; }
+  .demo-pet span { display: none; }
+  .demo-pet { padding: 4px; }
 }
-
-/* --------------------------------------------------------------- o modo
-   embutido: a mesma página, mostrada dentro de um iframe. Some tudo,
-   menos o palco — fica só a mini área de trabalho.               */
-body.embed .titlebar,
-body.embed .hero,
-body.embed footer,
-body.embed #o-que-e-real,
-body.embed #demo h2,
-body.embed #demo .section-intro,
-body.embed .demo-hint,
-body.embed .demo-controls { display: none; }
-body.embed #demo { padding: 0; border: 0; }
-body.embed #demo .wrap { padding: 0; max-width: none; }
-body.embed,
-body.embed main { margin: 0; padding: 0; background: #0e1216; }
-body.embed .demo-stage {
-  border-radius: 0; border: 0; box-shadow: none;
-  height: 100vh;
-}
-
