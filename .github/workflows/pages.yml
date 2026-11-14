@@ -41,7 +41,7 @@ jobs:
       - name: Montar o site
         run: |
           mkdir -p _site/pets _site/img/capturas
-          cp -r site/index.html site/style.css _site/
+          cp -r site/index.html site/style.css site/demo.html _site/
           cp -r site/demo _site/
           [ -d site/wiki ] && cp -r site/wiki _site/
           # As imagens do Wiki ficam na pasta wiki/images e vao junto.
