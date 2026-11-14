@@ -28,9 +28,12 @@
 <p>Existe uma versão do pet que roda <strong>dentro do navegador</strong>, na página do projeto:</p>
 <p><strong><a href="https://lfeliipeadv-stack.github.io/meu-pet/demo.html" rel="nofollow">https://lfeliipeadv-stack.github.io/meu-pet/demo.html</a></strong></p>
 <p>Não é vídeo nem imagem: é o pet de verdade, desenhado quadro a quadro num <code class="notranslate">canvas</code>, usando o mesmo arquivo <code class="notranslate">animations.xml</code> que o programa para Windows abre. Você vê o bicho chegar do céu, cair, pousar no topo da janela, andar por ela, descer para a barra de tarefas e virar de frente quando chega na borda.</p>
-<p><a target="_blank" rel="noopener noreferrer" href="images/demo.png"><img src="images/demo.png" alt="A demo no navegador: a ovelha andando no título da janela do Bloco de Notas, dentro de uma mini área de trabalho com papel de parede, duas janelas e barra de tarefas" style="max-width: 100%;"></a></p>
-<p><em>A demo no navegador: a ovelha andando no título da janela. Ao fundo, o papel de parede e, embaixo, a barra de tarefas.</em></p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/demo.png"><img src="images/demo.png" alt="A demo no navegador: a página inteira é a área de trabalho, com as três janelas (painel do pet, bloco de notas e sobre a demo), a ovelha andando no título do Bloco de Notas, os ícones no canto e a barra de tarefas embaixo" style="max-width: 100%;"></a></p>
+<p><em>A página da demo é a área de trabalho: a ovelha anda no título do Bloco de Notas, com o painel do pet, a janela "Sobre a demo", os ícones e a barra de tarefas ao redor.</em></p>
 <p>A página principal do site tem um link <strong>Demo</strong> no menu, que leva para esta página.</p>
+<h2>A página é a área de trabalho</h2>
+<p>Não é uma caixa dentro de uma página: ao abrir a demo, a tela inteira do navegador vira a área de trabalho de um computador. Não há moldura em volta, não há rolagem — o papel de parede preenche a tela, e o pet anda por ela do mesmo jeito que anda pela tela do Windows, do canto esquerdo ao canto direito.</p>
+<p>Em cima dessa área de trabalho há três janelas de verdade, os ícones no canto e a barra de tarefas embaixo. O botão <strong>▦ Meu Pet</strong>, no canto da barra de tarefas, leva de volta para a página do projeto.</p>
 <h2>O que dá para fazer na demo</h2>
 <markdown-accessiblity-table><table role="table">
 <thead>
@@ -42,7 +45,7 @@
 <tbody>
 <tr>
 <td>Conversar</td>
-<td>Clique no pet (o balão responde) ou use o botão <strong>Perguntar ao pet</strong></td>
+<td>Clique no pet (o balão responde) ou use o botão <strong>Perguntar</strong> no painel</td>
 </tr>
 <tr>
 <td>Brincar</td>
@@ -54,11 +57,11 @@
 </tr>
 <tr>
 <td>Trocar de pet</td>
-<td>Os botões embaixo do palco: eSheep 64, Claude, Rex, Boo, Pingo, Mago e Nuvi</td>
+<td>Os botões da janela <strong>Meu Pet — Painel</strong>: eSheep 64, Claude, Rex, Boo, Pingo, Mago e Nuvi</td>
 </tr>
 <tr>
 <td>Ligar e desligar o som</td>
-<td>O botão <strong>Som</strong>, ou o item do menu</td>
+<td>O botão <strong>Som</strong> do painel, ou o item do menu</td>
 </tr>
 <tr>
 <td>Mexer nas janelas</td>
@@ -67,17 +70,18 @@
 </tbody>
 </table></markdown-accessiblity-table>
 <h2>A área de trabalho da demo</h2>
-<p>A demo imita uma área de trabalho do Windows, com duas janelas (o painel do programa e um bloco de notas), os ícones no canto da tela e a barra de tarefas embaixo. As janelas se comportam como as de verdade:</p>
+<p>As janelas se comportam como as de verdade:</p>
 <ul>
 <li><strong>arrastar o título</strong> move a janela, e o pet anda em cima dela e acompanha o movimento;</li>
 <li><strong>clicar na janela</strong> a traz para a frente — e, quando uma janela cobre a outra, o pet que estava na de baixo perde o chão e cai;</li>
 <li><strong>minimizar, maximizar e fechar</strong> funcionam como no Windows: quando a janela some, o pet perde o chão e cai para a barra de tarefas;</li>
 <li>os <strong>ícones da área de trabalho</strong> reabrem as janelas que foram fechadas, e a <strong>barra de tarefas</strong> mostra as que estão abertas (clicar restaura e traz para a frente).</li>
 </ul>
+<p>São três janelas: o <strong>painel do Meu Pet</strong> (onde ficam os pets e os botões de conversa e som), o <strong>Bloco de Notas</strong> com uma lista de compras e a <strong>Sobre a demo</strong>, que explica o que está rolando na tela.</p>
 <h2>O que a demo <strong>não</strong> tem</h2>
 <p>A demo é o mesmo pet com o mesmo motor, mas o mundo em que ele anda é a página, não o Windows. Por isso ela <strong>não</strong> tem:</p>
 <ul>
-<li>IA (o "Perguntar ao pet" da demo responde com as falas guardadas no programa, sem chamar nenhum serviço);</li>
+<li>IA (o "Perguntar" da demo responde com as falas guardadas no programa, sem chamar nenhum serviço);</li>
 <li>agenda, e-mails do Outlook, lembretes, Pomodoro e os outros plugins;</li>
 <li>atalhos de teclado e menu da bandeja;</li>
 <li>multi-monitor, tamanhos 1×/2×/4× e o painel de Configurações.</li>
@@ -91,7 +95,7 @@
 <li>a queda sobre as janelas, o acompanhamento da janela, a borda da tela e o arremesso com quique são os mesmos do programa;</li>
 <li>o <code class="notranslate">animations.xml</code> usado é o do próprio pet, sem alteração — é por isso que a demo tem as mesmas animações e os mesmos sons do programa.</li>
 </ul>
-<p>A página (<code class="notranslate">site/demo.html</code>, <code class="notranslate">site/demo/demo.js</code> e <code class="notranslate">site/demo/demo.css</code>) desenha o palco, as janelas, os ícones e a barra de tarefas, e cuida do mouse: arrastar o pet, arrastar as janelas, o menu e o balão de fala.</p>
+<p>A página (<code class="notranslate">site/demo.html</code>, <code class="notranslate">site/demo/demo.js</code> e <code class="notranslate">site/demo/demo.css</code>) desenha a área de trabalho inteira — papel de parede, janelas, ícones e barra de tarefas — e cuida do mouse: arrastar o pet, arrastar as janelas, o menu e o balão de fala.</p>
 <h2>Ver também</h2>
 <ul>
 <li><a href="Instalacao.html">Instalação</a> — o programa para Windows, que é a versão completa.</li>
@@ -102,10 +106,10 @@
 </ul>
 <h2>Onde fica no código</h2>
 <ul>
-<li><code class="notranslate">site/demo.html</code> — a página da demo (com o modo <code class="notranslate">?embed=1</code>, que mostra só o palco, e o modo <code class="notranslate">?shot=1</code>, usado para a imagem desta página).</li>
+<li><code class="notranslate">site/demo.html</code> — a página da demo (a área de trabalho inteira; o modo <code class="notranslate">?shot=1</code>, usado para a imagem desta página, roda a simulação adiantada e desenha um quadro só).</li>
 <li><code class="notranslate">site/demo/pet-engine.js</code> — o motor do pet portado do C# para o navegador.</li>
-<li><code class="notranslate">site/demo/demo.js</code> — o palco, as janelas, o desenho, o menu, o balão e as falas.</li>
-<li><code class="notranslate">site/demo/demo.css</code> — o papel de parede, as janelas, os ícones, a barra de tarefas e o modo embutido.</li>
+<li><code class="notranslate">site/demo/demo.js</code> — o palco, as janelas, os ícones, a barra de tarefas, o desenho, o menu, o balão e as falas.</li>
+<li><code class="notranslate">site/demo/demo.css</code> — o papel de parede, as janelas, os ícones e a barra de tarefas.</li>
 <li><code class="notranslate">site/index.html</code> — o link "Demo" do menu da página principal, que leva para a demo.</li>
 <li><code class="notranslate">.github/workflows/pages.yml</code> — publica a demo e copia os <code class="notranslate">animations.xml</code> dos pets que aparecem nela.</li>
 </ul>

@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Demo — a ovelhinha dentro da página | Meu Pet</title>
-<meta name="description" content="O pet do Meu Pet rodando dentro do navegador: os mesmos desenhos e as mesmas animações do programa para Windows, andando pela área de trabalho da página.">
+<title>Demo — a área de trabalho do Meu Pet | Meu Pet</title>
+<meta name="description" content="A demo do Meu Pet é uma área de trabalho simulada: janelas, ícones e barra de tarefas, com o pet de verdade andando por ela no navegador, com os mesmos desenhos e animações do programa para Windows.">
 <link rel="icon" href="img/icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,153 +12,60 @@
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="demo/demo.css">
 </head>
-<body>
+<body class="demo-pagina">
 
-<!-- Barra de título: a navegação do site é a de uma janela do Windows. -->
-<header class="titlebar">
-  <img class="tb-icon" src="img/icon.png" alt="">
-  <span class="tb-name">desktopPet</span>
-  <nav>
-    <a href="index.html">Início</a>
-    <a href="index.html#pets">Pets</a>
-    <a href="index.html#recursos">Recursos</a>
-    <a href="index.html#wiki">Wiki</a>
-    <a href="demo.html" aria-current="page">Demo</a>
-    <a href="https://github.com/lfeliipeadv-stack/meu-pet">Código</a>
-  </nav>
-  <span class="tb-tag" id="tb-version">v2.6.2</span>
-</header>
+<!-- A área de trabalho. A página inteira é a tela do computador: o pet
+     anda por ela inteira, sem moldura nenhuma. -->
+<div class="demo-stage" id="stage">
+  <div class="demo-wallpaper" aria-hidden="true"></div>
 
-<!-- Herói -->
-<section class="hero" style="border-top:0">
-  <div class="wrap">
-    <div class="window">
-      <div class="window-title">
-        <span class="dot min"></span><span class="dot max"></span><span class="dot close"></span>
-        <span class="wtitle">Meu Pet — Demo no navegador</span>
-      </div>
-      <div class="window-body">
-        <p class="eyebrow">demonstração ao vivo, dentro da página</p>
-        <h1>A ovelhinha, <em>dentro do navegador</em>.</h1>
-        <p class="lead">Não é vídeo e não é imagem: é o pet de verdade, com os mesmos desenhos quadro a quadro e a mesma lógica de movimento do programa para Windows. Ele anda no topo da janela, cai, dorme, acorda e pode ser arrastado com o mouse.</p>
-        <div class="cta">
-          <a class="btn btn-main" href="#demo">Ver a demo funcionando ↓</a>
-          <a class="btn btn-ghost" href="https://github.com/lfeliipeadv-stack/meu-pet/releases/latest/download/DesktopPet-Instalador.exe">⬇ Baixar o instalador</a>
-        </div>
-        <p class="version-line">a demo usa os arquivos de animação do próprio pet — o mesmo animations.xml que o programa abre</p>
-      </div>
-    </div>
+  <!-- Os ícones da área de trabalho -->
+  <div class="demo-icons" id="icons"></div>
+
+  <!-- As janelas são criadas aqui pelo demo.js -->
+
+  <!-- A barra de tarefas -->
+  <div class="demo-taskbar">
+    <a class="demo-start" href="index.html" title="Voltar para a página do Meu Pet">▦ Meu Pet</a>
+    <div class="demo-taskbar-apps" id="taskbar-apps"></div>
+    <span class="demo-clock" id="clock">--:--</span>
   </div>
-</section>
 
-<main>
-  <!-- A demo -->
-  <section id="demo">
-    <div class="wrap">
-      <h2>O pet, andando pela sua página.</h2>
-      <p class="section-intro">A área abaixo é uma mini área de trabalho: duas janelas e uma barra de tarefas, e o pet anda em cima delas como no Windows. Arraste-o, converse com ele e arraste os títulos das janelas para ver o pet acompanhar o movimento.</p>
+  <!-- O pet é desenhado aqui -->
+  <canvas class="demo-canvas" id="canvas"></canvas>
 
-      <div class="demo-stage" id="stage">
-        <div class="demo-wallpaper" aria-hidden="true"></div>
-
-        <!-- Os ícones da área de trabalho -->
-        <div class="demo-icons" id="icons"></div>
-
-        <!-- As janelas são criadas aqui pelo demo.js -->
-
-        <!-- A barra de tarefas -->
-        <div class="demo-taskbar">
-          <span class="demo-start">▦ Meu Pet</span>
-          <div class="demo-taskbar-apps" id="taskbar-apps"></div>
-          <span class="demo-clock" id="clock">--:--</span>
-        </div>
-
-        <!-- O pet é desenhado aqui -->
-        <canvas class="demo-canvas" id="canvas"></canvas>
-
-        <!-- O balão de fala -->
-        <div class="demo-bubble" id="bubble" hidden>
-          <p id="bubble-text"></p>
-          <div class="demo-choices" id="bubble-choices" hidden></div>
-        </div>
-
-        <!-- O menu do pet -->
-        <div class="demo-menu" id="menu" hidden></div>
-
-        <!-- A tela de carregamento -->
-        <div class="demo-loading" id="loading">
-          <div class="demo-loading-bar"><i></i></div>
-          <p>carregando o pet…</p>
-        </div>
-      </div>
-
-      <div class="demo-controls">
-        <div class="demo-pets" id="pet-list" role="group" aria-label="Escolher o pet"></div>
-        <div class="demo-actions">
-          <button class="btn btn-ghost" id="ask" type="button">💬 Perguntar ao pet</button>
-          <button class="btn btn-ghost" id="sound" type="button" aria-pressed="true">🔊 Som</button>
-        </div>
-      </div>
-
-      <p class="demo-hint">
-        <b>Como brincar:</b> arraste o pet com o mouse e solte com força — ele voa e quica.
-        Clique nele para conversar. Clique com o botão direito para abrir o menu.
-        As janelas do desktop também são de verdade: arraste o título para movê-las (o pet
-        anda em cima e acompanha), clique nelas para trazer para a frente, e use os
-        botões para minimizar, maximizar ou fechar — quando a janela some, o pet perde o
-        chão e cai. Os ícones do canto reabrem as janelas.
-      </p>
-    </div>
-  </section>
-
-  <!-- O que é real e o que é limitado -->
-  <section id="o-que-e-real">
-    <div class="wrap">
-      <h2>O que é o programa e o que é a demo.</h2>
-      <p class="section-intro">A demo é o mesmo pet, com o mesmo motor. O que muda é o mundo em que ele anda.</p>
-      <div class="feature-rows">
-        <div class="feature">
-          <div class="feature-copy">
-            <h3>Isto aqui é o pet de verdade</h3>
-            <ul>
-              <li>Os mesmos desenhos: cada quadro vem do <code>animations.xml</code> do pet, o arquivo que o programa para Windows abre</li>
-              <li>A mesma lógica de animação: intervalos, repetições, probabilidades e as transições entre andar, dormir, cair e virar</li>
-              <li>O mesmo arremesso: a velocidade do mouse vira força, e o pet voa, bate na borda e quica</li>
-              <li>As mesmas falas do menu do programa: biscoito da sorte, bola 8 mágica e piadas</li>
-            </ul>
-          </div>
-          <div class="feature-copy">
-            <h3>Isto aqui é a versão web</h3>
-            <ul>
-              <li>Em vez das janelas do Windows, o pet anda nas janelas da página: há duas, com barra de título, e dá para movê-las, sobrepor, minimizar, maximizar e fechar — como no Windows, o pet perde o chão quando a janela some</li>
-              <li>Não tem IA, agenda, e-mail do Outlook nem atalhos: essas partes vivem dentro do programa</li>
-              <li>Os filhos (o balão, a bolinha) aparecem, mas a página não roda o plugin de memorial</li>
-              <li>Roda em qualquer navegador moderno, sem instalar nada</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-      <p style="margin-top:30px">
-        <a class="btn btn-main" href="https://github.com/lfeliipeadv-stack/meu-pet/releases/latest/download/DesktopPet-Instalador.exe">⬇ Baixar o programa para Windows</a>
-      </p>
-    </div>
-  </section>
-</main>
-
-<footer>
-  <div class="wrap foot-grid">
-    <div>
-      <p>Código aberto, licença MIT. Feito por Luan Felipe, a partir do <a href="https://github.com/Adrianotiger/desktopPet">desktopPet</a> de Adriano Petrucci — a versão para Windows moderno da ovelhinha clássica do eSheep.</p>
-      <p>Os pets da comunidade pertencem aos seus autores, indicados no painel do programa. O Claude é uma homenagem de fã: o mascote e o nome pertencem à Anthropic PBC, sem vínculo com este projeto.</p>
-    </div>
-    <div class="foot-links">
-      <a href="index.html">Site</a>
-      <a href="wiki/Home.html">Wiki</a>
-      <a href="https://github.com/lfeliipeadv-stack/meu-pet/releases">Versões</a>
-      <a href="https://github.com/lfeliipeadv-stack/meu-pet/issues">Problemas</a>
-    </div>
+  <!-- O balão de fala -->
+  <div class="demo-bubble" id="bubble" hidden>
+    <p id="bubble-text"></p>
+    <div class="demo-choices" id="bubble-choices" hidden></div>
   </div>
-</footer>
+
+  <!-- O menu do pet -->
+  <div class="demo-menu" id="menu" hidden></div>
+
+  <!-- A tela de carregamento -->
+  <div class="demo-loading" id="loading">
+    <div class="demo-loading-bar"><i></i></div>
+    <p>carregando o pet…</p>
+  </div>
+</div>
+
+<!-- O conteúdo das janelas fica no HTML e o demo.js coloca cada um
+     dentro da janela correspondente. -->
+<div id="demo-painel" hidden>
+  <div class="demo-pets" id="pet-list" role="group" aria-label="Escolher o pet"></div>
+  <div class="demo-actions">
+    <button class="btn btn-ghost" id="ask" type="button">💬 Perguntar</button>
+    <button class="btn btn-ghost" id="sound" type="button" aria-pressed="true">🔊 Som</button>
+  </div>
+</div>
+
+<div id="demo-sobre" hidden>
+  <p class="demo-sobre-lead">Não é vídeo e não é imagem: é o pet de verdade, com os mesmos desenhos e a mesma lógica de movimento do programa para Windows.</p>
+  <p>Ele chega do céu, cai, pousa no topo da janela, anda por ela, desce para a barra de tarefas e vira de frente quando chega na borda. Dá para arrastar, arremessar e conversar com ele.</p>
+  <p>As janelas do desktop também valem: arraste o título para movê-las — o pet acompanha — e use os botões para minimizar, maximizar ou fechar. Quando a janela some, o pet perde o chão e cai, como no Windows.</p>
+  <p class="demo-sobre-nota">Esta página é a simulação de uma área de trabalho: o pet anda por ela inteira, do mesmo jeito que anda pela tela do Windows.</p>
+</div>
 
 <script src="demo/demo.js" type="module"></script>
 </body>
