@@ -4,7 +4,7 @@ name: Wiki
 # A pasta wiki/ é a fonte da verdade: editar lá e enviar para o master atualiza o Wiki.
 on:
   push:
-    branches: [master]
+    branches: [master, feature/wiki-publish]
     paths: ['wiki/**', '.github/workflows/wiki.yml']
   workflow_dispatch:
 
