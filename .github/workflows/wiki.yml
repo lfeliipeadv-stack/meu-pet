@@ -1,0 +1,59 @@
+name: Wiki
+
+# Publica o conteúdo da pasta wiki/ no Wiki do repositório (https://github.com/lfeliipeadv-stack/meu-pet/wiki).
+# A pasta wiki/ é a fonte da verdade: editar lá e enviar para o master atualiza o Wiki.
+on:
+  push:
+    branches: [master]
+    paths: ['wiki/**', '.github/workflows/wiki.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: wiki
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Publicar no Wiki
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          WIKI_URL="https://x-access-token:${GITHUB_TOKEN}@github.com/${REPO}.wiki.git"
+          rm -rf .wiki
+          mkdir -p .wiki
+
+          # O repositório do Wiki só existe depois da primeira página: quando ainda não
+          # existe, o push o cria. O "|| true" cobre o primeiro push, que falha com 404.
+          if git clone --depth 1 "$WIKI_URL" .wiki 2>/dev/null; then
+            echo "Wiki já existia."
+          else
+            cd .wiki
+            git init -q
+            git remote add origin "$WIKI_URL"
+            git checkout -q -b master
+          fi
+
+          # Limpa as páginas antigas e copia as de wiki/.
+          find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          cp -r ../wiki/. ./
+
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Nada novo para publicar."
+          else
+            git commit -q -m "Wiki: $(git -C .. rev-parse --short HEAD)"
+            git push origin master
+            echo "Wiki publicado."
+          fi
