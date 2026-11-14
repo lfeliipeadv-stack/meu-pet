@@ -229,3 +229,6 @@ DesktopPet.config
 
 # arquivos locais do Claude Code (nao fazem parte do projeto)
 .claude/
+
+# As imagens do Wiki vem da pasta wiki/images, copiadas na hora da montagem.
+site/wiki/images/

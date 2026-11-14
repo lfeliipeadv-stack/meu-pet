@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agenda e e-mails — Wiki do Meu Pet</title>
+<link rel="icon" href="../img/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body class="wiki">
+<header class="topo">
+  <a class="volta" href="../">&larr; Voltar para a página do Meu Pet</a>
+  <span class="marca">Wiki do Meu Pet</span>
+</header>
+<div class="layout">
+  <nav class="lateral">
+    <p class="lateral-titulo">Páginas</p>
+    <ul>
+<li><a href="Home.html">Home</a></li><li><a href="Instalacao.html">Instalação</a></li><li><a href="Primeiros-passos.html">Primeiros passos</a></li><li><a href="Painel-de-pets.html">Painel de pets</a></li><li><a href="Pergunte-ao-pet.html">Pergunte ao pet</a></li><li><a href="Lembretes-e-Pomodoro.html">Lembretes e Pomodoro</a></li><li class="on"><a href="Agenda-e-e-mails.html">Agenda e e-mails</a></li><li><a href="Pet-virtual-e-brinquedos.html">Pet virtual e brincadeiras</a></li><li><a href="Plugins-e-integracoes.html">Plugins e integrações</a></li><li><a href="Crie-o-seu-pet.html">Crie o seu pet</a></li><li><a href="Atalhos-e-comandos.html">Atalhos e comandos</a></li><li><a href="Para-desenvolvedores.html">Para desenvolvedores</a></li><li><a href="Perguntas-frequentes.html">Perguntas frequentes</a></li><li><a href="Changelog.html">Changelog</a></li>
+    </ul>
+  </nav>
+  <main class="conteudo wiki-corpo">
+<h1>Agenda e e-mails</h1>
+<p><a href="Home.html">Home</a> · <a href="Instalacao.html">Instalação</a> · <a href="Primeiros-passos.html">Primeiros passos</a> · <a href="Painel-de-pets.html">Painel de pets</a> · <a href="Pergunte-ao-pet.html">Pergunte ao pet</a> · <a href="Lembretes-e-pomodoro.html">Lembretes e pomodoro</a> · <a href="Pet-virtual-e-brinquedos.html">Pet virtual e brinquedos</a> · <a href="Plugins-e-integracoes.html">Plugins e integrações</a> · <a href="Crie-o-seu-pet.html">Crie o seu pet</a> · <a href="Atalhos-e-comandos.html">Atalhos e comandos</a> · <a href="Para-desenvolvedores.html">Para desenvolvedores</a> · <a href="Perguntas-frequentes.html">Perguntas frequentes</a> · <a href="Changelog.html">Changelog</a></p>
+<p>O pet tem dois plugins que olham a sua rotina de trabalho: a <strong>agenda</strong> (Google Agenda ou Outlook.com, pelo link iCal secreto) e os <strong>e-mails novos</strong> (Outlook clássico de desktop). Os dois ficam na página <strong>Plugins</strong>, na categoria <strong>Meu dia</strong>, ao lado do clima e dos lembretes.</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Recurso</th>
+<th>O que o pet faz</th>
+<th>Precisa de internet</th>
+<th>Ligado por padrão</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Agenda (Google ou Outlook)</td>
+<td>Avisa antes de cada reunião e mostra a próxima</td>
+<td>Sim, para reler a agenda</td>
+<td>Não (fica ligado depois que você cola o link)</td>
+</tr>
+<tr>
+<td>E-mails novos (Outlook)</td>
+<td>Avisa quantos e-mails novos chegaram na Caixa de Entrada</td>
+<td>Não (fal com o Outlook local)</td>
+<td>Não em instalação nova</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p><a target="_blank" rel="noopener noreferrer" href="images/plugins.png"><img src="images/plugins.png" alt="Página Plugins com os cartões Agenda (Google ou Outlook) e E-mails novos (Outlook)" style="max-width: 100%;"></a></p>
+<p><em>Os dois cartões ficam na categoria "Meu dia" da página Plugins. O cartão da agenda tem o botão "Configurar…"; o de e-mails é só um interruptor.</em></p>
+<h2>Conectar a agenda pelo link iCal</h2>
+<p>O pet não faz login em lugar nenhum. Ele lê um arquivo de calendário (iCal/.ics) por HTTPS, do mesmo jeito que você abriria o link no navegador.</p>
+<h3>Onde fica o botão</h3>
+<p><strong>Painel → Plugins → "Agenda (Google ou Outlook)" → "Configurar…"</strong>. Abrir o painel dá-se pelo botão <strong>Abrir Painel</strong> no menu do pet (botão direito no pet) ou pelo item <strong>Abrir &amp;Painel</strong> do ícone da bandeja.</p>
+<p>Ligar o interruptor do cartão também abre a mesma caixa de link — é por ali que a agenda é conectada.</p>
+<h3>Como pegar o link</h3>
+<p>A caixa que abre (<code class="notranslate">agenda.ask</code>) explica os dois caminhos, com os textos exatos do programa:</p>
+<ul>
+<li><strong>Google Agenda</strong>: Configurações → sua agenda → "Endereço secreto no formato iCal".</li>
+<li><strong>Outlook.com</strong>: Configurações → Calendário → Calendários compartilhados → Publicar um calendário → link ICS.</li>
+</ul>
+<h3>Regras do link</h3>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Regra</th>
+<th>Comportamento</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Só <code class="notranslate">https://</code> ou <code class="notranslate">webcal://</code></td>
+<td><code class="notranslate">webcal://</code> é trocado por <code class="notranslate">https://</code> antes do download; um link <code class="notranslate">http://</code> é recusado com a mensagem "o link precisa começar com https:// ou webcal://"</td>
+</tr>
+<tr>
+<td>Tem que ser uma agenda</td>
+<td>Se o conteúdo não tiver <code class="notranslate">BEGIN:VCALENDAR</code>, o erro é "o link não é uma agenda iCal"</td>
+</tr>
+<tr>
+<td>Sem login</td>
+<td>O programa só pede o arquivo pelo link; nenhuma senha sua é pedida ou guardada</td>
+</tr>
+<tr>
+<td>Fica neste computador</td>
+<td>O link é gravado no <code class="notranslate">DesktopPet.config</code> (chave <code class="notranslate">AgendaUrl</code>), ao lado do executável quando portátil e em <code class="notranslate">%LocalAppData%\DesktopPet</code> quando instalado</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>Atenção: o link da agenda também entra no arquivo de backup do programa (<code class="notranslate">.desktoppet</code>, junto com <code class="notranslate">AgendaUrl</code> e <code class="notranslate">AgendaLead</code>). Se você exporta o backup para outro computador, o link vai junto.</p>
+<h3>Ligar e desligar</h3>
+<ul>
+<li>Ao colar um link válido, o programa lê a agenda na hora e mostra na barra de status <strong>"Agenda conectada: {0} evento(s) nas próximas 24 horas."</strong>. O pet também fala: "Agenda conectada! Próximo: {0} às {1}." ou "Agenda conectada! Nada nas próximas 24 horas."</li>
+<li>Se a leitura falhar, a barra de status mostra <strong>"Não foi possível ler a agenda: {0}"</strong>, com o motivo.</li>
+<li>Para remover, basta deixar o campo do link vazio: o programa apaga o link e responde <strong>"Agenda removida."</strong> O mesmo acontece se você desligar o interruptor do cartão.</li>
+<li>O cartão fica "Ligado" enquanto houver link guardado.</li>
+</ul>
+<h2>O que o pet entende da agenda</h2>
+<p>O leitor de iCal (<code class="notranslate">src/Portable/Agenda.cs</code>) é um interpretador de RFC 5545 feito para os casos que aparecem nas agendas de verdade:</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Caso</th>
+<th>Tratamento</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Janela lida</td>
+<td>Só os eventos que começam nas <strong>próximas 24 horas</strong></td>
+</tr>
+<tr>
+<td>Fuso horário</td>
+<td>Aceita UTC (<code class="notranslate">...Z</code>), horário com <code class="notranslate">TZID</code> (nome do Windows ou IANA) e horário solto (local)</td>
+</tr>
+<tr>
+<td>Evento de dia inteiro</td>
+<td>Ignorado (não vira aviso de reunião)</td>
+</tr>
+<tr>
+<td>Repetição</td>
+<td>Diária, semanal (com <code class="notranslate">BYDAY</code>) e mensal, com <code class="notranslate">INTERVAL</code>, <code class="notranslate">COUNT</code> e <code class="notranslate">UNTIL</code></td>
+</tr>
+<tr>
+<td>Evento removido da série</td>
+<td><code class="notranslate">EXDATE</code> tira a ocorrência</td>
+</tr>
+<tr>
+<td>Evento mudado de hora</td>
+<td><code class="notranslate">RECURRENCE-ID</code> substitui a ocorrência original</td>
+</tr>
+<tr>
+<td>Evento cancelado</td>
+<td><code class="notranslate">STATUS:CANCELLED</code> é ignorado</td>
+</tr>
+<tr>
+<td>Evento sem título</td>
+<td>Vira "(sem título)"</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>A agenda é <strong>releitura a cada 15 minutos</strong> (o relógio do plugin bate a cada 30 segundos, mas o download só acontece quando já se passaram 15 minutos).</p>
+<h2>O aviso antes da reunião</h2>
+<h3>Quanto tempo antes</h3>
+<p>Na janela de configuração do plugin (<strong>Configurar…</strong>) há a opção <strong>"Aviso de reunião"</strong>, com os valores <strong>5 min</strong>, <strong>10 min</strong> e <strong>15 min</strong>. O padrão é <strong>10 minutos</strong>.</p>
+<h3>O que aparece</h3>
+<ul>
+<li><strong>Antes da hora</strong>: o balão do pet escreve <code class="notranslate">Daqui a {0} min: {1} ({2}) 📅</code> — por exemplo, <em>"Daqui a 10 min: Reunião do time (14:30) 📅"</em>.</li>
+<li><strong>Na hora</strong>: o balão escreve <code class="notranslate">Está na hora: {0} 📅</code> — por exemplo, <em>"Está na hora: Reunião do time 📅"</em>.</li>
+<li>O balão da agenda <strong>fica na tela até você clicar em "OK"</strong> (ou no ✕). O do e-mail fica 15 segundos.</li>
+</ul>
+<p>Enquanto isso, o pet faz uma reação: <strong>acena, olha em volta e pensa</strong> (toca a primeira dessas animações que ele tiver — "wave", "look around" ou "think").</p>
+<p>Cada reunião é anunciada <strong>uma única vez</strong>, mesmo que a agenda seja relida várias vezes.</p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/bubble.png"><img src="images/bubble.png" alt="Balão do pet com o nome do pet, o recado e os botões de ação" style="max-width: 100%;"></a></p>
+<p><em>O balão do pet é o mesmo nos avisos de agenda, de e-mail e de lembrete: nome do pet no topo, o recado e até dois botões.</em></p>
+<h3>Onde a próxima reunião aparece</h3>
+<ul>
+<li><strong>Painel → Início</strong>, no painel <strong>"O que vem por aí"</strong>, com o ícone 📅 e o horário (ou "amanhã", se for no dia seguinte).</li>
+<li><strong>Menu do pet</strong> (botão direito no pet): a linha <strong>"Próximo: 14:30 Reunião do time"</strong>. Se não houver nada nas próximas 24 h, ela vira <strong>"Nenhuma reunião nas próximas 24 h"</strong>. Essa linha é apenas informativa: clicar nela não abre nada. Se a agenda não estiver conectada, a linha nem aparece.</li>
+<li><strong>Conversa com o pet</strong>: o chip <strong>"Quando é minha próxima reunião?"</strong> traz a resposta <em>"Sua próxima reunião: {0} às {1}. 📅"</em>. Se a agenda não estiver conectada, a resposta é <em>"Conecte sua agenda do Google ou do Outlook que eu conto suas reuniões."</em>, com um botão <strong>"Configurar…"</strong> que abre a página Plugins.</li>
+</ul>
+<p><a target="_blank" rel="noopener noreferrer" href="images/home.png"><img src="images/home.png" alt="Página Início com o cartão do pet e o painel O que vem por aí" style="max-width: 100%;"></a></p>
+<p><em>Na página Início, o painel "O que vem por aí" lista o clima, os lembretes e a próxima reunião, tudo em ordem de horário.</em></p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/pet-menu.png"><img src="images/pet-menu.png" alt="Menu do pet aberto, com a linha de texto da próxima reunião" style="max-width: 100%;"></a></p>
+<p><em>No menu do pet, a linha da agenda fica entre "Notas e tarefas" e "Como estou hoje?".</em></p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/chat.png"><img src="images/chat.png" alt="Conversa com o pet em balão, com a resposta sobre o que ele sabe fazer" style="max-width: 100%;"></a></p>
+<p><em>A conversa com o pet funciona sem IA: as perguntas sobre a próxima reunião são respondidas pelo próprio programa.</em></p>
+<h2>E-mails novos (Outlook clássico)</h2>
+<h3>O que é lido — e o que não é</h3>
+<p>O pet se conecta ao Outlook clássico de desktop por automação COM (<code class="notranslate">Outlook.Application</code> / MAPI) e lê <strong>dois números</strong>:</p>
+<ol>
+<li>quantas mensagens há na Caixa de Entrada;</li>
+<li>quantas delas estão não lidas.</li>
+</ol>
+<p><strong>Nada mais.</strong> Nem o remetente, nem o assunto, nem o texto da mensagem. É essa a garantia do plugin: o programa não abre e não guarda o conteúdo dos seus e-mails.</p>
+<p>O plugin só funciona com o <strong>Outlook clássico já aberto</strong> no computador. O <strong>novo Outlook</strong> (o processo <code class="notranslate">olk</code>) e o Outlook na web não têm interface local para o programa usar, e por isso <strong>não são suportados</strong> — o próprio cartão avisa isso.</p>
+<h3>Como avisa</h3>
+<p>O programa olha a Caixa de Entrada <strong>a cada 30 segundos</strong>. Quando chega mensagem nova <strong>não lida</strong>, o pet reage (toca a primeira animação que ele tiver entre "wave", "hello" e "look around" — normalmente acena) e mostra o balão:</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Situação</th>
+<th>Texto do balão</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Uma mensagem nova</td>
+<td>"Você tem um novo e-mail no Outlook. Abrir? ✉️"</td>
+</tr>
+<tr>
+<td>Várias mensagens novas</td>
+<td>"Você tem {0} novos e-mails no Outlook. Abrir? ✉️"</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>O balão traz dois botões:</p>
+<ul>
+<li><strong>"Abrir"</strong> — traz a Caixa de Entrada do Outlook para a frente (se o Outlook não estiver rodando, é essa hora que ele é aberto).</li>
+<li><strong>"Depois"</strong> — fecha o balão sem fazer nada.</li>
+</ul>
+<p>Esse balão fica 15 segundos na tela.</p>
+<h3>Detalhes que importam</h3>
+<ul>
+<li>O programa <strong>nunca abre o Outlook sozinho</strong> para conferir as caixas. Se o Outlook clássico não estiver rodando, a contagem éignorada e nada é anunciado.</li>
+<li>Se o Outlook for fechado e aberto de novo no meio do caminho, o contador é reiniciado — você não recebe um lote de avisos atrasados.</li>
+<li>O aviso só sai quando chega mensagem <strong>não lida</strong>: e-mail já lido não provoca balão.</li>
+<li>O plugin <strong>não tem janela de configuração</strong>: no cartão da página Plugins há só o interruptor. É ele que liga e desliga a contagem (chave <code class="notranslate">OutlookMail</code>).</li>
+<li>Em instalação nova ele começa <strong>desligado</strong>. Num computador que já usava uma versão anterior do programa, em que esse recurso ficava ligado por padrão, ele <strong>continua ligado</strong> depois da atualização.</li>
+</ul>
+<h2>Em reunião: como o pet se comporta</h2>
+<p>O atalho <strong>Ctrl+Alt+P</strong> (opção <strong>"Esconder pets com Ctrl+Alt+P"</strong>) esconde todos os pets e os sons de qualquer programa. A descrição da própria opção diz: <em>"O atalho esconde todos os pets (e os sons) ou mostra de novo, de qualquer programa. Útil em reuniões."</em> A apresentação inicial do pet repete a ideia: <em>"Em reunião? Ctrl+Alt+P me esconde e me deixa em silêncio. Aperte de novo para eu voltar."</em></p>
+<p>Com os pets escondidos (ou durante o <strong>Foco (Pomodoro)</strong>, no <strong>Não perturbe</strong> de tela cheia, ou no horário de silêncio configurado), o pet <strong>não mostra balão nenhum</strong>. Os avisos ficam guardados — até 30 — e saem quando o silêncio acaba:</p>
+<ul>
+<li>"Durante o silêncio, chegou 1 aviso."</li>
+<li>"Durante o silêncio, chegaram {0} avisos."</li>
+</ul>
+<p>Com os botões <strong>"Mostrar"</strong> (mostra um a um, com <strong>"Próximo ({0})"</strong>), <strong>"Dispensar"</strong> e <strong>"OK"</strong>.</p>
+<p>Existe ainda o plugin <strong>Avisos</strong>: com a opção <strong>"Notificações quando escondido"</strong> ligada, o recado vira <strong>notificação do Windows</strong> em vez de esperar o fim do silêncio. O mesmo plugin tem o horário de silêncio ("Silêncio a partir de" / "Silêncio até"), em que nada aparece e os avisos esperam a manhã.</p>
+<p>Durante o Pomodoro em foco o silêncio é o mesmo: as falas e os sons do pet são cortados e os avisos (de reunião, de e-mail, de lembrete) ficam guardados para depois do bloco de foco.</p>
+<h2>Sem internet, ou com a agenda desconectada</h2>
+<h3>Agenda sem internet</h3>
+<ul>
+<li>A agenda é a única parte que precisa de rede: se o download falhar, o erro vai para o arquivo de registro do programa e <strong>a lista que o pet já tinha continua valendo</strong> — ele continua avisando das reuniões que ele conhecia.</li>
+<li>O aviso de erro aparece para você só na hora de <strong>conectar</strong>: "Não foi possível ler a agenda: {0}".</li>
+<li>Se o link colado não for uma agenda (ou for <code class="notranslate">http://</code>), nada é gravado e o programa explica o motivo.</li>
+<li>Sem agenda conectada, o pet simplesmente não fala de reuniões: a linha "Próximo: ..." some do menu do pet e a conversa responde que a agenda ainda não foi conectada, com o botão "Configurar…" para resolver.</li>
+</ul>
+<h3>E-mail sem internet</h3>
+<p>O plugin de e-mail <strong>não usa internet</strong>: ele conversa com o Outlook clássico que já está rodando no seu computador, por automação local. Sem Outlook clássico aberto, não há aviso — e nenhum erro é mostrado.</p>
+<h3>E as outras telas do programa</h3>
+<p>A faixa "Sem conexão com a internet" que aparece na aba <strong>Baixar pets</strong> é da galeria de pets do GitHub, não da agenda: as reuniões e os e-mails são lidos de outras fontes.</p>
+<h2>Onde aparece cada coisa</h2>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Onde</th>
+<th>O que você vê</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Painel → Plugins → "Meu dia"</td>
+<td>Cartões "Agenda (Google ou Outlook)" (📅) e "E-mails novos (Outlook)" (✉️)</td>
+</tr>
+<tr>
+<td>Painel → Plugins → "Configurar…" do cartão da agenda</td>
+<td>Campo do link iCal e a opção "Aviso de reunião" (5, 10 ou 15 min)</td>
+</tr>
+<tr>
+<td>Painel → Início</td>
+<td>"O que vem por aí" com a próxima reunião (📅)</td>
+</tr>
+<tr>
+<td>Menu do pet (botão direito)</td>
+<td>"Próximo: {0} {1}" ou "Nenhuma reunião nas próximas 24 h"</td>
+</tr>
+<tr>
+<td>Conversa com o pet</td>
+<td>Chip "Quando é minha próxima reunião?" e resposta com título e horário</td>
+</tr>
+<tr>
+<td>Balão do pet</td>
+<td>Aviso de reunião ("Daqui a {0} min…", "Está na hora…") e aviso de e-mail novo</td>
+</tr>
+<tr>
+<td>Arquivos do Windows</td>
+<td>"Agenda conectada…", "Agenda removida.", "Não foi possível ler a agenda: {0}"</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<h2>Ver também</h2>
+<ul>
+<li><a href="Lembretes-e-pomodoro.html">Lembretes e pomodoro</a> — os outros avisos que o pet dá e o silêncio do Pomodoro</li>
+<li><a href="Plugins-e-integracoes.html">Plugins e integrações</a> — como a página Plugins funciona</li>
+<li><a href="Atalhos-e-comandos.html">Atalhos e comandos</a> — o Ctrl+Alt+P e o resto dos atalhos</li>
+<li><a href="Pergunte-ao-pet.html">Pergunte ao pet</a> — a conversa que responde sobre a próxima reunião</li>
+<li><a href="Perguntas-frequentes.html">Perguntas frequentes</a> — dúvidas comuns sobre agenda e e-mails</li>
+</ul>
+<h2>Onde fica no código</h2>
+<ul>
+<li><code class="notranslate">src/Portable/Agenda.cs</code> — leitura do iCal (RFC 5545), fusos, repetições, avisos de reunião</li>
+<li><code class="notranslate">src/Portable/OutlookMail.cs</code> — contagem de e-mails no Outlook clássico por COM/MAPI</li>
+<li><code class="notranslate">src/Portable/FormSettings.Plugins.cs</code> — cartões "Agenda (Google ou Outlook)" e "E-mails novos (Outlook)" e a opção "Aviso de reunião"</li>
+<li><code class="notranslate">src/Portable/FormSettings.Extras.cs</code> — caixa do link iCal (<code class="notranslate">ConfigureAgenda</code>) e mensagens de status</li>
+<li><code class="notranslate">src/Portable/PetMenu.cs</code> — linha "Próximo: {0} {1}" / "Nenhuma reunião nas próximas 24 h"</li>
+<li><code class="notranslate">src/Portable/Chat.cs</code> — resposta local para "Quando é minha próxima reunião?"</li>
+<li><code class="notranslate">src/Portable/FormSettings.Home.cs</code> — painel "O que vem por aí" da página Início</li>
+<li><code class="notranslate">src/Portable/SpeechBubble.cs</code> — balão de fala, silêncio e avisos guardados</li>
+<li><code class="notranslate">src/Portable/HideHotkey.cs</code> — atalho Ctrl+Alt+P (esconder os pets)</li>
+<li><code class="notranslate">src/Portable/Pomodoro.cs</code> — silêncio do bloco de foco</li>
+<li><code class="notranslate">src/Portable/Weather.cs</code> — <code class="notranslate">PluginSwitch</code> e a lista de plugins que ficavam ligados por padrão</li>
+<li><code class="notranslate">src/Portable/PetBackup.cs</code> — chaves <code class="notranslate">AgendaUrl</code> e <code class="notranslate">AgendaLead</code> no arquivo de backup</li>
+<li><code class="notranslate">src/Portable/LocalData.cs</code> — leitura e gravação das chaves <code class="notranslate">AgendaUrl</code>, <code class="notranslate">AgendaLead</code> e <code class="notranslate">OutlookMail</code></li>
+<li><code class="notranslate">src/lang/pt-BR.json</code> — textos <code class="notranslate">agenda.*</code>, <code class="notranslate">mail.*</code>, <code class="notranslate">opt.agenda*</code>, <code class="notranslate">opt.mail.*</code> e <code class="notranslate">quiet.*</code></li>
+</ul>
+  </main>
+</div>
+<footer class="rodape">
+  <p>O <strong>Meu Pet</strong> é um bichinho de área de trabalho para Windows 10 e 11.
+  <a href="https://github.com/lfeliipeadv-stack/meu-pet">Ver no GitHub</a></p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lembretes e Pomodoro — Wiki do Meu Pet</title>
+<link rel="icon" href="../img/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body class="wiki">
+<header class="topo">
+  <a class="volta" href="../">&larr; Voltar para a página do Meu Pet</a>
+  <span class="marca">Wiki do Meu Pet</span>
+</header>
+<div class="layout">
+  <nav class="lateral">
+    <p class="lateral-titulo">Páginas</p>
+    <ul>
+<li><a href="Home.html">Home</a></li><li><a href="Instalacao.html">Instalação</a></li><li><a href="Primeiros-passos.html">Primeiros passos</a></li><li><a href="Painel-de-pets.html">Painel de pets</a></li><li><a href="Pergunte-ao-pet.html">Pergunte ao pet</a></li><li class="on"><a href="Lembretes-e-Pomodoro.html">Lembretes e Pomodoro</a></li><li><a href="Agenda-e-e-mails.html">Agenda e e-mails</a></li><li><a href="Pet-virtual-e-brinquedos.html">Pet virtual e brincadeiras</a></li><li><a href="Plugins-e-integracoes.html">Plugins e integrações</a></li><li><a href="Crie-o-seu-pet.html">Crie o seu pet</a></li><li><a href="Atalhos-e-comandos.html">Atalhos e comandos</a></li><li><a href="Para-desenvolvedores.html">Para desenvolvedores</a></li><li><a href="Perguntas-frequentes.html">Perguntas frequentes</a></li><li><a href="Changelog.html">Changelog</a></li>
+    </ul>
+  </nav>
+  <main class="conteudo wiki-corpo">
+<h1>Lembretes e Pomodoro</h1>
+<p><a href="Home.html">Home</a> · <a href="Instalacao.html">Instalação</a> · <a href="Primeiros-passos.html">Primeiros passos</a> · <a href="Painel-de-pets.html">Painel de pets</a> · <a href="Pergunte-ao-pet.html">Pergunte ao pet</a> · <a href="Agenda-e-e-mails.html">Agenda e e-mails</a> · <a href="Pet-virtual-e-brinquedos.html">Pet virtual e brinquedos</a> · <a href="Plugins-e-integracoes.html">Plugins e integrações</a> · <a href="Crie-o-seu-pet.html">Crie o seu pet</a> · <a href="Atalhos-e-comandos.html">Atalhos e comandos</a> · <a href="Para-desenvolvedores.html">Para desenvolvedores</a> · <a href="Perguntas-frequentes.html">Perguntas frequentes</a> · <a href="Changelog.html">Changelog</a></p>
+<p>O "Meu Pet" tem duas funções que servem para a mesma coisa: ele avisa você no momento certo e some da frente enquanto você trabalha. São os <strong>lembretes</strong> (avisos de água, alongamento, descanso dos olhos, pausa do almoço e lembretes que você mesmo escreve) e o <strong>Foco (Pomodoro)</strong>, que segura a fala e os sons do pet durante o bloco de foco e guarda o que ele queria dizer.</p>
+<p>Tudo isso roda dentro do Windows, sem internet. A IA é opcional e, quando existe, só entra como reforço para reescrever uma frase de lembrete que o programa não entendeu — quem decide o horário é sempre o programa.</p>
+<hr>
+<h2>Lembretes</h2>
+<h3>Os quatro lembretes prontos</h3>
+<p>Na primeira execução o pet já cria quatro lembretes, <strong>todos desligados</strong> para você escolher o que quer:</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Lembrete</th>
+<th>Quando toca</th>
+<th>Dias</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"Hora de beber água! 💧"</td>
+<td>a cada 60 min, das 9h às 18h</td>
+<td>seg a sex</td>
+</tr>
+<tr>
+<td>"Vamos alongar um pouco? Levante e se mexa!"</td>
+<td>a cada 90 min, das 9h às 18h</td>
+<td>seg a sex</td>
+</tr>
+<tr>
+<td>"Descanse os olhos: olhe para algo longe por 20 segundos."</td>
+<td>a cada 30 min, das 9h às 18h</td>
+<td>seg a sex</td>
+</tr>
+<tr>
+<td>"Hora do almoço! Faça uma pausa de verdade."</td>
+<td>todo dia às 12:00</td>
+<td>seg a sex</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>Para ligar um, abra a página <strong>Lembretes</strong> e ligue a chave do lembrete. Nenhum deles toca antes de você ligar.</p>
+<h3>Onde ficam os lembretes</h3>
+<p>Todos os lembretes ficam na página <strong>Lembretes</strong> da janela de Configurações (o item "Lembretes" na barra lateral do painel). É a mesma página para os lembretes prontos e para os que você cria.</p>
+<p>No alto dela ficam o botão <strong>"+ Novo lembrete"</strong> e a fileira <strong>"Lembrar daqui a:"</strong> com os atalhos de 5, 10, 15, 30 e 60 minutos — cada clique cria um lembrete único ("O tempo acabou! Já se passaram {0} minutos.").</p>
+<p>Cada lembrete da lista é um cartão com:</p>
+<ul>
+<li>a chave de liga/desliga;</li>
+<li>o texto que o pet vai falar;</li>
+<li>o resumo da regra, por exemplo <code class="notranslate">A cada 60 min, das 9h às 18h, seg a sex</code>, <code class="notranslate">Todo dia às 12:00, seg a sex</code> ou <code class="notranslate">Uma vez, 14/11/2026 15:00</code>;</li>
+<li>a linha <code class="notranslate">próximo: hoje 14:30</code> com o horário em que ele vai tocar;</li>
+<li>os botões <strong>"Testar"</strong> (fala na hora), <strong>"Editar"</strong> e <strong>"Excluir"</strong>.</li>
+</ul>
+<p>Duplo clique no cartão abre o editor.</p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/reminders.png"><img src="images/reminders.png" alt="Página Lembretes do painel, com a lista de lembretes e os botões de cada um" style="max-width: 100%;"></a></p>
+<p><em>Página "Lembretes" do painel: no alto, "+ Novo lembrete" e os chips de 5 a 60 minutos; abaixo, os cartões de cada lembrete com chave, resumo, próximo horário e os botões Testar, Editar e Excluir.</em></p>
+<h3>Criar um lembrete à mão</h3>
+<p>O botão "+ Novo lembrete" abre o editor, com três campos:</p>
+<ul>
+<li><strong>"O que o pet deve dizer?"</strong> — campo de texto livre, até 200 caracteres. O texto é o que aparece no balão quando o lembrete toca.</li>
+<li><strong>"Quando"</strong> — uma escolha entre três modos:
+<ul>
+<li><strong>"Repetir"</strong>: <code class="notranslate">a cada [1 a 1440] minutos, das [0 a 23] h às [0 a 24] h</code>. O fim da faixa é exclusivo: às 18h o lembrete já não toca.</li>
+<li><strong>"Todo dia num horário"</strong>: <code class="notranslate">às [HH:mm]</code>. O relógio começa em 09:00.</li>
+<li><strong>"Só uma vez"</strong>: <code class="notranslate">em [dd/MM/yyyy HH:mm]</code>. A data começa em "agora + 10 minutos".</li>
+</ul>
+</li>
+<li><strong>"Dias da semana"</strong> — sete bolinhas, segunda-feira primeiro. Nos lembretes de "Só uma vez" esse bloco fica esmaecido, porque não se aplica.</li>
+</ul>
+<p>No fim, <strong>"Salvar"</strong> e <strong>"Cancelar"</strong>.</p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/reminder-edit.png"><img src="images/reminder-edit.png" alt="Janela de edição de lembrete com o texto, o modo de repetição e os dias da semana" style="max-width: 100%;"></a></p>
+<p><em>Editor de lembrete: "O que o pet deve dizer?", a escolha do tipo ("Repetir", "Todo dia num horário", "Só uma vez") e o bloco "Dias da semana".</em></p>
+<h3>Lembrete por texto… (escrevendo do jeito que você falaria)</h3>
+<p>O item <strong>"Lembrete por texto…"</strong> aparece no menu do pet (botão direito) e no submenu "Lembretes" do ícone da bandeja. Ele abre uma caixinha com exemplos prontos e você escreve o pedido como falaria.</p>
+<p>O programa entende a frase <strong>no computador, sem internet</strong>, usando expressões regulares — em português, inglês e espanhol.</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>O que você escreve</th>
+<th>O que o pet entende</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"me lembra de ligar para a Ana às 15h"</td>
+<td>uma vez, hoje às 15:00 — o texto fica "Ligar para a Ana"</td>
+</tr>
+<tr>
+<td>"daqui a 20 minutos beber água"</td>
+<td>uma vez, 20 minutos a partir de agora</td>
+</tr>
+<tr>
+<td>"em meia hora de beber água"</td>
+<td>uma vez, 30 minutos a partir de agora</td>
+</tr>
+<tr>
+<td>"amanhã às 9:30 reunião com o time"</td>
+<td>uma vez, amanhã às 09:30</td>
+</tr>
+<tr>
+<td>"todo dia às 8 tomar o remédio"</td>
+<td>todo dia às 08:00, todos os dias</td>
+</tr>
+<tr>
+<td>"a cada 30 minutos alongar"</td>
+<td>repete a cada 30 min, das 8h às 20h, todos os dias</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>O tempo em português é lido assim:</p>
+<ul>
+<li><strong>"às 15h"</strong>, <strong>"às 15:30"</strong> — hora e minuto diretos.</li>
+<li><strong>"as 3 da tarde"</strong> vira 15h; <strong>"da noite"</strong> também vira depois do meio-dia.</li>
+<li><strong>"meia hora"</strong> vale 30 minutos; <strong>"em 2 horas"</strong> vira 120 minutos.</li>
+<li><strong>"às 3"</strong> dito às 14h é entendido como 15h (o programa testa as 12 horas seguintes).</li>
+<li>Um horário que <strong>já passou hoje</strong> vira amanhã.</li>
+<li><strong>"todo dia"</strong>, <strong>"amanhã"</strong> e <strong>"hoje"</strong> são as palavras que mudam o tipo do lembrete.</li>
+</ul>
+<p>Se a frase não tiver tempo nenhum ("me lembra de comprar pão"), o programa <strong>não entende</strong> e avisa: "Não entendi quando. Tente "às 15h", "daqui a 20 minutos", "amanhã às 9" ou "todo dia às 8"."</p>
+<p>Quando entende, o pet confirma no balão — <code class="notranslate">Combinado! Vou te lembrar: "Ligar para a Ana" — hoje 15:00 ⏰</code> — com o botão <strong>"Desfazer"</strong>, que apaga o lembrete e confirma "Tudo bem, lembrete removido.".</p>
+<p><strong>E a IA?</strong> Só entra quando o programa não consegue ler a frase. Aí, se houver um provedor de IA configurado, o programa pede à IA apenas para <strong>reescrever</strong> a frase em um dos formatos aceitos (" às HH:MM", " amanhã às HH:MM", " daqui a N minutos", " todo dia às HH:MM", " a cada N minutos") e volta a interpretá-la localmente. <strong>A IA nunca decide o horário.</strong></p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/bubble.png"><img src="images/bubble.png" alt="Balão de fala do pet mostrando um recado com botões de ação" style="max-width: 100%;"></a></p>
+<p><em>Balão de fala: o nome do pet em destaque, o texto, os botões de ação e o "✕" para fechar. É essa janela que aparece quando o lembrete toca.</em></p>
+<h3>No chat</h3>
+<p>O mesmo vale dentro da conversa. O chip <strong>"Me lembra de…"</strong> (que aparece quando a conversa está vazia) preenche a caixinha de mensagem com <code class="notranslate">me lembra de  às 15h</code> e deixa o cursor no fim, para você completar e enviar. A resposta local cria o lembrete na hora e oferece o botão "Desfazer" — tudo sem chamar a IA, mesmo com nenhum provedor configurado.</p>
+<h3>Detalhes de funcionamento</h3>
+<ul>
+<li>Os lembretes ficam gravados em <code class="notranslate">%LocalAppData%\DesktopPet\reminders.json</code>.</li>
+<li>A lista é conferida <strong>a cada 15 segundos</strong>.</li>
+<li>Quando toca, o balão traz dois botões: <strong>"Feito"</strong> e <strong>"Daqui a 10 min"</strong> (adiar 10 minutos). Adiar um lembrete de uma vez só reativa e remarca ele.</li>
+<li>Um lembrete de repetição que ficou para trás enquanto o programa estava fechado <strong>não</strong> é falado de uma vez só ao abrir: a contagem recomeça. Um lembrete de uma vez só, esse sim, é falado.</li>
+<li>Se o plugin "Lembretes" estiver desligado, o pet não avisa nada.</li>
+<li>O botão "Testar" fala na hora, mesmo em silêncio de foco — ele é um pedido seu, não um aviso automático.</li>
+</ul>
+<hr>
+<h2>Foco (Pomodoro)</h2>
+<p>O Foco é o relógio de blocos do pet: ele foca, cala a voz, e no fim do bloco te dá uma pausa. Começa pelo menu do pet (botão direito):</p>
+<p><strong>Foco (Pomodoro)</strong> › <strong>"Começar a focar (25 min)"</strong></p>
+<p>Quando está rodando, o mesmo item do menu mostra o que falta: <code class="notranslate">Foco: faltam 12:34</code> ou <code class="notranslate">Pausa: faltam 03:10</code>, com <code class="notranslate"> (pausado)</code> quando está pausado. As opções passam a ser <strong>"Pausar"</strong>, <strong>"Continuar"</strong> e <strong>"Parar"</strong>.</p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/pet-menu.png"><img src="images/pet-menu.png" alt="Menu do pet aberto, com o item Foco (Pomodoro) e o submenu Lembretes" style="max-width: 100%;"></a></p>
+<p><em>Menu do pet (botão direito): o item "Foco (Pomodoro)" e o submenu "Lembretes" ficam logo abaixo de "Brincadeiras".</em></p>
+<h3>O que muda durante o foco</h3>
+<p>O bloco de foco é um período de <strong>silêncio</strong>:</p>
+<ul>
+<li><strong>Nenhum balão aparece.</strong> As falas que o pet faria por conta própria ficam guardadas.</li>
+<li><strong>Os sons do pet são cortados</strong> — é a mesma regra que silencia o pet com o <code class="notranslate">Ctrl+Alt+P</code>.</li>
+<li>Os dois pets não conversam entre si, o humor do dia não é perguntado e os avisos do tipo "Bom dia! ☀️" ficam guardados para depois.</li>
+</ul>
+<p>Quem ainda consegue falar é <strong>você</strong>: o que você pede na hora (brincadeira, timer, menu, conversa) aparece normalmente, porque é um pedido seu e não um aviso do pet.</p>
+<p>O silêncio acaba quando o bloco termina, quando você pausa o Pomodoro, ou quando o pet volta a ser mostrado com o <code class="notranslate">Ctrl+Alt+P</code>.</p>
+<h3>Os avisos guardados</h3>
+<p>Tudo o que o pet queria dizer e ficou guardado sai depois do silêncio, em até 30 avisos. Quando o silêncio acaba, o pet avisa:</p>
+<ul>
+<li>"Durante o silêncio, chegou 1 aviso."</li>
+<li>"Durante o silêncio, chegaram {0} avisos."</li>
+</ul>
+<p>Com os botões <strong>"Mostrar"</strong> (mostra um a um, com <strong>"Próximo ({0})"</strong> quando ainda tem mais), <strong>"Dispensar"</strong> (limpa tudo) e o "✕".</p>
+<h3>O fim do bloco e o fim da pausa</h3>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Momento</th>
+<th>O que o pet diz</th>
+<th>Botões</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Foco começa</td>
+<td>"Hora de focar! {0} minutos. Vou ficar em silêncio. 🤫"</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Acabou o foco</td>
+<td>"Mandou bem! Pausa de {0} minutos. Alongue, beba água. 🎉"</td>
+<td>"OK" · "Pular a pausa"</td>
+</tr>
+<tr>
+<td>A cada 4 blocos</td>
+<td>"4 blocos de foco! Pausa longa de {0} minutos. 🏆"</td>
+<td>"OK" · "Pular a pausa"</td>
+</tr>
+<tr>
+<td>Acabou a pausa</td>
+<td>"Acabou a pausa. Voltamos a focar por {0} minutos?"</td>
+<td>"OK" · "Parar"</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>No fim do bloco o pet comemora com uma das animações <code class="notranslate">cheer</code>, <code class="notranslate">happy</code>, <code class="notranslate">dance</code> ou <code class="notranslate">jump</code>.</p>
+<h3>Configurar os tempos</h3>
+<p>Em <strong>Configurações → Plugins</strong>, o cartão <strong>"🍅 Foco (Pomodoro)"</strong> (categoria "Meu dia") tem o botão <strong>"Configurar"</strong>:</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Opção</th>
+<th>Padrão</th>
+<th>Valores</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"Tempo de foco (Pomodoro)"</td>
+<td>25 min</td>
+<td>15, 25, 45 ou 50 min</td>
+</tr>
+<tr>
+<td>"Tempo de pausa"</td>
+<td>5 min</td>
+<td>5, 10 ou 15 min</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>A <strong>pausa longa de 15 minutos a cada 4 blocos</strong> é fixa e não tem opção na tela. O cartão mostra o estado: "25 min" quando o Pomodoro está desligado e o status (<code class="notranslate">Foco: faltam …</code>) enquanto ele roda.</p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/plugins.png"><img src="images/plugins.png" alt="Página Plugins do painel, com os cartões de cada recurso" style="max-width: 100%;"></a></p>
+<p><em>Página "Plugins" do painel: cada recurso é um cartão com emoji, nome, descrição, estado (Ligado/Desligado) e o botão "Configurar".</em></p>
+<p>Os minutos de foco do dia ficam no cartão <strong>"Foco hoje"</strong> da página Início, e as paradas de 5 minutos ou mais no cartão <strong>"Pausas"</strong>.</p>
+<hr>
+<h2>Cuidar de você: pausa, retorno e programa usado por horas</h2>
+<p>O plugin <strong>"Cuidar de você"</strong> (cartão 🚶 na aba "Bem-estar" da página Plugins) liga o recurso <strong>"Perceber como uso o computador"</strong>. Ele olha só duas coisas: a hora da última tecla ou movimento do mouse e o nome do programa que está na frente. <strong>Nunca</strong> o que você digita ou o que aparece na tela, e nada sai do computador.</p>
+<p>O que ele faz:</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Situação</th>
+<th>O que o pet faz</th>
+<th>Botões</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>90 minutos de uso sem parar</td>
+<td>"Já são {0} no computador sem pausa. Que tal levantar, alongar e beber uma água? 🚶"</td>
+<td>"Vou fazer uma pausa" · "Agora não"</td>
+</tr>
+<tr>
+<td>Você ficou 30 minutos ou mais fora (sono, tela bloqueada, ausência)</td>
+<td>"Que bom que você voltou! 👋"</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Um programa usado por 2 horas ou mais foi fechado</td>
+<td>"Ufa! {0} de {1} hoje. Bom trabalho! 🎉"</td>
+<td>—</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>Detalhes:</p>
+<ul>
+<li>A sugestão de pausa <strong>não sai enquanto um Pomodoro está rodando</strong> — durante o foco quem cuida da pausa é o próprio Pomodoro.</li>
+<li>Uma <strong>pausa de 5 minutos ou mais</strong> conta como parada do dia (cartão "Pausas" na página Início).</li>
+<li>A sugestão de pausa não se repete antes de 45 minutos.</li>
+<li>A comemoração do programa fechado acontece <strong>uma vez por dia, por programa</strong>.</li>
+<li>O programa é ignorado se for um dos do sistema (explorer, SearchHost, DesktopPet, ShellExperienceHost, LockApp, SystemSettings etc.).</li>
+</ul>
+<p><a target="_blank" rel="noopener noreferrer" href="images/home.png"><img src="images/home.png" alt="Página Início do painel, com os cartões de números do dia" style="max-width: 100%;"></a></p>
+<p><em>Página "Início" do painel: os cartões "Foco hoje", "Pausas", "Lembretes" e "Humor" mostram os números do dia.</em></p>
+<hr>
+<h2>Ver também</h2>
+<ul>
+<li><a href="Primeiros-passos.html">Primeiros passos</a> — como abrir o painel e o primeiro encontro com o pet.</li>
+<li><a href="Pergunte-ao-pet.html">Pergunte ao pet</a> — o chat que também cria lembretes, sem IA.</li>
+<li><a href="Plugins-e-integracoes.html">Plugins e integrações</a> — onde ficam as chaves que ligam cada recurso.</li>
+<li><a href="Agenda-e-e-mails.html">Agenda e e-mails</a> — os outros avisos que o pet dá por conta própria.</li>
+<li><a href="Atalhos-e-comandos.html">Atalhos e comandos</a> — <code class="notranslate">Ctrl+Alt+P</code>, que também silencia o pet.</li>
+</ul>
+<h2>Onde fica no código</h2>
+<ul>
+<li><code class="notranslate">src/Portable/Reminders.cs</code> — a classe <code class="notranslate">Reminder</code> (tipos <code class="notranslate">Interval</code>, <code class="notranslate">Daily</code>, <code class="notranslate">Once</code>) e a lista conferida a cada 15 s.</li>
+<li><code class="notranslate">src/Portable/SmartReminder.cs</code> — a leitura das frases em português (<code class="notranslate">Parse</code>), o reforço pela IA (<code class="notranslate">Understand</code>) e a confirmação com "Desfazer".</li>
+<li><code class="notranslate">src/Portable/FormSettings.Reminders.cs</code> — a página "Lembretes" e o editor <code class="notranslate">FormReminder</code>.</li>
+<li><code class="notranslate">src/Portable/Pomodoro.cs</code> — o relógio do Foco, as fases e as falas de cada fase.</li>
+<li><code class="notranslate">src/Portable/SpeechBubble.cs</code> — <code class="notranslate">QuietNow</code>, os avisos guardados (<code class="notranslate">held</code>) e a lista de 30.</li>
+<li><code class="notranslate">src/Portable/Activity.cs</code> — pausa após 90 min, "Que bom que você voltou!" e o programa fechado.</li>
+<li><code class="notranslate">src/Portable/PetMenu.cs</code> — os itens "Foco (Pomodoro)" e "Lembretes" do menu do pet.</li>
+<li><code class="notranslate">src/dotNet/ContextMenus.cs</code> — o submenu "Lembretes" do ícone da bandeja e o registro do Pomodoro no silêncio.</li>
+<li><code class="notranslate">src/Portable/Chat.cs</code> — a resposta local que cria lembretes a partir do chat.</li>
+<li><code class="notranslate">src/Portable/FormSettings.Plugins.cs</code> — os cartões "Foco (Pomodoro)", "Lembretes" e "Cuidar de você".</li>
+<li><code class="notranslate">src/lang/pt-BR.json</code> — os textos em português (<code class="notranslate">rem.*</code>, <code class="notranslate">pomo.*</code>, <code class="notranslate">act.*</code>, <code class="notranslate">quiet.*</code>).</li>
+</ul>
+  </main>
+</div>
+<footer class="rodape">
+  <p>O <strong>Meu Pet</strong> é um bichinho de área de trabalho para Windows 10 e 11.
+  <a href="https://github.com/lfeliipeadv-stack/meu-pet">Ver no GitHub</a></p>
+</footer>
+</body>
+</html>

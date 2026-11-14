@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Perguntas frequentes — Wiki do Meu Pet</title>
+<link rel="icon" href="../img/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body class="wiki">
+<header class="topo">
+  <a class="volta" href="../">&larr; Voltar para a página do Meu Pet</a>
+  <span class="marca">Wiki do Meu Pet</span>
+</header>
+<div class="layout">
+  <nav class="lateral">
+    <p class="lateral-titulo">Páginas</p>
+    <ul>
+<li><a href="Home.html">Home</a></li><li><a href="Instalacao.html">Instalação</a></li><li><a href="Primeiros-passos.html">Primeiros passos</a></li><li><a href="Painel-de-pets.html">Painel de pets</a></li><li><a href="Pergunte-ao-pet.html">Pergunte ao pet</a></li><li><a href="Lembretes-e-Pomodoro.html">Lembretes e Pomodoro</a></li><li><a href="Agenda-e-e-mails.html">Agenda e e-mails</a></li><li><a href="Pet-virtual-e-brinquedos.html">Pet virtual e brincadeiras</a></li><li><a href="Plugins-e-integracoes.html">Plugins e integrações</a></li><li><a href="Crie-o-seu-pet.html">Crie o seu pet</a></li><li><a href="Atalhos-e-comandos.html">Atalhos e comandos</a></li><li><a href="Para-desenvolvedores.html">Para desenvolvedores</a></li><li class="on"><a href="Perguntas-frequentes.html">Perguntas frequentes</a></li><li><a href="Changelog.html">Changelog</a></li>
+    </ul>
+  </nav>
+  <main class="conteudo wiki-corpo">
+<h1>Perguntas frequentes</h1>
+<p><a href="Home.html">Home</a> · <a href="Instalacao.html">Instalação</a> · <a href="Primeiros-passos.html">Primeiros passos</a> · <a href="Painel-de-pets.html">Painel de pets</a> · <a href="Pergunte-ao-pet.html">Pergunte ao pet</a> · <a href="Lembretes-e-pomodoro.html">Lembretes e Pomodoro</a> · <a href="Agenda-e-e-mails.html">Agenda e e-mails</a> · <a href="Pet-virtual-e-brinquedos.html">Pet virtual e brincadeiras</a> · <a href="Plugins-e-integracoes.html">Plugins e integrações</a> · <a href="Crie-o-seu-pet.html">Crie o seu pet</a> · <a href="Atalhos-e-comandos.html">Atalhos e comandos</a> · <a href="Para-desenvolvedores.html">Para desenvolvedores</a> · <a href="Changelog.html">Changelog</a></p>
+<p>Reunidas aqui as dúvidas que aparecem mais no dia a dia: se o programa é seguro, o que fazer quando o Windows reclama do executável, por que um pet some depois de uma atualização, como levar tudo para outro computador e o que cada palavra do jargão significa.</p>
+<h2>O programa é seguro?</h2>
+<p>O programa <strong>não pede administrador</strong>, <strong>não instala serviço</strong>, <strong>não abre porta na rede</strong> e <strong>não manda estatísticas de uso</strong>. O que ele faz com os seus dados está descrito logo abaixo, para você conferir em vez de acreditar.</p>
+<h3>Onde ficam os seus dados</h3>
+<p>Tudo fica dentro da sua conta do Windows, na pasta <code class="notranslate">%LocalAppData%\DesktopPet</code>:</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Arquivo ou pasta</th>
+<th>O que guarda</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="notranslate">pets\</code></td>
+<td>Os pets baixados da galeria, cada um na sua pasta (<code class="notranslate">animations.xml</code> e <code class="notranslate">version.txt</code>)</td>
+</tr>
+<tr>
+<td><code class="notranslate">reminders.json</code></td>
+<td>Os lembretes, inclusive os quatro prontos</td>
+</tr>
+<tr>
+<td><code class="notranslate">mood.json</code></td>
+<td>O histórico do humor, uma entrada por dia</td>
+</tr>
+<tr>
+<td><code class="notranslate">notes.json</code></td>
+<td>Notas, tarefas e a contagem regressiva</td>
+</tr>
+<tr>
+<td><code class="notranslate">launchers.json</code></td>
+<td>Os atalhos de pastas, programas e sites</td>
+</tr>
+<tr>
+<td><code class="notranslate">needs.json</code></td>
+<td>Fome, carinho e energia de cada pet</td>
+</tr>
+<tr>
+<td><code class="notranslate">agent.json</code></td>
+<td>A porta e o segredo do canal local (usado pelas integrações)</td>
+</tr>
+<tr>
+<td><code class="notranslate">logs\</code></td>
+<td>Os arquivos de registro, <code class="notranslate">desktoppet-AAAA-MM-DD.log</code>, guardados por 7 dias</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>A configuração do programa fica no arquivo <code class="notranslate">DesktopPet.config</code> — na versão portátil o nome do arquivo é fixo e o caminho é relativo, então ele aparece na pasta em que o programa roda, normalmente ao lado do executável.</p>
+<h3>O que sai do computador</h3>
+<p>Os endereços que o programa acessa na rede são estes:</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Endereço</th>
+<th>Para que serve</th>
+<th>O que sai</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="notranslate">api.github.com</code> e <code class="notranslate">raw.githubusercontent.com</code></td>
+<td>Conferir versão nova do programa e baixar pets da galeria</td>
+<td>Nada sobre o que você faz</td>
+</tr>
+<tr>
+<td><code class="notranslate">geocoding-api.open-meteo.com</code> e <code class="notranslate">api.open-meteo.com</code></td>
+<td>Plugin Clima</td>
+<td>Só a sua cidade</td>
+</tr>
+<tr>
+<td>O serviço de IA que você configurar (Gemini, Groq, OpenRouter ou outro compatível com a API da OpenAI)</td>
+<td>Responder perguntas em modo livre</td>
+<td>A sua pergunta e o histórico da conversa</td>
+</tr>
+<tr>
+<td>O link iCal da sua agenda</td>
+<td>Ler os horários das reuniões</td>
+<td>O link do calendário, para buscar o arquivo <code class="notranslate">.ics</code></td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>O <strong>Ollama</strong> fica de fora dessa lista: ele roda no seu próprio computador, sem chave e sem mandar nada para fora.</p>
+<p>O plugin <strong>Cuidar de você</strong> olha só a hora da última tecla ou movimento do mouse e o nome do programa que está na frente — nunca o que foi digitado. O plugin <strong>E-mails novos</strong> do Outlook lê apenas a quantidade de mensagens (total e não lidas), nunca o remetente nem o texto.</p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/application.png"><img src="images/application.png" alt="Página de Configurações do painel, com a seção de opções do programa" style="max-width: 100%;"></a></p>
+<p><em>Na página "Configurações" ficam as opções do pet e do programa, entre elas o backup, os arquivos de registro e a instalação.</em></p>
+<h3>A chave da IA</h3>
+<p>A chave do serviço de IA não é guardada em texto puro. Ela é gravada com a criptografia do próprio Windows (DPAPI, no escopo do seu usuário), com uma entropia fixa do programa. Na prática: <strong>só a sua conta do Windows, neste computador, consegue ler essa chave</strong>. Copiar o arquivo de configuração para outro computador não leva a chave junto.</p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/ai-settings.png"><img src="images/ai-settings.png" alt="Página Assistente com o campo da chave do provedor de IA" style="max-width: 100%;"></a></p>
+<p><em>A chave é gravada criptografada pelo Windows e nunca aparece em texto puro.</em></p>
+<h3>O canal local e os hooks</h3>
+<p>A integração com o Claude Code (e com outros agentes de IA) funciona por um canal local, e ele é restrito:</p>
+<ul>
+<li>escuta <strong>só</strong> no endereço de loopback <code class="notranslate">127.0.0.1</code> — nunca na rede;</li>
+<li>aceita <strong>só</strong> requisições <code class="notranslate">POST</code>;</li>
+<li>recusa qualquer requisição que venha com o cabeçalho <code class="notranslate">Origin</code>, ou seja, de uma página da web;</li>
+<li>compara o segredo do cabeçalho <code class="notranslate">X-DesktopPet</code> em <strong>tempo fixo</strong>, para não dar tempo de descobrir o valor testando.</li>
+</ul>
+<p>Os hooks são gravados no arquivo de usuário do Claude Code, <code class="notranslate">%USERPROFILE%\.claude\settings.json</code>. Antes de escrever, o programa guarda uma cópia em <code class="notranslate">settings.json.desktoppet-backup</code> e mantém o resto do arquivo como estava. Cada hook é um comando só, que manda <strong>o nome do evento</strong> — o hook nunca lê o que o Claude está fazendo:</p>
+<pre class="notranslate"><code class="notranslate">curl.exe -s -m 2 -X POST -d x -H "X-DesktopPet: &lt;segredo&gt;" http://127.0.0.1:&lt;porta&gt;/hook/&lt;evento&gt;; exit 0
+</code></pre>
+<p>Pelo mesmo canal, o <code class="notranslate">pet_say</code> (a ferramenta MCP) recusa textos com caminhos, links, blocos de código ou sequências longas que pareçam chave: a resposta ao Claude é <em>"Not shown: the pet never shows file paths, links, code or keys. Say it in plain words."</em></p>
+<h3>O backup</h3>
+<p>O arquivo de backup (<code class="notranslate">.desktoppet</code>) <strong>não</strong> leva a chave da IA nem o segredo do canal local. Ele <strong>leva</strong> o link da sua agenda — por isso o próprio programa avisa: <em>"Um arquivo só com seus pets, lembretes, atalhos, histórico de humor e configurações, para levar para outro computador. Ele também guarda o link da sua agenda: não compartilhe."</em></p>
+<h2>Por que o Windows avisa que o editor é desconhecido?</h2>
+<p>As releases <strong>não são assinadas digitalmente</strong>. Um executável sem assinatura não tem um nome de editor registrado no Windows, então o Windows pode mostrar o aviso de que o Windows protegeu o seu PC (o texto varia: "O Windows protegeu seu PC", "Editor não reconhecido" ou "Aplicativo não publicado"). O caminho é: <strong>"Mais informações"</strong> → <strong>"Executar assim mesmo"</strong>.</p>
+<p>A garantia de integridade nesse caso é o <strong>SHA-256</strong>: cada release publica um arquivo <code class="notranslate">SHA256SUMS</code> com uma linha por artefato, e é exatamente o mesmo hash que o atualizador do programa confere antes de trocar o executável. Se o hash não bater ou o arquivo <code class="notranslate">SHA256SUMS</code> não estiver lá, a atualização é recusada.</p>
+<p>Para conferir na mão, abra um Prompt de Comando na pasta do download e rode:</p>
+<pre class="notranslate"><code class="notranslate">certutil -hashfile DesktopPet.exe SHA256
+</code></pre>
+<p>O resultado tem que ser igual ao hash da linha correspondente do <code class="notranslate">SHA256SUMS</code>. Veja <a href="Instalacao.md#conferir-o-download">Conferir o download</a>.</p>
+<h2>Por que o pet sumiu depois de uma atualização?</h2>
+<p>São quatro motivos diferentes, e nenhum deles é perda de arquivo sem explicação.</p>
+<p><strong>1. O pet saiu da galeria.</strong> Quando um pet é removido do <code class="notranslate">Pets/pets.json</code>, o programa apaga do disco a pasta dele — é o que a rotina <code class="notranslate">ForgetRemovedPets</code> faz, ignorando o pet que está em uso e os pets que você mesmo criou. Na versão 2.6.2 nove pets saíram da galeria: Sábio, Twin Shot, Skywire Bean, Mareep, Pikachu, Shiny Sylveon, Neko, Buster Bunny e SSJ Goku. Se o que você usava era um deles, ele continua na tela e aparece com o aviso <strong>"Este pet saiu da galeria. Ele continua aqui enquanto estiver em uso."</strong> — até você adotar outro.</p>
+<p><strong>2. A pasta do pet mudou de nome.</strong> O "Pingus" e o "Rex" foram unificados: as pastas <code class="notranslate">pingus_expansion</code> e <code class="notranslate">tico</code> viraram <code class="notranslate">pingus</code> e <code class="notranslate">rex</code>. O programa procura as pastas pelo nome novo, então a pasta antiga deixa de ser reconhecida.</p>
+<p><strong>3. O eSheep embutido foi atualizado junto.</strong> O eSheep não vem de arquivo nenhum: ele fica dentro do executável e é relido a cada inicialização (<code class="notranslate">RefreshBuiltInPet</code>). Depois de uma atualização, ele "muda de cara" — as animações e o som são os da nova versão. Isso é o comportamento esperado.</p>
+<p><strong>4. O pet está escondido, não sumido.</strong> O atalho <strong>Ctrl+Alt+P</strong> (a opção "Esconder pets com Ctrl+Alt+P") esconde todos os pets de qualquer programa. A página Início do painel avisa: <strong>"Escondido (Ctrl+Alt+P para mostrar)."</strong> O mesmo acontece com o plugin "Tela cheia", enquanto um jogo ou vídeo ocupa a tela.</p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/home.png"><img src="images/home.png" alt="Página Início do painel, com o pet em uso e o aviso de escondido" style="max-width: 100%;"></a></p>
+<p><em>Na página "Início" fica o pet em uso, os botões de ação e a mensagem "Escondido (Ctrl+Alt+P para mostrar)" quando os pets estão escondidos.</em></p>
+<p>E há um quinto caso, mais raro: se o arquivo de configuração <code class="notranslate">DesktopPet.config</code> não for encontrado — o que acontece, por exemplo, ao abrir uma cópia do executável a partir de outra pasta — o programa não acha o XML do seu pet e assume o eSheep embutido (<code class="notranslate">src/dotNet/StartUp.cs</code>).</p>
+<h2>Como instalo em outro computador?</h2>
+<p>O programa tem um backup próprio, feito dentro dele.</p>
+<p><strong>No computador de origem</strong> — Painel → <strong>Configurações</strong> → <strong>"Backup dos meus pets e configurações"</strong> → botão <strong>"Exportar…"</strong>. Escolha o lugar e o nome: o programa sugere <code class="notranslate">meus-pets.desktoppet</code> na pasta Documentos, e a extensão do arquivo é <code class="notranslate">.desktoppet</code>.</p>
+<p><strong>No computador de destino</strong> — Painel → <strong>Configurações</strong> → <strong>"Importar pets"</strong> → botão <strong>"Importar…"</strong> → escolha o arquivo <code class="notranslate">.desktoppet</code>. O programa pergunta se pode substituir lembretes, atalhos, humor e configurações, e em seguida oferece recuperar o pet que estava em uso:</p>
+<blockquote>
+<p>"{0}" era o pet em uso no outro computador. Adotar agora?</p>
+</blockquote>
+<p>O que vai junto no backup:</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Vai junto</th>
+<th>Não vai junto</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Os pets baixados e os criados por você</td>
+<td>A chave do serviço de IA (ela é criptografada para o seu usuário do Windows)</td>
+</tr>
+<tr>
+<td>Tema, idioma, volume, atalhos de teclado e tempos do Pomodoro</td>
+<td>O segredo do canal local (<code class="notranslate">agent.json</code> é criado de novo)</td>
+</tr>
+<tr>
+<td>Os lembretes, atalhos, humor e necessidades dos pets</td>
+<td>—</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>Só um cuidado: como o arquivo guarda o link da sua agenda, <strong>não mande o backup por e-mail ou mensagem</strong> sem tirar esse link antes.</p>
+<p>O link da agenda pode ser conferido em <a href="Agenda-e-e-mails.html">Agenda e e-mails</a>.</p>
+<h2>Dá para usar sem internet?</h2>
+<p>Dá. O programa continua inteiro:</p>
+<ul>
+<li>o <strong>eSheep</strong> vem embutido no executável, então existe um pet funcionando mesmo nunca tendo conectado;</li>
+<li>os pets que você já baixado continuam rodando;</li>
+<li>o painel, os plugins locais (Pomodoro, lembretes, notas, atalhos, pet virtual, brincadeiras) e a conversa do pet com o que o próprio programa sabe (lembretes, próxima reunião, CPU e memória, ajuda) funcionam sem rede;</li>
+<li>o <strong>Ollama</strong> também funciona offline, porque ele roda no seu computador.</li>
+</ul>
+<p>O que precisa de internet:</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Recurso</th>
+<th>Por quê</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Aba "Baixar pets"</td>
+<td>A galeria é lida do repositório no GitHub</td>
+</tr>
+<tr>
+<td>Procurar versão nova do programa</td>
+<td>A consulta vai para <code class="notranslate">api.github.com</code></td>
+</tr>
+<tr>
+<td>Plugin Clima</td>
+<td>Consulta o Open-Meteo</td>
+</tr>
+<tr>
+<td>Plugin Agenda</td>
+<td>Busca o arquivo <code class="notranslate">.ics</code> da sua agenda</td>
+</tr>
+<tr>
+<td>Perguntas em modo livre com IA na nuvem</td>
+<td>A pergunta vai para o provedor configurado</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>Sem conexão, a galeria mostra a faixa <em>"Sem conexão com a internet. Aparecem só os pets que já estão no computador: conecte-se para ver os pets para baixar."</em>, com o botão <strong>"Tentar de novo"</strong> para refazer a busca quando a rede voltar.</p>
+<h2>Como desinstalo e apago meus pets?</h2>
+<p><strong>Desinstalar o programa</strong> — duas formas, as duas usam o mesmo script (<code class="notranslate">uninstall.cmd</code>):</p>
+<ul>
+<li><strong>Windows</strong> → <em>Configurações</em> → <em>Aplicativos</em> → <strong>desktopPet</strong> → <strong>Desinstalar</strong>.</li>
+<li><strong>Pelo programa:</strong> bandeja → <strong>"Reparar ou desinstalar..."</strong> → <strong>"Desinstalar"</strong>; ou Painel → <strong>Configurações</strong> → <strong>"Reparar ou desinstalar"</strong>.</li>
+</ul>
+<p>O script fecha o programa, apaga os atalhos e as chaves de registro e pergunta:</p>
+<blockquote>
+<p>Apagar tambem seus pets, lembretes, humor, atalhos e configuracoes? [S]im / [N]ao (em 30 s: Nao)</p>
+</blockquote>
+<ul>
+<li><strong>S</strong>im: apaga a pasta <code class="notranslate">%LocalAppData%\DesktopPet</code> inteira — pets, lembretes, humor, notas, atalhos, necessidades, o <code class="notranslate">agent.json</code> e os logs.</li>
+<li><strong>N</strong>ão (ou 30 segundos sem resposta): só os arquivos do programa são removidos (o executável, as bibliotecas e a pasta <code class="notranslate">lang</code>). <strong>Os seus dados ficam guardados e voltam intactos se você instalar de novo.</strong></li>
+</ul>
+<p><strong>Apagar um pet só</strong> — aba <strong>"Meus pets"</strong> → clique no cartão do pet → <strong>"Remover do computador"</strong> → a confirmação <em>"Remover {0} do computador? Você pode baixar de novo quando quiser."</em>. Duas coisas não podem ser removidas assim: o pet que está em uso (troque de pet antes) e o eSheep embutido — para voltar ao original, use <strong>"Restaurar o pet original"</strong>.</p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/pets-detail.png"><img src="images/pets-detail.png" alt="Cartão de um pet na aba Meus pets, com o link para remover do computador" style="max-width: 100%;"></a></p>
+<p><em>O detalhe do pet traz o link "Remover do computador", que apaga a pasta dele da pasta de pets.</em></p>
+<h2>Por que o .NET 10 é necessário?</h2>
+<p>Porque o <code class="notranslate">DesktopPet.exe</code> publicado é <strong>dependente do runtime</strong>: ele não carrega o .NET dentro de si e precisa do <strong>.NET 10 Desktop Runtime</strong> instalado no Windows (é o <code class="notranslate">Microsoft.WindowsDesktop.App</code> versão 10.x, 64 bits). Sem ele, o Windows mostra um erro dizendo que o framework necessário está faltando.</p>
+<p>Dá para contornar de duas formas:</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Arquivo</th>
+<th>O que é</th>
+<th>Precisa do .NET 10?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="notranslate">DesktopPet.exe</code> (2.750.643 bytes, ≈ 2,6 MB)</td>
+<td>Só o programa</td>
+<td><strong>Sim</strong></td>
+</tr>
+<tr>
+<td><code class="notranslate">DesktopPet-completo.exe</code> (52.672.112 bytes, ≈ 50,2 MB)</td>
+<td>O mesmo programa com o runtime embutido (<em>self-contained</em>)</td>
+<td>Não</td>
+</tr>
+<tr>
+<td><code class="notranslate">DesktopPet-Instalador.exe</code> (3.150.336 bytes, ≈ 3 MB)</td>
+<td>O instalador, escrito em .NET Framework 4.8</td>
+<td>Não — o 4.8 já vem no Windows 10 e 11</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>É por isso que o instalador abre mesmo num computador sem o .NET 10: ele é .NET Framework 4.8. E é por isso que ele funciona como conferidor: ele procura o <code class="notranslate">Microsoft.WindowsDesktop.App</code> versão 10.x em quatro lugares (<code class="notranslate">DOTNET_ROOT\shared\Microsoft.WindowsDesktop.App</code>, <code class="notranslate">%ProgramFiles%\dotnet</code>, <code class="notranslate">C:\Program Files\dotnet</code> e a chave de registro <code class="notranslate">HKLM\SOFTWARE\dotnet\Setup\InstalledVersions\x64\sharedfx\Microsoft.WindowsDesktop.App</code>). Se não achar, mostra o botão <strong>"Instalar o .NET 10"</strong>, que baixa o instalador oficial da Microsoft.</p>
+<p>O runtime oficial está em <a href="https://dotnet.microsoft.com/download/dotnet/10.0" rel="nofollow">https://dotnet.microsoft.com/download/dotnet/10.0</a>. Os detalhes de instalação estão em <a href="Instalacao.html">Instalação</a>.</p>
+<h2>O que muda entre as versões?</h2>
+<p>Cada release traz notas de versão. Depois de atualizar, o programa mostra um balão com o título <strong>"Novidades da versão {0}:"</strong> e o botão <strong>"Ver tudo"</strong>, que abre as notas daquela versão no GitHub. O histórico completo está no <a href="Changelog.html">Changelog</a> e na aba <strong>Releases</strong> do repositório.</p>
+<p>O que costuma mudar de uma versão para a outra:</p>
+<ul>
+<li><strong>A lista de pets da galeria.</strong> Pets podem entrar, sair ou trocar de pasta (foi o que aconteceu com o Pingus e o Rex na 2.6.2).</li>
+<li><strong>O estado dos plugins.</strong> Numa instalação <strong>nova</strong>, todos os 22 plugins começam desligados. Num computador que <strong>já usava</strong> uma versão anterior, o programa liga de volta os plugins que antigamente eram ligados por padrão (lembretes, foco, brincadeiras, atalhos, notas, cuidado com você, pets se cumprimentam, reações ao computador, e-mails do Outlook, tela cheia, avisos, música e visitas) e mantém o estado dos outros.</li>
+<li><strong>O eSheep embutido</strong>, que é relido a cada inicialização e pode ganhar animações novas.</li>
+<li><strong>As traduções.</strong> O arquivo <code class="notranslate">lang.zip</code> da release traz os idiomas extras; o português e o espanhol já vêm embutidos no executável.</li>
+</ul>
+<p>Os pets têm versão própria: o programa confere a galeria de tempos em tempos (a primeira consulta acontece 15 segundos depois de abrir, e depois a cada 6 horas) e marca o cartão do pet com o selo <strong>"Atualização"</strong> quando há uma versão nova.</p>
+<h2>Como reporto um bug?</h2>
+<p>Abra uma <em>issue</em> em <a href="https://github.com/lfeliipeadv-stack/meu-pet/issues">https://github.com/lfeliipeadv-stack/meu-pet/issues</a>. Ajude a encontrar a causa com duas ferramentas que o programa já tem:</p>
+<p><strong>Os arquivos de registro</strong> — Painel → <strong>Configurações</strong> → <strong>"Arquivos de registro"</strong> → <strong>"Abrir pasta"</strong>. Abre <code class="notranslate">%LocalAppData%\DesktopPet\logs</code>, com um arquivo por dia (<code class="notranslate">desktoppet-AAAA-MM-DD.log</code>) e histórico de 7 dias. Anexar o arquivo do dia em que o problema aconteceu ajuda muito.</p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/debug.png"><img src="images/debug.png" alt="Janela de depuração do programa, com o log do processo" style="max-width: 100%;"></a></p>
+<p><em>A janela de depuração mostra o que o programa está fazendo, útil para descrever o que aconteceu.</em></p>
+<p><strong>A janela de depuração</strong> — Painel → <strong>Configurações</strong> → <strong>"Janela de depuração"</strong> → <strong>"Abrir"</strong>. Também dá para abri-la iniciando o programa com <strong>CTRL</strong> ou <strong>SHIFT</strong> pressionado.</p>
+<p>Na descrição, vale colocar: a versão do programa (página <strong>"Sobre"</strong>), o que você fez, o que esperava que acontecesse e o que aconteceu de verdade. Se o problema envolve um pet, diga também o nome da pasta dele em <code class="notranslate">%LocalAppData%\DesktopPet\pets</code>.</p>
+<h2>Como peço um pet novo?</h2>
+<p>São dois caminhos, dependendo do que você quer.</p>
+<p><strong>Um pet só para você</strong> — o botão <strong>"Criar meu pet"</strong> (na aba "Meus pets") transforma as suas imagens PNG, GIF ou JPG em um pet que anda, dorme e cai como os outros. Ele é gravado em <code class="notranslate">%LocalAppData%\DesktopPet\pets</code> com o prefixo <code class="notranslate">meu-</code>, aparece em "Meus pets" com o aviso <strong>"Você criou este pet neste computador. Ele vai junto nos seus backups."</strong> e não é apagado quando a galeria muda. O passo a passo está em <a href="Crie-o-seu-pet.html">Crie o seu pet</a>.</p>
+<p><strong>Um pet para a galeria, para todo mundo</strong> — o processo é o do repositório:</p>
+<ol>
+<li>Crie a pasta do pet em <code class="notranslate">Pets/</code>, com <code class="notranslate">animations.xml</code>, <code class="notranslate">icon.png</code>, <code class="notranslate">preview.gif</code> e o <code class="notranslate">README.md</code> (o <code class="notranslate">README.pt-BR.md</code> é opcional, mas o modelo está em <code class="notranslate">Pets/README.md</code>).</li>
+<li>Rode <code class="notranslate">Tools/update-pets-json.ps1</code> para que o pet entre no <code class="notranslate">Pets/pets.json</code> e apareça na aba "Baixar pets".</li>
+<li>Abra uma <em>issue</em> (ou um <em>pull request</em>) no repositório com a pasta do pet.</li>
+</ol>
+<p>As capturas de tela dos pets saem do próprio programa: <code class="notranslate">DesktopPet.exe --snapshot=&lt;pasta&gt;</code> grava as telas do programa e dos pets.</p>
+<h2>Glossário rápido</h2>
+<p><a target="_blank" rel="noopener noreferrer" href="images/integrations.png"><img src="images/integrations.png" alt="Página Integrações do painel, com o cartão do Claude Code e o da API local" style="max-width: 100%;"></a></p>
+<p><em>Na página "Integrações" ficam as pontes com o Claude Code e a API local, que são os termos explicados abaixo.</em></p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Palavra</th>
+<th>O que significa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Claude Code</strong></td>
+<td>O programa de terminal para se trabalhar com código com um assistente de IA. O pet se liga a ele de duas formas: por <em>hooks</em> (o pet reage: pensando, editando, rodando, pronto) e por MCP (o Claude fala pelo balão do pet).</td>
+</tr>
+<tr>
+<td><strong>MCP</strong> (<em>Model Context Protocol</em>)</td>
+<td>Protocolo aberto pelo qual um programa oferece ferramentas a um assistente de IA. Aqui o Meu Pet é o servidor MCP: ele fala JSON-RPC 2.0 (protocolo <code class="notranslate">2025-06-18</code>) e oferece três ferramentas — <code class="notranslate">pet_say</code>, <code class="notranslate">pet_react</code> e <code class="notranslate">pet_status</code>.</td>
+</tr>
+<tr>
+<td><strong>hook</strong></td>
+<td>Comando que o Claude Code roda quando um evento acontece (sessão iniciada, pergunta enviada, arquivo editado, comando rodado, erro, fim do turno). Aqui cada hook é um <code class="notranslate">curl.exe</code> de um POST para <code class="notranslate">127.0.0.1</code>, e o pet transforma o evento em animação e balão.</td>
+</tr>
+<tr>
+<td><strong>iCal</strong></td>
+<td>Formato de arquivo de calendário (<code class="notranslate">.ics</code>). O plugin Agenda lê o link secreto da agenda do Google ou do Outlook e avisa antes de cada reunião. O programa só aceita link que comece com <code class="notranslate">https://</code> ou <code class="notranslate">webcal://</code>.</td>
+</tr>
+<tr>
+<td><strong>Ollama</strong></td>
+<td>Programa que roda modelos de IA dentro do seu próprio computador. Sem chave, sem conta e sem enviar pergunta para fora. Na página Assistente ele aparece com o selo <strong>"Grátis · no seu computador"</strong>.</td>
+</tr>
+<tr>
+<td><strong>API local</strong></td>
+<td>O canal que o programa abre em <code class="notranslate">127.0.0.1</code> para outros scripts do seu computador falarem com o pet: <code class="notranslate">POST /say</code>, <code class="notranslate">POST /react</code> e <code class="notranslate">POST /hook/&lt;evento&gt;</code>, com o segredo no cabeçalho <code class="notranslate">X-DesktopPet</code>.</td>
+</tr>
+<tr>
+<td><strong>DPAPI</strong></td>
+<td>A parte do Windows que criptografa dados vinculados à conta do usuário. É o que protege a chave da IA no computador.</td>
+</tr>
+<tr>
+<td><strong>Self-contained</strong></td>
+<td>Build que carrega o runtime do .NET dentro do próprio executável. É o caso do <code class="notranslate">DesktopPet-completo.exe</code>.</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<h2>Ver também</h2>
+<ul>
+<li><a href="Instalacao.html">Instalação</a> — os arquivos da release, o aviso do Windows e a conferência do SHA-256.</li>
+<li><a href="Painel-de-pets.html">Painel de pets</a> — adotar pets, esconder e mostrar, e o que acontece quando um pet sai da galeria.</li>
+<li><a href="Plugins-e-integracoes.html">Plugins e integrações</a> — os 22 plugins, o canal local, os hooks e o MCP em detalhe.</li>
+<li><a href="Crie-o-seu-pet.html">Crie o seu pet</a> — transformar as suas imagens em um pet.</li>
+<li><a href="Changelog.html">Changelog</a> — o que mudou em cada versão.</li>
+</ul>
+<h2>Onde fica no código</h2>
+<ul>
+<li><code class="notranslate">src/Properties/app.net.manifest</code> — <code class="notranslate">requestedExecutionLevel level="asInvoker"</code>: o programa nunca pede administrador.</li>
+<li><code class="notranslate">src/Portable/LocalData.cs</code> — o arquivo <code class="notranslate">DesktopPet.config</code> e o <code class="notranslate">Save()</code> das configurações.</li>
+<li><code class="notranslate">src/Portable/PetBackup.cs</code> — o que entra e o que não entra no arquivo <code class="notranslate">.desktoppet</code> (<code class="notranslate">SettingKeys</code> e <code class="notranslate">DataFiles</code>).</li>
+<li><code class="notranslate">src/Portable/FormSettings.Pets.cs</code> — <code class="notranslate">ForgetRemovedPets</code>, a rotina que apaga do disco o pet que saiu da galeria, e o texto "Este pet saiu da galeria…".</li>
+<li><code class="notranslate">src/Portable/PetStore.cs</code> — a pasta <code class="notranslate">%LocalAppData%\DesktopPet\pets</code> e o <code class="notranslate">version.txt</code> de cada pet.</li>
+<li><code class="notranslate">src/Portable/PetCreator.cs</code> — o prefixo <code class="notranslate">meu-</code> dos pets criados no computador.</li>
+<li><code class="notranslate">src/Portable/AgentBridge.cs</code> — o canal em <code class="notranslate">127.0.0.1</code>, a comparação do segredo em tempo fixo e o filtro que recusa caminhos, links, código e chaves.</li>
+<li><code class="notranslate">src/Portable/AiAssistant.cs</code> — a criptografia DPAPI da chave (<code class="notranslate">DataProtectionScope.CurrentUser</code>).</li>
+<li><code class="notranslate">src/Portable/ClaudeHooks.cs</code> — os hooks do Claude Code, o <code class="notranslate">settings.json</code> e a cópia <code class="notranslate">settings.json.desktoppet-backup</code>.</li>
+<li><code class="notranslate">src/Portable/McpServer.cs</code> — as ferramentas <code class="notranslate">pet_say</code>, <code class="notranslate">pet_react</code> e <code class="notranslate">pet_status</code> do MCP.</li>
+<li><code class="notranslate">src/Portable/Updater.cs</code> — a conferência do SHA-256 e a troca do executável.</li>
+<li><code class="notranslate">src/Portable/UninstallScript.cs</code> — o texto do <code class="notranslate">uninstall.cmd</code> e a pergunta "Apagar tambem seus pets…".</li>
+<li><code class="notranslate">src/Portable/LogFile.cs</code> — a pasta <code class="notranslate">logs</code>, o nome <code class="notranslate">desktoppet-AAAA-MM-DD.log</code> e a limpeza dos arquivos com mais de 7 dias.</li>
+<li><code class="notranslate">src/Portable/Weather.cs</code> — <code class="notranslate">PluginSwitch</code>, o estado dos plugins em instalações novas e antigas.</li>
+<li><code class="notranslate">src/Portable/PetUpdates.cs</code> — a conferência da galeria (15 segundos depois de abrir, depois a cada 6 horas).</li>
+<li><code class="notranslate">src/dotNet/StartUp.cs</code> — a volta ao eSheep embutido quando o XML do pet não é encontrado.</li>
+<li><code class="notranslate">src/dotNet/Program.cs</code> — <code class="notranslate">RefreshBuiltInPet()</code>, que relê o eSheep de dentro do executável, e o <code class="notranslate">--snapshot</code>.</li>
+<li><code class="notranslate">src/DesktopPet.Net.csproj</code> — <code class="notranslate">net10.0-windows</code>, <code class="notranslate">win-x64</code>, <code class="notranslate">SelfContained=false</code> e a build <em>self-contained</em>.</li>
+<li><code class="notranslate">Tools/Setup/SetupForm.cs</code> — a conferência do .NET 10 nos quatro lugares e o download do instalador oficial.</li>
+<li><code class="notranslate">Tools/update-pets-json.ps1</code> — a inclusão de um pet novo no <code class="notranslate">Pets/pets.json</code>.</li>
+<li><code class="notranslate">release/2.6.2/NOTES.md</code> — as notas da versão, com a lista dos pets removidos da galeria.</li>
+<li><code class="notranslate">src/lang/pt-BR.json</code> — os textos citados aqui (<code class="notranslate">pets.notInGallery</code>, <code class="notranslate">pets.removeLink</code>, <code class="notranslate">pets.removeConfirm</code>, <code class="notranslate">pets.createdHere</code>, <code class="notranslate">opt.export.*</code>, <code class="notranslate">opt.import.*</code>, <code class="notranslate">opt.logs.*</code>, <code class="notranslate">opt.debug.*</code>, <code class="notranslate">opt.install.*</code>, <code class="notranslate">opt.restore.title</code>, <code class="notranslate">home.hidden</code>, <code class="notranslate">agenda.httpsOnly</code>, <code class="notranslate">ai.tag.ollama</code>, <code class="notranslate">whatsnew.*</code>).</li>
+</ul>
+  </main>
+</div>
+<footer class="rodape">
+  <p>O <strong>Meu Pet</strong> é um bichinho de área de trabalho para Windows 10 e 11.
+  <a href="https://github.com/lfeliipeadv-stack/meu-pet">Ver no GitHub</a></p>
+</footer>
+</body>
+</html>

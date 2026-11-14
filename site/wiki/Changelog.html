@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Changelog — Wiki do Meu Pet</title>
+<link rel="icon" href="../img/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body class="wiki">
+<header class="topo">
+  <a class="volta" href="../">&larr; Voltar para a página do Meu Pet</a>
+  <span class="marca">Wiki do Meu Pet</span>
+</header>
+<div class="layout">
+  <nav class="lateral">
+    <p class="lateral-titulo">Páginas</p>
+    <ul>
+<li><a href="Home.html">Home</a></li><li><a href="Instalacao.html">Instalação</a></li><li><a href="Primeiros-passos.html">Primeiros passos</a></li><li><a href="Painel-de-pets.html">Painel de pets</a></li><li><a href="Pergunte-ao-pet.html">Pergunte ao pet</a></li><li><a href="Lembretes-e-Pomodoro.html">Lembretes e Pomodoro</a></li><li><a href="Agenda-e-e-mails.html">Agenda e e-mails</a></li><li><a href="Pet-virtual-e-brinquedos.html">Pet virtual e brincadeiras</a></li><li><a href="Plugins-e-integracoes.html">Plugins e integrações</a></li><li><a href="Crie-o-seu-pet.html">Crie o seu pet</a></li><li><a href="Atalhos-e-comandos.html">Atalhos e comandos</a></li><li><a href="Para-desenvolvedores.html">Para desenvolvedores</a></li><li><a href="Perguntas-frequentes.html">Perguntas frequentes</a></li><li class="on"><a href="Changelog.html">Changelog</a></li>
+    </ul>
+  </nav>
+  <main class="conteudo wiki-corpo">
+<h1>Changelog</h1>
+<p><a href="Home.html">Home</a> · <a href="Instalacao.html">Instalação</a> · <a href="Primeiros-passos.html">Primeiros passos</a> · <a href="Painel-de-pets.html">Painel de pets</a> · <a href="Pergunte-ao-pet.html">Pergunte ao pet</a> · <a href="Lembretes-e-pomodoro.html">Lembretes e Pomodoro</a> · <a href="Agenda-e-e-mails.html">Agenda e e-mails</a> · <a href="Pet-virtual-e-brinquedos.html">Pet virtual e brincadeiras</a> · <a href="Plugins-e-integracoes.html">Plugins e integrações</a> · <a href="Crie-o-seu-pet.html">Crie o seu pet</a> · <a href="Atalhos-e-comandos.html">Atalhos e comandos</a> · <a href="Para-desenvolvedores.html">Para desenvolvedores</a> · <a href="Perguntas-frequentes.html">Perguntas frequentes</a></p>
+<p>Esta página reúne as versões do <strong>Meu Pet</strong> em ordem decrescente, com a data de cada uma e o que ela trouxe. As versões publicadas também ficam na página de releases do repositório: <a href="https://github.com/lfeliipeadv-stack/meu-pet/releases">https://github.com/lfeliipeadv-stack/meu-pet/releases</a>.</p>
+<h2>Como as versões são publicadas</h2>
+<ul>
+<li>A versão do programa está no arquivo <code class="notranslate">src/Properties/AssemblyInfoPortable.cs</code>, nas linhas <code class="notranslate">AssemblyVersion</code> e <code class="notranslate">AssemblyFileVersion</code> (hoje <code class="notranslate">2.6.2.0</code>).</li>
+<li>Cada versão publicada vira uma <em>release</em> no GitHub com a tag <code class="notranslate">vX.Y.Z</code>. O script <code class="notranslate">Tools/release.ps1</code> compila, gera o instalador, empacota os idiomas, escreve o <code class="notranslate">SHA256SUMS</code> e publica a tag.</li>
+<li>Toda release traz os mesmos arquivos:</li>
+</ul>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Arquivo</th>
+<th>Para que serve</th>
+<th>Tamanho na 2.6.2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="notranslate">DesktopPet.exe</code></td>
+<td>Só o programa. Precisa do .NET 10 Desktop Runtime instalado.</td>
+<td>2.750.643 bytes (2,6 MB)</td>
+</tr>
+<tr>
+<td><code class="notranslate">DesktopPet-completo.exe</code></td>
+<td>O mesmo programa com o runtime dentro. Abre em qualquer Windows 10/11.</td>
+<td>52.672.112 bytes (50 MB)</td>
+</tr>
+<tr>
+<td><code class="notranslate">DesktopPet-Instalador.exe</code></td>
+<td>Instalador em .NET Framework 4.8: confere o runtime, instala e cria os atalhos.</td>
+<td>3.150.336 bytes (3 MB)</td>
+</tr>
+<tr>
+<td><code class="notranslate">lang.zip</code></td>
+<td>Os arquivos de idioma (<code class="notranslate">pt-BR.json</code>, <code class="notranslate">es.json</code>).</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code class="notranslate">SHA256SUMS</code></td>
+<td>O hash de cada arquivo, conferido antes de o atualizador substituir o executável.</td>
+<td>—</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<ul>
+<li>Depois de uma atualização, o próprio pet conta o que mudou: o balão "Novidades da versão {0}:" sai da chave <code class="notranslate">whatsnew.&lt;versão&gt;</code> em <code class="notranslate">src/lang/pt-BR.json</code>, e o botão "Ver tudo" abre a página da release no GitHub.</li>
+</ul>
+<h2>Versão 2.6.2 — 14 de novembro de 2026 (tag <code class="notranslate">v2.6.2</code>)</h2>
+<p>A versão mais recente. É a que traz a conversa por texto e por voz sobre o pet, os plugins novos (todos desligados por padrão) e o conjunto de correções dos banhos e das ovelhas coloridas. As notas publicadas no GitHub dizem "Novidades desde a 2.5.1", porque as versões 2.6.0 e 2.6.1 não chegaram a ser publicadas.</p>
+<ul>
+<li><strong>Conversa sobre o pet</strong>: ao passar o mouse aparecem dois botões redondos ao lado do pet — um de mensagem e um de microfone. O balão "Chat" abre sobre a cabeça dele e leva à conversa completa.</li>
+<li><strong>Voz</strong>: o pet ouve pelo reconhecedor de fala do Windows, sem abrir janela. Se o "Reconhecimento de fala online" estiver desligado, ele oferece o ditado do Windows (Win+H).</li>
+<li><strong>Plugins novos</strong>: Timer, Memória (arruma a RAM), Tela cheia e Não perturbe, Notas e tarefas, Área de transferência, Codex e Cursor, Visitas (borboleta, passarinho, abelha e joaninha), Música e jogos e Empurrar janelas. Numa instalação nova, todos vêm desligados.</li>
+<li><strong>Pets</strong>: o banho das ovelhas voltou com respingo de água e a banheira fica um pouco depois de ela sair; o banho sem fogo das ovelhas coloridas voltou a funcionar; o Rex faz malabarismo de verdade, com as bolinhas andando; as animações que estavam paradas agora se mexem; o Pingus passou a ser um só (Adriano Petrucci + Zecheriah).</li>
+<li><strong>Correções</strong>: ovelhas coloridas baixadas na cor errada, a apresentação do pet novo por cima do pet que estava indo embora, o painel de animações fechando sozinho e erros da plaquinha do monitor do PC.</li>
+<li><strong>Pets removidos da galeria</strong>: Sábio, Twin Shot, Skywire Bean, Mareep, Pikachu, Shiny Sylveon, Neko, Buster Bunny e SSJ Goku.</li>
+</ul>
+<p><a target="_blank" rel="noopener noreferrer" href="images/chat.png"><img src="images/chat.png" alt="Caixinha de conversa sobre o pet, com as perguntas e as respostas em balões" style="max-width: 100%;"></a><br>
+<em>O balão de conversa que abre sobre o pet.</em></p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/plugins.png"><img src="images/plugins.png" alt="Página Plugins do painel, com os cartões de cada recurso" style="max-width: 100%;"></a><br>
+<em>Os plugins em cartões, com o filtro por categoria no topo.</em></p>
+<h2>Versão 2.6.1 — 13 de novembro de 2026 (build interna)</h2>
+<p>Não chegou a ser publicada: a tag <code class="notranslate">v2.6.1</code> não existe no repositório, e o commit da versão registra que as novidades da 2.6.0 "não chegaram a ser publicadas". O que ela resolveu:</p>
+<ul>
+<li>A janela-filha que um pet abre (a jukebox, a banheira do eSheep) passa a seguir a própria sequência até o fim. Antes, um balão ou uma janela aberta transformava a cena numa cópia do pet.</li>
+<li>Um pet parado numa cena com acessório (dançando na frente de uma jukebox) não é mais interrompido por balões nem por reações. Um pet que anda com acessório (o banho do eSheep) continua parando como antes.</li>
+<li>O cartão do Claude Code na página Integrações passa a usar o ícone oficial, embutido no executável; o desenho antigo fica só como reserva.</li>
+<li>Os testes de movimento passam a compilar contra o projeto do .NET 10 e a rodar no CI.</li>
+<li><code class="notranslate">SkinOffset</code> não quebra mais quando o XML ainda não foi carregado, e os <code class="notranslate">catch</code> vazios passam a registrar o erro no log.</li>
+</ul>
+<p><a target="_blank" rel="noopener noreferrer" href="images/integrations.png"><img src="images/integrations.png" alt="Página Integrações com os três cartões de ponte" style="max-width: 100%;"></a><br>
+<em>O cartão do Claude Code, que recebeu o ícone oficial nesta versão.</em></p>
+<h2>Versão 2.6.0 — 12 e 13 de novembro de 2026 (build interna)</h2>
+<p>Também não publicada. Reorganizou o painel e trouxe a conversa por escrito, o clima, os lembretes por frase e os pets que conversam entre si.</p>
+<ul>
+<li><strong>Painel novo</strong>: a janela de Configurações foi dividida em arquivos por página, com a página <strong>Início</strong> (cartão do pet e os números do dia) e a página <strong>Plugins</strong> em cartões, com filtro por categoria. São 22 cartões.</li>
+<li><strong>Caixinha de conversa sobre o pet</strong>: a conversa passa a abrir em balão em cima do pet, em vez de uma janela separada.</li>
+<li><strong>Clima</strong>: plugin novo com a previsão do Open-Meteo (gratuito, sem chave), aviso de chuva e a opção de escolher a cidade.</li>
+<li><strong>Lembretes por texto</strong>: frases como "me lembra de ligar para a Ana às 15h" ou "daqui a 20 minutos" são lidas no próprio computador, em português, inglês e espanhol. A IA só reescreve as frases que o programa não entende — o horário é sempre decidido localmente.</li>
+<li><strong>Cuidar de você</strong>: o pet sugere pausa depois de 1h30 sem parar, recepciona quem volta de 30 minutos fora e comemora quando um programa usado por horas é fechado.</li>
+<li><strong>Pets que conversam</strong>: dois pets que se encontram lado a lado acenam, dançam, trocam carinho ou conversam em duas falas.</li>
+<li><strong>Agenda pelo link iCal</strong> do Google ou do Outlook, sem login, com aviso antes de cada reunião — e com fusos, repetições, exceções, remarcações e cancelamentos tratados.</li>
+<li><strong>Atalho de perguntar</strong> passou a ser escolhível: Ctrl+Alt+Espaço, Ctrl+Shift+Espaço, Ctrl+Alt+A ou Ctrl+Alt+Q. O pet avisa quando o atalho já está em uso por outro programa.</li>
+<li><strong>Página de download</strong> no site, publicada no GitHub Pages.</li>
+<li>Autoteste ampliado: o <code class="notranslate">--only=nome</code> para rodar só um teste e novas verificações.</li>
+</ul>
+<p><a target="_blank" rel="noopener noreferrer" href="images/home.png"><img src="images/home.png" alt="Página Início do painel, com o cartão do pet em uso e os números do dia" style="max-width: 100%;"></a><br>
+<em>A página Início, nova nesta versão.</em></p>
+<h2>Versão 2.5.1 — 12 de novembro de 2026 (tag <code class="notranslate">v2.5.1</code>)</h2>
+<p>Correções de apresentação. O pet ganhou os emojis coloridos e passou a chegar pelo céu na primeira execução.</p>
+<ul>
+<li><strong>Emojis coloridos</strong> nos balões, nos botões, no painel, no botão Perguntar e nos menus (inclusive nas respostas da IA).</li>
+<li><strong>Primeira vez</strong>: o pet chega caindo do céu, e a apresentação só começa depois que ele pousa.</li>
+<li><strong>O carneiro olha para você enquanto fala</strong>: vira de frente com o balão aberto e desvira depois.</li>
+<li>Durante a apresentação os pets ficam parados do começo ao fim e não somem atrás da barra de tarefas.</li>
+<li>Um pet que estava entrando pela borda da tela não para mais meio fora dela quando um balão ou menu abre.</li>
+<li>O carneiro salvo na primeira execução agora recebe as atualizações que vêm dentro do programa.</li>
+</ul>
+<h2>Versão 2.5.0 — 12 de novembro de 2026 (tag <code class="notranslate">v2.5.0</code>)</h2>
+<p>A versão que abriu a conversa com o pet e o criador de pets, além do instalador que confere o .NET.</p>
+<p><strong>Pergunte ao pet (IA)</strong></p>
+<ul>
+<li>Passe o mouse sobre o pet e clique em <strong>Perguntar</strong>, ou aperte <strong>Ctrl+Alt+Espaço</strong>: a resposta aparece no balão.</li>
+<li>Serviços gratuitos: Ollama (no seu computador), Google Gemini, Groq, OpenRouter ou outro compatível com o formato da OpenAI.</li>
+<li>O pet lembra a conversa, tem personalidade (simpático, direto, para crianças, divertido) e aceita ditado por voz.</li>
+</ul>
+<p><strong>Crie o seu pet</strong></p>
+<ul>
+<li>Configurações → <strong>Criar meu pet</strong>: escolha as imagens de andar, ficar parado, dormir, cair e ser arrastado.</li>
+<li>O painel de pets passou a mostrar uma prévia animada de cada pet.</li>
+</ul>
+<p><strong>Mais tranquilo</strong></p>
+<ul>
+<li>O pet para de andar sempre que fala ou que uma janela dele está aberta (perguntas, lembretes, atalhos…).</li>
+<li>Durante o foco (Pomodoro) e com os pets escondidos (Ctrl+Alt+P), ele fica em silêncio e guarda os avisos para depois.</li>
+<li>CPU e memória aparecem só ao passar o mouse.</li>
+<li>Aviso de e-mails novos no Outlook clássico.</li>
+</ul>
+<p><strong>Também</strong></p>
+<ul>
+<li>Idioma espanhol.</li>
+<li>Apresentação na primeira vez e novidades depois de cada atualização.</li>
+<li>Novo <strong>DesktopPet-Instalador.exe</strong>: confere se o .NET 10 está instalado e oferece o instalador oficial quando falta.</li>
+<li><strong>DesktopPet-completo.exe</strong>: já vem com o .NET dentro.</li>
+<li>Desinstalar agora pergunta se você quer apagar seus pets e configurações (sem resposta, eles ficam guardados).</li>
+<li>Backup completo: pets, lembretes, atalhos, humor e configurações.</li>
+<li>Correção: o balão que aparece depois de uma animação não se perde mais quando o pet cai.</li>
+</ul>
+<h2>Versão 2.4.0 — 12 de novembro de 2026 (tag <code class="notranslate">v2.4.0</code>)</h2>
+<p>Uma única novidade, a integração com o Claude Code.</p>
+<ul>
+<li><strong>O pet reage ao Claude Code</strong>: ele pensa quando você manda uma mensagem, digita quando o Claude edita arquivos, "compila" quando roda comandos, fica triste quando algo falha, te chama quando o Claude precisa de você e comemora quando ele termina.</li>
+<li>Ligue a opção <strong>Reagir ao Claude Code</strong> e abra uma nova sessão do Claude Code. Na 2.4.0 a opção ficava em Configurações → Extras; hoje ela está no cartão "Claude Code" da página <strong>Integrações</strong>.</li>
+<li>Funciona só no seu computador, com uma senha aleatória; nada do seu código ou das suas mensagens é lido ou mostrado.</li>
+<li>Uma cópia do seu <code class="notranslate">settings.json</code> é guardada antes da mudança, e desligar remove só o que o pet adicionou.</li>
+<li>Balões de progresso opcionais e botão "Testar".</li>
+</ul>
+<h2>Versão 2.3.1 — 12 de novembro de 2026 (tag <code class="notranslate">v2.3.1</code>)</h2>
+<p>Correções de foco de janela e o começo do autoteste.</p>
+<ul>
+<li>O balão de fala e a plaquinha do monitor não roubam mais o foco da janela em que você está digitando.</li>
+<li>Balões, aviões e outras janelas soltas pelo pet continuam escondidos com Ctrl+Alt+P.</li>
+<li>Textos antigos sem tradução removidos.</li>
+<li>Para quem desenvolve: o programa ganhou um autoteste (<code class="notranslate">DesktopPet.exe --selftest=arquivo.txt</code>), que roda as conferências com o código de verdade, escreve linhas PASS/FAIL e fecha o programa com o número de falhas como código de saída. O <code class="notranslate">src/Portable/SelfTest.cs</code> tem hoje 50 grupos de teste e mais de 300 conferências.</li>
+</ul>
+<h2>Versão 2.3.0 — 12 de novembro de 2026 (tag <code class="notranslate">v2.3.0</code>)</h2>
+<p>O mês do menu do pet: quase tudo que o programa faz hoje aparece aqui pela primeira vez.</p>
+<ul>
+<li><strong>Menu do pet</strong>: clique com o botão direito no pet para ver tudo o que ele faz.</li>
+<li><strong>Brincadeiras</strong>: biscoito da sorte, bola 8 mágica e piadas.</li>
+<li><strong>Foco (Pomodoro)</strong>: blocos de foco com pausas curtas e longas; o pet avisa e comemora.</li>
+<li><strong>Atalhos</strong>: abra pastas, programas e sites pelo menu do pet.</li>
+<li><strong>Pet virtual</strong>: fome, carinho e energia (ligue em Configurações → Extras).</li>
+<li><strong>Monitor do PC</strong>: CPU, memória e disco ao lado do pet.</li>
+<li><strong>Como estou hoje?</strong>: o pet pergunta como você está e guarda um histórico.</li>
+<li>Nova página <strong>Extras</strong> nas configurações.</li>
+</ul>
+<p><a target="_blank" rel="noopener noreferrer" href="images/pet-menu.png"><img src="images/pet-menu.png" alt="Menu do botão direito sobre o pet, com a régua das necessidades no topo e os itens Brincadeiras, Como estou hoje? e Mostrar CPU e memória" style="max-width: 100%;"></a><br>
+<em>O menu do pet, montado em tempo real conforme os plugins ligados.</em></p>
+<h2>Versão 2.2.0 — 12 de novembro de 2026 (tag <code class="notranslate">v2.2.0</code>)</h2>
+<p>A versão do painel de pets com abas, dos lembretes e do Ctrl+Alt+P.</p>
+<ul>
+<li><strong>Balões de fala e lembretes</strong>: o pet lembra você de beber água, alongar, fazer pausas, ou avisa quando um tempo acabar (Lembretes → Lembrar daqui a 5/10/15/30/60 min).</li>
+<li><strong>Painel com abas</strong> "Meus pets" e "Baixar pets", o tamanho de cada pet antes de baixar e a barra de progresso no download (com cancelar e tentar de novo).</li>
+<li><strong>Sons</strong> novos para Rex, Pingo, Boo, Mago, Sábio, Nuvi e Claude, com som ligado/desligado por pet.</li>
+<li><strong>Novo pet Sábio</strong>.</li>
+<li><strong>Ctrl+Alt+P</strong> esconde e mostra todos os pets.</li>
+<li>Aviso quando um pet baixado tem atualização.</li>
+<li>Exportar e importar seus pets para outro computador.</li>
+<li>Iniciar com o Windows.</li>
+<li>Descrições dos pets em português.</li>
+<li>Janela de depuração nova (segure CTRL ao abrir o programa).</li>
+<li>Correção do contorno rosa nos sprites.</li>
+</ul>
+<p><a target="_blank" rel="noopener noreferrer" href="images/pets.png"><img src="images/pets.png" alt="Página Pets do painel, com os cartões dos pets do computador" style="max-width: 100%;"></a><br>
+<em>A galeria com as abas "Meus pets" e "Baixar pets", criada nesta versão.</em></p>
+<h2>Versão 2.1.0 — 11 de novembro de 2026 (tag <code class="notranslate">v2.1.0</code>)</h2>
+<p>A primeira versão do Meu Pet, a partir do desktopPet original.</p>
+<ul>
+<li>Janela de configurações nova, tema claro/escuro e suporte a vários monitores.</li>
+<li>Interface em português.</li>
+<li>Pets embutidos que funcionam sem internet: Capi e Claude. (Hoje vem embutido no executável só o eSheep original — <code class="notranslate">BuiltInPets.Folders</code> tem uma entrada só.)</li>
+<li>Galeria de pets e atualização automática a partir deste repositório, com verificação SHA-256.</li>
+<li>Executável de 1.070.771 bytes, cerca de 1 MB.</li>
+</ul>
+<h2>Antes do "Meu Pet": o desktopPet original (0.1 → 2.0.0)</h2>
+<p>O Meu Pet é uma continuação do projeto desktopPet de Adrianotiger, que já tinha 40 versões registradas. O histórico completo está no <code class="notranslate">Changelog.md</code> da raiz do repositório; o <code class="notranslate">Changelog.txt</code> traz o mesmo histórico no formato antigo, até a 1.0.6. As versões que mais marcaram:</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Versão</th>
+<th>Data</th>
+<th>O que trouxe</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2.0.0</td>
+<td>08 nov 2026</td>
+<td>Suporte a skins de pet, interação entre pets e detecção de colisão com janelas; correções na transição de animações e nos movimentos suaves</td>
+</tr>
+<tr>
+<td>1.6.0</td>
+<td>09 out 2026</td>
+<td>Option Window dentro de uma janela, como o Painel de Controle do Windows 95; a versão da loja do Windows passa a ser igual à portátil, com a inicialização automática no menu</td>
+</tr>
+<tr>
+<td>1.5.0</td>
+<td>01 out 2026</td>
+<td>Movimentos mais suaves, melhorias nos sons e Option Window redesenhada</td>
+</tr>
+<tr>
+<td>1.4.0</td>
+<td>09 set 2026</td>
+<td>Arremesso do pet, com código de ZechsVariety; versão para a Play Store</td>
+</tr>
+<tr>
+<td>1.3.2</td>
+<td>08 ago 2025</td>
+<td>Correção: não era possível carregar um XML local</td>
+</tr>
+<tr>
+<td>1.3.1</td>
+<td>30 ago 2022</td>
+<td>Escala na versão portátil; pets baixáveis filtrados por data; o editor cria o ícone sem conversor</td>
+</tr>
+<tr>
+<td>1.2.6</td>
+<td>05 mai 2021</td>
+<td>Mais estabilidade; o pet não rouba mais o foco da barra de tarefas (mas dá para reativar nas opções); gSheep com mais de 250 animações</td>
+</tr>
+<tr>
+<td>1.2.0</td>
+<td>12 jun 2019</td>
+<td>Versão portátil do app do Windows 10, multimonitor e novo editor offline de XML</td>
+</tr>
+<tr>
+<td>1.0.0</td>
+<td>01 jan 2017</td>
+<td>Detecção de tela cheia e "trazer para o topo" pelo clique no ícone da bandeja</td>
+</tr>
+<tr>
+<td>0.5</td>
+<td>23 dez 2015</td>
+<td>Código reescrito para ser aberto; banheira, sono e queda</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<h2>Onde está o changelog completo</h2>
+<ul>
+<li><code class="notranslate">Changelog.md</code> (raiz do repositório) — o changelog completo, do 0.1 (dezembro de 2015) ao 2.0.0 (novembro de 2026), com as 40 versões do projeto original.</li>
+<li><code class="notranslate">Changelog.txt</code> (raiz do repositório) — o mesmo histórico no formato antigo, até a 1.0.6.</li>
+<li>As notas completas de cada versão do Meu Pet estão nas <em>releases</em> do GitHub: <a href="https://github.com/lfeliipeadv-stack/meu-pet/releases">https://github.com/lfeliipeadv-stack/meu-pet/releases</a>.</li>
+</ul>
+<h2>Ver também</h2>
+<ul>
+<li><a href="Instalacao.html">Instalação</a> — qual arquivo baixar, o que é preciso ter instalado e como atualizar.</li>
+<li><a href="Para-desenvolvedores.html">Para desenvolvedores</a> — como compilar, rodar o autoteste e publicar uma release.</li>
+<li><a href="Perguntas-frequentes.html">Perguntas frequentes</a> — dúvidas sobre versões, atualização e compatibilidade.</li>
+<li><a href="Plugins-e-integracoes.html">Plugins e integrações</a> — o que cada plugin faz em detalhe.</li>
+<li><a href="Home.html">Home</a> — a visão geral do programa.</li>
+</ul>
+<h2>Onde fica no código</h2>
+<ul>
+<li><code class="notranslate">src/Properties/AssemblyInfoPortable.cs</code> — a versão do programa (<code class="notranslate">AssemblyVersion</code> e <code class="notranslate">AssemblyFileVersion</code>).</li>
+<li><code class="notranslate">Tools/release.ps1</code> — o script que compila, gera o instalador, empacota o <code class="notranslate">lang.zip</code>, escreve o <code class="notranslate">SHA256SUMS</code> e publica a release.</li>
+<li><code class="notranslate">src/Portable/Updater.cs</code> — a consulta à API de releases, a conferência do SHA-256 e a troca do executável.</li>
+<li><code class="notranslate">src/Portable/Onboarding.cs</code> — o balão "Novidades da versão {0}:" e o link "Ver tudo" para as notas da release.</li>
+<li><code class="notranslate">src/lang/pt-BR.json</code> — o texto de novidades de cada versão (<code class="notranslate">whatsnew.2.5.0</code> até <code class="notranslate">whatsnew.2.6.2</code>).</li>
+<li><code class="notranslate">src/Portable/SelfTest.cs</code> — o autoteste (<code class="notranslate">--selftest</code>), rodado em cada build pelo workflow.</li>
+<li><code class="notranslate">src/Portable/BuiltInPets.cs</code> — a lista de pets que vêm embutidos no executável.</li>
+<li><code class="notranslate">Pets/pets.json</code> — a galeria de pets que o painel lê do repositório.</li>
+<li><code class="notranslate">Changelog.md</code> e <code class="notranslate">Changelog.txt</code> — o histórico do projeto original, na raiz do repositório.</li>
+</ul>
+  </main>
+</div>
+<footer class="rodape">
+  <p>O <strong>Meu Pet</strong> é um bichinho de área de trabalho para Windows 10 e 11.
+  <a href="https://github.com/lfeliipeadv-stack/meu-pet">Ver no GitHub</a></p>
+</footer>
+</body>
+</html>

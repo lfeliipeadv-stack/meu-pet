@@ -17,7 +17,7 @@
 <p align="center">
   <a href="https://github.com/lfeliipeadv-stack/meu-pet/releases/latest/download/DesktopPet-Instalador.exe"><b>⬇️ Baixar o instalador</b></a>
   &nbsp;·&nbsp;
-  <a href="https://github.com/lfeliipeadv-stack/meu-pet/wiki">Wiki</a>
+  <a href="https://lfeliipeadv-stack.github.io/meu-pet/wiki/Home.html">Wiki</a>
   &nbsp;·&nbsp;
   <a href="https://github.com/lfeliipeadv-stack/meu-pet/releases/latest">Todas as versões</a>
   &nbsp;·&nbsp;
@@ -28,20 +28,20 @@
 
 ## O Wiki
 
-O manual inteiro está no [Wiki do projeto](https://github.com/lfeliipeadv-stack/meu-pet/wiki): instalação, primeiros passos, cada recurso passo a passo, os atalhos de teclado, os comandos de linha de comando e o guia para compilar.
+O manual inteiro está no [Wiki do projeto](https://lfeliipeadv-stack.github.io/meu-pet/wiki/Home.html): instalação, primeiros passos, cada recurso passo a passo, os atalhos de teclado, os comandos de linha de comando e o guia para compilar.
 
 | Página | O que tem |
 | --- | --- |
-| [Instalação](https://github.com/lfeliipeadv-stack/meu-pet/wiki/Instalacao) | Os três downloads, o que o instalador confere, como desinstalar |
-| [Primeiros passos](https://github.com/lfeliipeadv-stack/meu-pet/wiki/Primeiros-passos) | O que fazer depois de instalar, em ordem |
-| [Painel de pets](https://github.com/lfeliipeadv-stack/meu-pet/wiki/Painel-de-pets) | Baixar, adotar, remover, exportar e importar pets |
-| [Pergunte ao pet](https://github.com/lfeliipeadv-stack/meu-pet/wiki/Pergunte-ao-pet) | A conversa, os provedores de IA e onde fica a chave |
-| [Lembretes e Pomodoro](https://github.com/lfeliipeadv-stack/meu-pet/wiki/Lembretes-e-Pomodoro) | Os lembretes em português e o foco que silencia o pet |
-| [Plugins e integrações](https://github.com/lfeliipeadv-stack/meu-pet/wiki/Plugins-e-integracoes) | Os 22 plugins e a ponte com o Claude Code |
-| [Crie o seu pet](https://github.com/lfeliipeadv-stack/meu-pet/wiki/Crie-o-seu-pet) | Fazer um pet com as suas próprias imagens |
-| [Atalhos e comandos](https://github.com/lfeliipeadv-stack/meu-pet/wiki/Atalhos-e-comandos) | Teclado, mouse e os argumentos do executável |
-| [Para desenvolvedores](https://github.com/lfeliipeadv-stack/meu-pet/wiki/Para-desenvolvedores) | Compilar, testar e publicar uma versão |
-| [Perguntas frequentes](https://github.com/lfeliipeadv-stack/meu-pet/wiki/Perguntas-frequentes) | Dúvidas comuns, respondidas |
+| [Instalação](https://lfeliipeadv-stack.github.io/meu-pet/wiki/Instalacao.html) | Os três downloads, o que o instalador confere, como desinstalar |
+| [Primeiros passos](https://lfeliipeadv-stack.github.io/meu-pet/wiki/Primeiros-passos.html) | O que fazer depois de instalar, em ordem |
+| [Painel de pets](https://lfeliipeadv-stack.github.io/meu-pet/wiki/Painel-de-pets.html) | Baixar, adotar, remover, exportar e importar pets |
+| [Pergunte ao pet](https://lfeliipeadv-stack.github.io/meu-pet/wiki/Pergunte-ao-pet.html) | A conversa, os provedores de IA e onde fica a chave |
+| [Lembretes e Pomodoro](https://lfeliipeadv-stack.github.io/meu-pet/wiki/Lembretes-e-Pomodoro.html) | Os lembretes em português e o foco que silencia o pet |
+| [Plugins e integrações](https://lfeliipeadv-stack.github.io/meu-pet/wiki/Plugins-e-integracoes.html) | Os 22 plugins e a ponte com o Claude Code |
+| [Crie o seu pet](https://lfeliipeadv-stack.github.io/meu-pet/wiki/Crie-o-seu-pet.html) | Fazer um pet com as suas próprias imagens |
+| [Atalhos e comandos](https://lfeliipeadv-stack.github.io/meu-pet/wiki/Atalhos-e-comandos.html) | Teclado, mouse e os argumentos do executável |
+| [Para desenvolvedores](https://lfeliipeadv-stack.github.io/meu-pet/wiki/Para-desenvolvedores.html) | Compilar, testar e publicar uma versão |
+| [Perguntas frequentes](https://lfeliipeadv-stack.github.io/meu-pet/wiki/Perguntas-frequentes.html) | Dúvidas comuns, respondidas |
 
 ---
 

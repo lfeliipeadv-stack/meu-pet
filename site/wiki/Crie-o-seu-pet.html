@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Crie o seu pet — Wiki do Meu Pet</title>
+<link rel="icon" href="../img/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body class="wiki">
+<header class="topo">
+  <a class="volta" href="../">&larr; Voltar para a página do Meu Pet</a>
+  <span class="marca">Wiki do Meu Pet</span>
+</header>
+<div class="layout">
+  <nav class="lateral">
+    <p class="lateral-titulo">Páginas</p>
+    <ul>
+<li><a href="Home.html">Home</a></li><li><a href="Instalacao.html">Instalação</a></li><li><a href="Primeiros-passos.html">Primeiros passos</a></li><li><a href="Painel-de-pets.html">Painel de pets</a></li><li><a href="Pergunte-ao-pet.html">Pergunte ao pet</a></li><li><a href="Lembretes-e-Pomodoro.html">Lembretes e Pomodoro</a></li><li><a href="Agenda-e-e-mails.html">Agenda e e-mails</a></li><li><a href="Pet-virtual-e-brinquedos.html">Pet virtual e brincadeiras</a></li><li><a href="Plugins-e-integracoes.html">Plugins e integrações</a></li><li class="on"><a href="Crie-o-seu-pet.html">Crie o seu pet</a></li><li><a href="Atalhos-e-comandos.html">Atalhos e comandos</a></li><li><a href="Para-desenvolvedores.html">Para desenvolvedores</a></li><li><a href="Perguntas-frequentes.html">Perguntas frequentes</a></li><li><a href="Changelog.html">Changelog</a></li>
+    </ul>
+  </nav>
+  <main class="conteudo wiki-corpo">
+<h1>Crie o seu pet</h1>
+<p>O programa vem com um criador de pet: você escolhe algumas imagens e elas viram um bichinho que anda, vira, dorme, cai e pode ser arremessado como os outros. Ele fica guardado só neste computador e vai junto nos seus backups.</p>
+<p><a href="Home.html">Home</a> · <a href="Instalacao.html">Instalação</a> · <a href="Primeiros-passos.html">Primeiros passos</a> · <a href="Painel-de-pets.html">Painel de pets</a> · <a href="Pergunte-ao-pet.html">Pergunte ao pet</a> · <a href="Lembretes-e-pomodoro.html">Lembretes e pomodoro</a> · <a href="Agenda-e-e-mails.html">Agenda e e-mails</a> · <a href="Pet-virtual-e-brinquedos.html">Pet virtual e brinquedos</a> · <a href="Plugins-e-integracoes.html">Plugins e integrações</a> · <a href="Atalhos-e-comandos.html">Atalhos e comandos</a> · <a href="Para-desenvolvedores.html">Para desenvolvedores</a> · <a href="Perguntas-frequentes.html">Perguntas frequentes</a> · <a href="Changelog.html">Changelog</a></p>
+<h2>O caminho até o criador</h2>
+<p>O criador fica no painel, em <strong>Configurações › Programa › Criar meu pet</strong>, no botão <strong>Criar…</strong>. É a mesma seção onde ficam o backup, a importação de pets, a janela de depuração e a apresentação.</p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/application.png"><img src="images/application.png" alt="Página Configurações do painel, com a seção Programa e o botão de criar pet" style="max-width: 100%;"></a></p>
+<p><em>A página de Configurações do painel; o botão "Criar…" fica na seção "Programa", mais abaixo da dobra.</em></p>
+<p>Ao clicar, abre a janela <strong>Criar meu pet</strong>:</p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/win-petcreator.png"><img src="images/win-petcreator.png" alt="Janela Criar meu pet, com o campo de nome e um cartão para cada movimento" style="max-width: 100%;"></a></p>
+<p><em>A janela "Criar meu pet": o nome em cima e um cartão por movimento, cada um com o botão "Escolher…".</em></p>
+<h2>O que preencher</h2>
+<h3>O nome do pet</h3>
+<p>Campo <strong>Nome do pet</strong>, com limite de 40 caracteres. O nome aparece no menu do pet e no painel — mas o programa corta o nome do pet em 16 caracteres quando carrega o XML, que é o que aparece no menu.</p>
+<h3>As imagens de cada movimento</h3>
+<p>São cinco cartões, e só o primeiro é obrigatório:</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Cartão</th>
+<th>Obrigatório</th>
+<th>Para que serve</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Andando</strong></td>
+<td>sim (<code class="notranslate">*</code>)</td>
+<td>Os quadros do pet andando pela área de trabalho</td>
+</tr>
+<tr>
+<td><strong>Parado</strong></td>
+<td>não</td>
+<td>O pet parado, também usado como "virar" e como quadro de pouso</td>
+</tr>
+<tr>
+<td><strong>Dormindo</strong></td>
+<td>não</td>
+<td>O pet dormindo e acordando</td>
+</tr>
+<tr>
+<td><strong>Caindo</strong></td>
+<td>não</td>
+<td>O pet caindo, arremessado e pousando</td>
+</tr>
+<tr>
+<td><strong>Sendo arrastado</strong></td>
+<td>não</td>
+<td>O pet enquanto você arrasta ele com o mouse</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>Em cada cartão, o botão <strong>Escolher…</strong> abre o seletor de arquivos com o filtro <code class="notranslate">Imagens|*.png;*.gif;*.jpg;*.jpeg;*.bmp</code>. Você pode escolher vários arquivos de uma vez; eles entram na ordem do nome (quadro_01, quadro_02…), que é a ordem em que vão tocar.</p>
+<p>O cartão mostra quantas imagens já foram escolhidas (<code class="notranslate">✓ 4 imagens</code>) e, enquanto estiver vazio, se o movimento é <code class="notranslate">obrigatório: escolha as imagens</code> ou <code class="notranslate">opcional</code>.</p>
+<p>Dois detalhes que valem conferir antes de criar:</p>
+<ul>
+<li><strong>Se a imagem for maior que o resto, ela é reduzida</strong> para caber numa faixa de 160 pixels de altura. As demais são reamostradas juntas, então use imagens do mesmo tamanho para o pet não ficar torto.</li>
+<li><strong>A caixa "Minhas imagens olham para a direita"</strong> espelha os desenhos na hora de montar a folha de sprites. O programa anda para a esquerda por padrão, então marque a caixa se os seus desenhos já olham para a direita: o pet fica com a cara virada para o lado em que ele anda.</li>
+</ul>
+<p>Se o movimento "Andando" não tiver imagem, o criador avisa: <code class="notranslate">Escolha pelo menos uma imagem para "Andando".</code> — e o mesmo vale para o nome: <code class="notranslate">Dê um nome ao seu pet.</code></p>
+<h2>O que o pet criado sabe fazer</h2>
+<p>O pet criado não é só um desenho parado: o criador gera um arquivo de animações completo, com 12 animações. O que cada uma faz:</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Animação</th>
+<th>Comportamento</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="notranslate">walk</code></td>
+<td>Anda pela área de trabalho e pela barra de tarefas, quadro a quadro</td>
+</tr>
+<tr>
+<td><code class="notranslate">turn</code></td>
+<td>Vira de direção, espelhando o desenho</td>
+</tr>
+<tr>
+<td><code class="notranslate">drag</code></td>
+<td>O pet enquanto você arrasta com o botão esquerdo</td>
+</tr>
+<tr>
+<td><code class="notranslate">toss</code></td>
+<td>O pet arremessado</td>
+</tr>
+<tr>
+<td><code class="notranslate">fall</code></td>
+<td>A queda depois de ser solto</td>
+</tr>
+<tr>
+<td><code class="notranslate">fall fast</code></td>
+<td>A queda rápida</td>
+</tr>
+<tr>
+<td><code class="notranslate">fall soft</code></td>
+<td>O pouso leve depois de um arremesso</td>
+</tr>
+<tr>
+<td><code class="notranslate">idle</code></td>
+<td>O pet parado, respirando entre um quadro e outro</td>
+</tr>
+<tr>
+<td><code class="notranslate">sleep</code></td>
+<td>O pet dormindo</td>
+</tr>
+<tr>
+<td><code class="notranslate">wake up</code></td>
+<td>O pet acordando</td>
+</tr>
+<tr>
+<td><code class="notranslate">sync</code></td>
+<td>O pet quando todos os pets são sincronizados</td>
+</tr>
+<tr>
+<td><code class="notranslate">kill</code></td>
+<td>A despedida quando o pet é removido</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>Se você não escolheu imagens para "Dormindo", as animações <code class="notranslate">sleep</code> e <code class="notranslate">wake up</code> não são geradas — e o resto continua funcionando.</p>
+<p>Depois de criado, o pet entra na aba <strong>Meus pets</strong> do painel e o programa pergunta <code class="notranslate">"{0}" está pronto. Adotar agora?</code>. Ele aparece no painel com a descrição <strong>"Você criou este pet neste computador. Ele vai junto nos seus backups."</strong>.</p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/detalhe-meu-thronglet.png"><img src="images/detalhe-meu-thronglet.png" alt="Pet criado pelo usuário no painel, na aba Meus pets" style="max-width: 100%;"></a></p>
+<p><em>Um pet criado neste computador, na aba "Meus pets": o botão de adotar, as três contagens (animações, sons e visuais) e a descrição de que ele vai junto nos backups.</em></p>
+<p>O seletor de animações (botão do meio do mouse sobre o pet) mostra todas elas, com o nome e um emoji:</p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/anim-picker.png"><img src="images/anim-picker.png" alt="Seletor de animações aberto, com as animações do pet em blocos" style="max-width: 100%;"></a></p>
+<p><em>O seletor de animações: cada animação do pet em um bloco, com o nome e um emoji.</em></p>
+<h2>Onde o pet fica guardado</h2>
+<p>O pet criado é salvo em <code class="notranslate">%LocalAppData%\DesktopPet\pets\meu-&lt;nome&gt;\</code>, com dois arquivos: <code class="notranslate">animations.xml</code> (o pet inteiro) e <code class="notranslate">version.txt</code>. O prefixo <code class="notranslate">meu-</code> é o que separa os pets criados aqui dos pets baixados da galeria, e o nome vem do que você digitou, em minúsculas, sem acentos e sem caracteres especiais (<code class="notranslate">Teste Ção!</code> vira <code class="notranslate">meu-teste-cao</code>).</p>
+<p>O nome da pasta tem no máximo 30 caracteres depois do prefixo, então nomes muito longos são cortados.</p>
+<h3>O backup</h3>
+<p>O pet criado entra sozinho no arquivo de backup. Em <strong>Configurações › Programa › Backup dos meus pets e configurações › Exportar…</strong>, o arquivo <code class="notranslate">.desktoppet</code> gerado (salvo em Documentos, com o nome <code class="notranslate">meus-pets</code>) leva <code class="notranslate">pets/&lt;pasta&gt;/animations.xml</code> e <code class="notranslate">version.txt</code> de cada pet do computador, incluindo os que você criou. Na volta, <strong>Importar pets</strong> traz o arquivo de volta: só entram entradas <code class="notranslate">pets/&lt;nome&gt;/animations.xml</code> com nome de pasta simples e até 50 MB, e um arquivo corrompido nunca substitui um bom.</p>
+<p>O backup leva também os lembretes, os atalhos, o histórico de humor, as necessidades do pet virtual e as configurações. A chave do serviço de IA e a senha da API local nunca entram nele.</p>
+<h2>Para ir além: PetGen, PetPack e o animations.xml</h2>
+<p>O criador do programa serve para um pet rápido, com as animações que o programa já conhece. Quem quiser um pet com muitas animações, sons e cenas próprio vai para as ferramentas de linha de comando e para o formato do arquivo.</p>
+<h3>O formato animations.xml</h3>
+<p>O arquivo que descreve o pet inteiro é o <code class="notranslate">animations.xml</code>, e o programa usa o mesmo esquema do eSheep original, com o namespace <code class="notranslate">https://esheep.petrucci.ch/</code>. O esquema completo está em <code class="notranslate">Resources/animations.xsd</code>, e há um editor de XML online em <a href="https://adrianotiger.github.io/desktopPet-Editor/" rel="nofollow">https://adrianotiger.github.io/desktopPet-Editor/</a>.</p>
+<p>A raiz é <code class="notranslate">&lt;animations&gt;</code> e, dentro dela, esta ordem:</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Bloco</th>
+<th>O que guarda</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="notranslate">&lt;header&gt;</code></td>
+<td><code class="notranslate">author</code>, <code class="notranslate">title</code>, <code class="notranslate">petname</code> (máximo 16 caracteres, o programa corta o que sobrar), <code class="notranslate">version</code>, <code class="notranslate">info</code>, <code class="notranslate">application</code> e <code class="notranslate">icon</code> (ícone <code class="notranslate">.ico</code> em base64)</td>
+</tr>
+<tr>
+<td><code class="notranslate">&lt;image&gt;</code></td>
+<td><code class="notranslate">tilesx</code> e <code class="notranslate">tilesy</code> (como a folha de sprites é cortada), <code class="notranslate">skins</code> (opcional), <code class="notranslate">png</code> (a folha de sprites em base64) e <code class="notranslate">transparency</code></td>
+</tr>
+<tr>
+<td><code class="notranslate">&lt;spawns&gt;</code></td>
+<td>Os pontos de entrada do pet na tela, cada <code class="notranslate">&lt;spawn&gt;</code> com <code class="notranslate">probability</code>, <code class="notranslate">&lt;x&gt;</code>, <code class="notranslate">&lt;y&gt;</code> e <code class="notranslate">&lt;next&gt;</code></td>
+</tr>
+<tr>
+<td><code class="notranslate">&lt;animations&gt;</code></td>
+<td>Cada <code class="notranslate">&lt;animation&gt;</code> com <code class="notranslate">id</code>, <code class="notranslate">&lt;name&gt;</code>, <code class="notranslate">&lt;start&gt;</code>, <code class="notranslate">&lt;end&gt;</code>, <code class="notranslate">&lt;sequence&gt;</code>, e opcionalmente <code class="notranslate">&lt;border&gt;</code> e <code class="notranslate">&lt;gravity&gt;</code></td>
+</tr>
+<tr>
+<td><code class="notranslate">&lt;childs&gt;</code></td>
+<td>As janelas extras que uma animação pode abrir (uma banheira, um balão)</td>
+</tr>
+<tr>
+<td><code class="notranslate">&lt;sounds&gt;</code></td>
+<td>Os MP3 em base64, cada <code class="notranslate">&lt;sound&gt;</code> com <code class="notranslate">animationid</code>, <code class="notranslate">probability</code>, <code class="notranslate">loop</code> e <code class="notranslate">base64&gt;</code></td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>Um cabeçalho mínimo:</p>
+<div class="highlight highlight-text-xml"><pre class="notranslate">&lt;?<span class="pl-ent">xml</span><span class="pl-e"> version</span>=<span class="pl-s"><span class="pl-pds">"</span>1.0<span class="pl-pds">"</span></span><span class="pl-e"> encoding</span>=<span class="pl-s"><span class="pl-pds">"</span>utf-8<span class="pl-pds">"</span></span>?&gt;
+&lt;<span class="pl-ent">animations</span> <span class="pl-e">xmlns</span>=<span class="pl-s"><span class="pl-pds">"</span>https://esheep.petrucci.ch/<span class="pl-pds">"</span></span>&gt;
+  &lt;<span class="pl-ent">header</span>&gt;
+    &lt;<span class="pl-ent">author</span>&gt;Luan Felipe&lt;/<span class="pl-ent">author</span>&gt;
+    &lt;<span class="pl-ent">title</span>&gt;Meu pet&lt;/<span class="pl-ent">title</span>&gt;
+    &lt;<span class="pl-ent">petname</span>&gt;Meu pet&lt;/<span class="pl-ent">petname</span>&gt;
+    &lt;<span class="pl-ent">version</span>&gt;1.0&lt;/<span class="pl-ent">version</span>&gt;
+    &lt;<span class="pl-ent">info</span>&gt;Um bichinho que anda pela sua area de trabalho.&lt;/<span class="pl-ent">info</span>&gt;
+    &lt;<span class="pl-ent">application</span>&gt;1&lt;/<span class="pl-ent">application</span>&gt;
+    &lt;<span class="pl-ent">icon</span>&gt;<span class="pl-s"><span class="pl-pds">&lt;![CDATA[</span>AAABAAQAEBAAAAEAI...<span class="pl-pds">]]&gt;</span></span>&lt;/<span class="pl-ent">icon</span>&gt;
+  &lt;/<span class="pl-ent">header</span>&gt;
+  &lt;<span class="pl-ent">image</span>&gt;
+    &lt;<span class="pl-ent">tilesx</span>&gt;8&lt;/<span class="pl-ent">tilesx</span>&gt;
+    &lt;<span class="pl-ent">tilesy</span>&gt;3&lt;/<span class="pl-ent">tilesy</span>&gt;
+    &lt;<span class="pl-ent">png</span>&gt;<span class="pl-s"><span class="pl-pds">&lt;![CDATA[</span>iVBORw0KGgoAAAANSUhEUg...<span class="pl-pds">]]&gt;</span></span>&lt;/<span class="pl-ent">png</span>&gt;
+    &lt;<span class="pl-ent">transparency</span>&gt;Magenta&lt;/<span class="pl-ent">transparency</span>&gt;
+  &lt;/<span class="pl-ent">image</span>&gt;
+  &lt;<span class="pl-ent">spawns</span>&gt;
+    &lt;<span class="pl-ent">spawn</span> <span class="pl-e">id</span>=<span class="pl-s"><span class="pl-pds">"</span>1<span class="pl-pds">"</span></span> <span class="pl-e">probability</span>=<span class="pl-s"><span class="pl-pds">"</span>60<span class="pl-pds">"</span></span>&gt;
+      &lt;<span class="pl-ent">x</span>&gt;screenW+10&lt;/<span class="pl-ent">x</span>&gt;
+      &lt;<span class="pl-ent">y</span>&gt;areaH-imageH&lt;/<span class="pl-ent">y</span>&gt;
+      &lt;<span class="pl-ent">next</span>&gt;1&lt;/<span class="pl-ent">next</span>&gt;
+    &lt;/<span class="pl-ent">spawn</span>&gt;
+  &lt;/<span class="pl-ent">spawns</span>&gt;
+  &lt;<span class="pl-ent">animations</span>&gt;
+    <span class="pl-c"><span class="pl-c">&lt;!--</span> as animacoes vao aqui <span class="pl-c">--&gt;</span></span>
+  &lt;/<span class="pl-ent">animations</span>&gt;
+  &lt;<span class="pl-ent">childs</span> /&gt;
+  &lt;<span class="pl-ent">sounds</span> /&gt;
+&lt;/<span class="pl-ent">animations</span>&gt;</pre></div>
+<p>Uma animação completa, com o bloco de borda e o de gravidade:</p>
+<div class="highlight highlight-text-xml"><pre class="notranslate">&lt;<span class="pl-ent">animation</span> <span class="pl-e">id</span>=<span class="pl-s"><span class="pl-pds">"</span>1<span class="pl-pds">"</span></span>&gt;
+  &lt;<span class="pl-ent">name</span>&gt;walk&lt;/<span class="pl-ent">name</span>&gt;
+  &lt;<span class="pl-ent">start</span>&gt;
+    &lt;<span class="pl-ent">x</span>&gt;-3&lt;/<span class="pl-ent">x</span>&gt;
+    &lt;<span class="pl-ent">y</span>&gt;0&lt;/<span class="pl-ent">y</span>&gt;
+    &lt;<span class="pl-ent">offsety</span>&gt;0&lt;/<span class="pl-ent">offsety</span>&gt;
+    &lt;<span class="pl-ent">opacity</span>&gt;1&lt;/<span class="pl-ent">opacity</span>&gt;
+    &lt;<span class="pl-ent">interval</span>&gt;150&lt;/<span class="pl-ent">interval</span>&gt;
+  &lt;/<span class="pl-ent">start</span>&gt;
+  &lt;<span class="pl-ent">end</span>&gt;
+    &lt;<span class="pl-ent">x</span>&gt;-3&lt;/<span class="pl-ent">x</span>&gt;
+    &lt;<span class="pl-ent">y</span>&gt;0&lt;/<span class="pl-ent">y</span>&gt;
+    &lt;<span class="pl-ent">offsety</span>&gt;0&lt;/<span class="pl-ent">offsety</span>&gt;
+    &lt;<span class="pl-ent">opacity</span>&gt;1&lt;/<span class="pl-ent">opacity</span>&gt;
+    &lt;<span class="pl-ent">interval</span>&gt;150&lt;/<span class="pl-ent">interval</span>&gt;
+  &lt;/<span class="pl-ent">end</span>&gt;
+  &lt;<span class="pl-ent">sequence</span> <span class="pl-e">repeatfrom</span>=<span class="pl-s"><span class="pl-pds">"</span>0<span class="pl-pds">"</span></span> <span class="pl-e">repeat</span>=<span class="pl-s"><span class="pl-pds">"</span>random/4+8<span class="pl-pds">"</span></span>&gt;
+    &lt;<span class="pl-ent">frame</span>&gt;7&lt;/<span class="pl-ent">frame</span>&gt;
+    &lt;<span class="pl-ent">frame</span>&gt;8&lt;/<span class="pl-ent">frame</span>&gt;
+    &lt;<span class="pl-ent">frame</span>&gt;9&lt;/<span class="pl-ent">frame</span>&gt;
+    &lt;<span class="pl-ent">frame</span>&gt;8&lt;/<span class="pl-ent">frame</span>&gt;
+    &lt;<span class="pl-ent">next</span> <span class="pl-e">probability</span>=<span class="pl-s"><span class="pl-pds">"</span>50<span class="pl-pds">"</span></span> <span class="pl-e">only</span>=<span class="pl-s"><span class="pl-pds">"</span>none<span class="pl-pds">"</span></span>&gt;1&lt;/<span class="pl-ent">next</span>&gt;
+    &lt;<span class="pl-ent">next</span> <span class="pl-e">probability</span>=<span class="pl-s"><span class="pl-pds">"</span>8<span class="pl-pds">"</span></span> <span class="pl-e">only</span>=<span class="pl-s"><span class="pl-pds">"</span>none<span class="pl-pds">"</span></span>&gt;2&lt;/<span class="pl-ent">next</span>&gt;
+    &lt;<span class="pl-ent">next</span> <span class="pl-e">probability</span>=<span class="pl-s"><span class="pl-pds">"</span>10<span class="pl-pds">"</span></span> <span class="pl-e">only</span>=<span class="pl-s"><span class="pl-pds">"</span>none<span class="pl-pds">"</span></span>&gt;11&lt;/<span class="pl-ent">next</span>&gt;
+  &lt;/<span class="pl-ent">sequence</span>&gt;
+  &lt;<span class="pl-ent">border</span>&gt;
+    &lt;<span class="pl-ent">next</span> <span class="pl-e">probability</span>=<span class="pl-s"><span class="pl-pds">"</span>100<span class="pl-pds">"</span></span> <span class="pl-e">only</span>=<span class="pl-s"><span class="pl-pds">"</span>none<span class="pl-pds">"</span></span>&gt;2&lt;/<span class="pl-ent">next</span>&gt;
+  &lt;/<span class="pl-ent">border</span>&gt;
+  &lt;<span class="pl-ent">gravity</span>&gt;
+    &lt;<span class="pl-ent">next</span> <span class="pl-e">probability</span>=<span class="pl-s"><span class="pl-pds">"</span>100<span class="pl-pds">"</span></span> <span class="pl-e">only</span>=<span class="pl-s"><span class="pl-pds">"</span>none<span class="pl-pds">"</span></span>&gt;5&lt;/<span class="pl-ent">next</span>&gt;
+  &lt;/<span class="pl-ent">gravity</span>&gt;
+&lt;/<span class="pl-ent">animation</span>&gt;</pre></div>
+<p>Como ler isso:</p>
+<ul>
+<li><code class="notranslate">&lt;start&gt;</code> e <code class="notranslate">&lt;end&gt;</code> são os dois extremos do movimento (x, y, offsety, opacity, interval). Tudo entre eles é interpolado ao longo dos passos da sequência. Um <code class="notranslate">&lt;x&gt;</code> negativo anda para a esquerda.</li>
+<li><code class="notranslate">&lt;interval&gt;</code> é o tempo de cada quadro em milissegundos, e é ele que define a velocidade.</li>
+<li><code class="notranslate">&lt;sequence&gt;</code> traz a lista de <code class="notranslate">&lt;frame&gt;</code> — os índices dos quadros na folha de sprites. <code class="notranslate">repeat</code> é quantas vezes a sequência repete (<code class="notranslate">0</code> ou <code class="notranslate">1</code> = não repete; <code class="notranslate">"random/4+8"</code> sorteia). <code class="notranslate">&lt;action&gt;flip&lt;/action&gt;</code> inverte a direção e espelha o sprite.</li>
+<li><code class="notranslate">&lt;next probability="N" only="FLAG"&gt;ID&lt;/next&gt;</code> é o sucessor. O <code class="notranslate">only</code> filtra por tipo de colisão: <code class="notranslate">none</code>, <code class="notranslate">taskbar</code>, <code class="notranslate">window</code>, <code class="notranslate">windowSide</code>, <code class="notranslate">horizontal</code>, <code class="notranslate">horizontal+</code>, <code class="notranslate">vertical</code>, <code class="notranslate">vertical+</code>, <code class="notranslate">petSide</code>. Com vários sucessors, o motor sorteia entre os que combinam com o contexto.</li>
+<li><code class="notranslate">&lt;border&gt;</code> dispara quando o pet encosta numa borda; <code class="notranslate">&lt;gravity&gt;</code> dispara quando ele perde o chão. É o bloco <code class="notranslate">&lt;gravity&gt;</code> que faz o pet cair quando não há janela embaixo dele.</li>
+</ul>
+<p>Sete nomes de animação são reservados e ligados ao motor de verdade: <code class="notranslate">fall</code>, <code class="notranslate">drag</code>, <code class="notranslate">kill</code>, <code class="notranslate">sync</code>, <code class="notranslate">toss</code>, <code class="notranslate">fall soft</code> e <code class="notranslate">fall hard</code>. Qualquer outro nome é livre e aparece no seletor de animações.</p>
+<p>Os valores de <code class="notranslate">x</code>, <code class="notranslate">y</code>, <code class="notranslate">interval</code> e <code class="notranslate">repeat</code> podem ser expressões, avaliadas na hora em que a animação começa: <code class="notranslate">screenW</code>, <code class="notranslate">screenH</code>, <code class="notranslate">areaW</code>, <code class="notranslate">areaH</code>, <code class="notranslate">imageW</code>, <code class="notranslate">imageH</code>, <code class="notranslate">imageX</code>, <code class="notranslate">imageY</code>, <code class="notranslate">random</code>, <code class="notranslate">randS</code> e <code class="notranslate">scale</code>, com os operadores <code class="notranslate">+ - * / %</code> e <code class="notranslate">iif(condicao, a, b)</code>.</p>
+<p>Para testar um XML seu, basta arrastar o arquivo <code class="notranslate">.xml</code> para cima do pet: o programa troca o pet carregado por ele.</p>
+<h3>PetGen</h3>
+<p><code class="notranslate">Tools/PetGen</code> desenha os pets oficiais do programa — Rex, Pingo, Boo, Mago, Nuvi e Claude — pixel a pixel, em código, e grava cada um como pasta de pet:</p>
+<div class="highlight highlight-source-shell"><pre class="notranslate">dotnet run --project Tools/PetGen/PetGen.csproj -- Pets</pre></div>
+<p>O primeiro argumento é a pasta de saída (padrão <code class="notranslate">pets</code>) e o segundo, opcional, é onde os quadros de prévia são gravados. Cada pet sai com <code class="notranslate">animations.xml</code> (a folha de sprites e o ícone embutidos em base64), <code class="notranslate">icon.png</code>, <code class="notranslate">README.md</code> e <code class="notranslate">README.pt-BR.md</code>. Os sons são sintetizados em <code class="notranslate">PetSounds.cs</code> e <code class="notranslate">Sfx.cs</code>.</p>
+<h3>PetPack</h3>
+<p><code class="notranslate">Tools/PetPack</code> monta pets a partir de quadros PNG prontos, usando o mesmo modelo de XML do PetGen:</p>
+<div class="highlight highlight-source-shell"><pre class="notranslate">dotnet run --project Tools/PetPack/PetPack.csproj -- Pets</pre></div>
+<p>Os quadros ficam em <code class="notranslate">Tools/PetPack/art/&lt;pet&gt;/&lt;animacao&gt;/frame_000.png</code>, e o primeiro argumento é a pasta de saída (padrão <code class="notranslate">Pets</code>). O exemplo que vem no repositório é o <code class="notranslate">sabio</code>, em uma tela de 92 pixels.</p>
+<h3>Publicar na galeria</h3>
+<p>Para um pet entrar na galeria pública do GitHub, a pasta dele precisa ficar em <code class="notranslate">Pets/</code> com <code class="notranslate">animations.xml</code>, <code class="notranslate">icon.png</code>, <code class="notranslate">preview.gif</code>, <code class="notranslate">README.md</code> e <code class="notranslate">README.pt-BR.md</code>, e o <code class="notranslate">Pets/pets.json</code> precisa listar a pasta com <code class="notranslate">folder</code>, <code class="notranslate">name</code>, <code class="notranslate">author</code>, <code class="notranslate">lastupdate</code>, <code class="notranslate">size</code>, <code class="notranslate">animations</code> e <code class="notranslate">sounds</code>. Dois scripts cuidam do trabalho mecânico:</p>
+<div class="highlight highlight-source-shell"><pre class="notranslate">powershell -ExecutionPolicy Bypass -File Tools/update-pets-json.ps1
+powershell -ExecutionPolicy Bypass -File Tools/make-previews.ps1</pre></div>
+<p>O primeiro reescreve tamanho, contagem de animações e contagem de sons no <code class="notranslate">pets.json</code>; o segundo gera a prévia animada de cada pet com o <code class="notranslate">ffmpeg</code> (precisa do <code class="notranslate">ffmpeg</code> no PATH).</p>
+<h2>Ver também</h2>
+<ul>
+<li><a href="Painel-de-pets.html">Painel de pets</a> — a galeria, as abas "Meus pets" e "Baixar pets" e o painel de detalhes</li>
+<li><a href="Para-desenvolvedores.html">Para desenvolvedores</a> — como compilar o programa e o que cada ferramenta faz</li>
+<li><a href="Atalhos-e-comandos.html">Atalhos e comandos</a> — o seletor de animações, arrastar e arremessar o pet</li>
+<li><a href="Primeiros-passos.html">Primeiros passos</a> — o que fazer logo depois de instalar</li>
+</ul>
+<h2>Onde fica no código</h2>
+<ul>
+<li><code class="notranslate">src/Portable/PetCreator.cs</code> — o criador: <code class="notranslate">PetCreator.Build</code> monta o <code class="notranslate">animations.xml</code>, <code class="notranslate">PetCreator.FolderFor</code> define o nome da pasta, <code class="notranslate">PetCreator.Icon</code> gera o <code class="notranslate">.ico</code> e <code class="notranslate">FormPetCreator</code> é a janela</li>
+<li><code class="notranslate">src/Portable/FormSettings.Pets.cs</code> — <code class="notranslate">CreatePet</code> (o botão "Criar…"), <code class="notranslate">AddLocalPet</code> (os pets com prefixo <code class="notranslate">meu-</code>) e a importação</li>
+<li><code class="notranslate">src/Portable/FormSettings.Options.cs</code> — a linha "Criar meu pet" na seção "Programa"</li>
+<li><code class="notranslate">src/Portable/PetStore.cs</code> — onde os pets ficam no disco (<code class="notranslate">%LocalAppData%\DesktopPet\pets\</code>) e o <code class="notranslate">version.txt</code></li>
+<li><code class="notranslate">src/Portable/PetBackup.cs</code> — o que entra e o que sai do arquivo <code class="notranslate">.desktoppet</code></li>
+<li><code class="notranslate">src/dotNet/Xml.cs</code> — a leitura do <code class="notranslate">animations.xml</code> e os nomes de animação reservados</li>
+<li><code class="notranslate">src/dotNet/Animations.cs</code> — as estruturas de animação, spawn, child e som</li>
+<li><code class="notranslate">src/dotNet/FormAnimPicker.cs</code> — o seletor de animações e a tabela de emojis</li>
+<li><code class="notranslate">src/LocalData/AnimationXML.cs</code> — a desserialização do XML</li>
+<li><code class="notranslate">Resources/animations.xsd</code> — o esquema do arquivo</li>
+<li><code class="notranslate">Tools/PetGen/Program.cs</code> e <code class="notranslate">Tools/PetGen/PetModel.cs</code> — o desenho dos pets oficiais</li>
+<li><code class="notranslate">Tools/PetPack/Program.cs</code> e <code class="notranslate">Tools/PetPack/PngPet.cs</code> — a montagem de pets a partir de PNG</li>
+<li><code class="notranslate">Tools/update-pets-json.ps1</code> e <code class="notranslate">Tools/make-previews.ps1</code> — a galeria e as prévias</li>
+<li><code class="notranslate">src/lang/pt-BR.json</code> — os textos da janela do criador</li>
+</ul>
+  </main>
+</div>
+<footer class="rodape">
+  <p>O <strong>Meu Pet</strong> é um bichinho de área de trabalho para Windows 10 e 11.
+  <a href="https://github.com/lfeliipeadv-stack/meu-pet">Ver no GitHub</a></p>
+</footer>
+</body>
+</html>

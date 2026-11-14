@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Para desenvolvedores — Wiki do Meu Pet</title>
+<link rel="icon" href="../img/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body class="wiki">
+<header class="topo">
+  <a class="volta" href="../">&larr; Voltar para a página do Meu Pet</a>
+  <span class="marca">Wiki do Meu Pet</span>
+</header>
+<div class="layout">
+  <nav class="lateral">
+    <p class="lateral-titulo">Páginas</p>
+    <ul>
+<li><a href="Home.html">Home</a></li><li><a href="Instalacao.html">Instalação</a></li><li><a href="Primeiros-passos.html">Primeiros passos</a></li><li><a href="Painel-de-pets.html">Painel de pets</a></li><li><a href="Pergunte-ao-pet.html">Pergunte ao pet</a></li><li><a href="Lembretes-e-Pomodoro.html">Lembretes e Pomodoro</a></li><li><a href="Agenda-e-e-mails.html">Agenda e e-mails</a></li><li><a href="Pet-virtual-e-brinquedos.html">Pet virtual e brincadeiras</a></li><li><a href="Plugins-e-integracoes.html">Plugins e integrações</a></li><li><a href="Crie-o-seu-pet.html">Crie o seu pet</a></li><li><a href="Atalhos-e-comandos.html">Atalhos e comandos</a></li><li class="on"><a href="Para-desenvolvedores.html">Para desenvolvedores</a></li><li><a href="Perguntas-frequentes.html">Perguntas frequentes</a></li><li><a href="Changelog.html">Changelog</a></li>
+    </ul>
+  </nav>
+  <main class="conteudo wiki-corpo">
+<h1>Para desenvolvedores</h1>
+<p><a href="Home.html">Home</a> · <a href="Instalacao.html">Instalação</a> · <a href="Primeiros-passos.html">Primeiros passos</a> · <a href="Painel-de-pets.html">Painel de pets</a> · <a href="Pergunte-ao-pet.html">Pergunte ao pet</a> · <a href="Lembretes-e-pomodoro.html">Lembretes e Pomodoro</a> · <a href="Agenda-e-e-mails.html">Agenda e e-mails</a> · <a href="Pet-virtual-e-brinquedos.html">Pet virtual e brincadeiras</a> · <a href="Plugins-e-integracoes.html">Plugins e integrações</a> · <a href="Crie-o-seu-pet.html">Crie o seu pet</a> · <a href="Atalhos-e-comandos.html">Atalhos e comandos</a> · <a href="Perguntas-frequentes.html">Perguntas frequentes</a> · <a href="Changelog.html">Changelog</a></p>
+<p>Esta página é para quem quer compilar, testar e publicar o <strong>Meu Pet</strong> (o programa se chama <strong>desktopPet</strong>) ou quer colocar um pet novo na galeria. Ela descreve o que dá para fazer com o código que está no repositório, com os comandos exatos e os caminhos dos arquivos.</p>
+<p>O projeto é escrito em C# com Windows Forms sobre <strong>.NET 10</strong> (<code class="notranslate">net10.0-windows</code>), alvo <code class="notranslate">win-x64</code>, e não usa nenhum pacote NuGet: o som sai pela API MCI do Windows (<code class="notranslate">src/dotNet/Mp3Player.cs</code>) e o JSON sai do <code class="notranslate">System.Text.Json</code> do próprio runtime (<code class="notranslate">src/Portable/JsonText.cs</code>). É por isso que o executável da release normal fica perto de 2,6 MB.</p>
+<h2>Requisitos</h2>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Item</th>
+<th>Detalhe</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sistema</td>
+<td>Windows 10 ou 11, 64 bits</td>
+</tr>
+<tr>
+<td>SDK</td>
+<td>.NET 10 SDK (<code class="notranslate">actions/setup-dotnet</code> com <code class="notranslate">dotnet-version: 10.0.x</code> no CI)</td>
+</tr>
+<tr>
+<td>Visual Studio</td>
+<td>Não é preciso para a build atual; só para os projetos legados em .NET Framework</td>
+</tr>
+<tr>
+<td>Ferramentas extras</td>
+<td><code class="notranslate">ffmpeg</code> no PATH, só para gerar os <code class="notranslate">preview.gif</code> dos pets</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<h2>Compilar e publicar</h2>
+<p>O projeto que é publicado hoje é <strong><code class="notranslate">src/DesktopPet.Net.csproj</code></strong> (SDK-style). Os projetos antigos <code class="notranslate">src/DesktopPet.csproj</code> e <code class="notranslate">src/DesktopPet_Portable.csproj</code> (solutions <code class="notranslate">src/DesktopPet.sln</code> e <code class="notranslate">src/DesktopPet_Portable.sln</code>) continuam no repositório, mas são o código .NET Framework 4.7.2 herdado do projeto original e <strong>não</strong> são a build liberada.</p>
+<h3>Compilar</h3>
+<div class="highlight highlight-source-powershell"><pre class="notranslate">dotnet build src<span class="pl-k">/</span>DesktopPet.Net.csproj <span class="pl-k">-</span>c Release</pre></div>
+<p>O executável sai em <code class="notranslate">src/bin/Release/net10.0-windows/win-x64/DesktopPet.exe</code> — é exatamente esse caminho que o workflow de CI usa.</p>
+<h3>Publicar (build normal, precisa do .NET 10 Desktop Runtime)</h3>
+<div class="highlight highlight-source-powershell"><pre class="notranslate">dotnet publish src<span class="pl-k">/</span>DesktopPet.Net.csproj <span class="pl-k">-</span>c Release <span class="pl-k">-</span>o ..\publish</pre></div>
+<p>Em <code class="notranslate">Release</code> o projeto liga <code class="notranslate">PublishSingleFile</code> e <code class="notranslate">IncludeNativeLibrariesForSelfExtract</code>, então sai um <code class="notranslate">.exe</code> único. A pasta <code class="notranslate">lang/</code> é copiada ao lado do executável (e não embutida nele) para que os idiomas possam ser editados sem recompilar.</p>
+<h3>Publicar a build "completa" (não precisa de .NET instalado)</h3>
+<div class="highlight highlight-source-powershell"><pre class="notranslate">dotnet publish src<span class="pl-k">/</span>DesktopPet.Net.csproj <span class="pl-k">-</span>c Release <span class="pl-k">-</span>o ..<span class="pl-c1">\publish-completo</span> <span class="pl-k">-</span>p:SelfContained<span class="pl-k">=</span>true</pre></div>
+<p>Com <code class="notranslate">SelfContained=true</code> o projeto define a constante <code class="notranslate">SELFCONTAINED</code> e liga <code class="notranslate">EnableCompressionInSingleFile</code>. O arquivo resultante é o <code class="notranslate">DesktopPet-completo.exe</code> (cerca de 50 MB): funciona direto, sem instalar nada.</p>
+<h3>A versão do programa</h3>
+<p>A versão não está no <code class="notranslate">.csproj</code>: ela vive em <strong><code class="notranslate">src/Properties/AssemblyInfoPortable.cs</code></strong>, nas linhas <code class="notranslate">AssemblyVersion</code> e <code class="notranslate">AssemblyFileVersion</code> (hoje <code class="notranslate">2.6.2.0</code>). O <code class="notranslate">Tools/release.ps1</code> reescreve esse arquivo sozinho e depois confere se a <code class="notranslate">FileVersion</code> do executável publicado é exatamente <code class="notranslate">&lt;versão&gt;.0</code>.</p>
+<h3>Referência rápida de comandos</h3>
+<div class="highlight highlight-source-powershell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> compilar</span>
+dotnet build src<span class="pl-k">/</span>DesktopPet.Net.csproj <span class="pl-k">-</span>c Release
+
+<span class="pl-c"><span class="pl-c">#</span> publicar a build normal</span>
+dotnet publish src<span class="pl-k">/</span>DesktopPet.Net.csproj <span class="pl-k">-</span>c Release <span class="pl-k">-</span>o ..\publish
+
+<span class="pl-c"><span class="pl-c">#</span> publicar a build completa (self-contained)</span>
+dotnet publish src<span class="pl-k">/</span>DesktopPet.Net.csproj <span class="pl-k">-</span>c Release <span class="pl-k">-</span>o ..<span class="pl-c1">\publish-completo</span> <span class="pl-k">-</span>p:SelfContained<span class="pl-k">=</span>true
+
+<span class="pl-c"><span class="pl-c">#</span> autoteste</span>
+src\bin\Release\net10.<span class="pl-c1">0</span><span class="pl-k">-</span>windows\win<span class="pl-k">-</span>x64\<span class="pl-c1">DesktopPet.exe</span> <span class="pl-k">--</span>selftest<span class="pl-k">=</span>C:\temp\resultado.txt
+
+<span class="pl-c"><span class="pl-c">#</span> testes de movimento</span>
+powershell <span class="pl-k">-</span>NoProfile <span class="pl-k">-</span>File tests\run<span class="pl-k">-</span>net<span class="pl-k">-</span>motion<span class="pl-k">-</span>tests.ps1 <span class="pl-k">-</span>Scales <span class="pl-c1">1</span><span class="pl-k">,</span><span class="pl-c1">3</span></pre></div>
+<h2>Autoteste (<code class="notranslate">--selftest</code>)</h2>
+<p>O autoteste roda as verificações <strong>com o código de verdade</strong>, sem janelas de mentira: cada check chama a classe real do programa. Ele é a rede de segurança principal do projeto.</p>
+<div class="highlight highlight-source-powershell"><pre class="notranslate"><span class="pl-c1">DesktopPet.exe</span> <span class="pl-k">--</span>selftest<span class="pl-k">=</span>C:\temp\resultado.txt</pre></div>
+<ul>
+<li>Cada linha do arquivo é <code class="notranslate">PASS  nome</code> ou <code class="notranslate">FAIL  nome  →  detalhe</code> (a seta e o detalhe só aparecem quando falha).</li>
+<li>A primeira linha é o cabeçalho: <code class="notranslate">DesktopPet self-test &lt;data&gt;  —  &lt;n&gt; failure(s)</code>.</li>
+<li>O <strong>código de saída é o número de falhas</strong> (<code class="notranslate">Environment.Exit(failures)</code>), então o CI só precisa checar se o processo terminou com 0.</li>
+<li><code class="notranslate">--only=&lt;texto&gt;</code> roda só os checks cujo nome contém aquele texto — útil quando você está mexendo num recurso só.</li>
+</ul>
+<p>Os 50 grupos de verificação, na ordem em que rodam:</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Área</th>
+<th>Grupos</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Lembretes e rotina</td>
+<td><code class="notranslate">reminder schedule</code>, <code class="notranslate">reminder json</code>, <code class="notranslate">smart reminders</code>, <code class="notranslate">activity</code></td>
+</tr>
+<tr>
+<td>Pet virtual e humor</td>
+<td><code class="notranslate">virtual pet decay</code>, <code class="notranslate">mood history text</code>, <code class="notranslate">sheep talk</code>, <code class="notranslate">pets chat</code>, <code class="notranslate">pets meet</code></td>
+</tr>
+<tr>
+<td>Textos e idiomas</td>
+<td><code class="notranslate">languages</code>, <code class="notranslate">games texts</code>, <code class="notranslate">colour emoji</code></td>
+</tr>
+<tr>
+<td>Menu e janelas</td>
+<td><code class="notranslate">bubble</code>, <code class="notranslate">hide hotkey</code>, <code class="notranslate">pet menu</code>, <code class="notranslate">pomodoro</code>, <code class="notranslate">dialogs hold the pets</code>, <code class="notranslate">chat</code>, <code class="notranslate">hover chat</code>, <code class="notranslate">ask the pet</code>, <code class="notranslate">anim picker</code>, <code class="notranslate">tour</code>, <code class="notranslate">quiet time</code>, <code class="notranslate">sky arrival</code>, <code class="notranslate">pet change</code>, <code class="notranslate">talking pet</code></td>
+</tr>
+<tr>
+<td>Configurações</td>
+<td><code class="notranslate">per-pet sound</code>, <code class="notranslate">settings pages</code>, <code class="notranslate">start with Windows (read)</code>, <code class="notranslate">log file</code>, <code class="notranslate">shortcut error</code>, <code class="notranslate">simple timer</code></td>
+</tr>
+<tr>
+<td>Backup</td>
+<td><code class="notranslate">backup export</code>, <code class="notranslate">backup import safety</code>, <code class="notranslate">backup of my things</code></td>
+</tr>
+<tr>
+<td>IA e integrações</td>
+<td><code class="notranslate">ai providers</code>, <code class="notranslate">claude hooks file</code>, <code class="notranslate">claude events</code>, <code class="notranslate">claude endpoint</code>, <code class="notranslate">mcp</code>, <code class="notranslate">new plugins</code>, <code class="notranslate">live plugins</code></td>
+</tr>
+<tr>
+<td>Recursos externos</td>
+<td><code class="notranslate">agenda</code>, <code class="notranslate">agenda online</code>, <code class="notranslate">outlook</code>, <code class="notranslate">weather</code>, <code class="notranslate">downloads</code>, <code class="notranslate">downloads watcher</code></td>
+</tr>
+<tr>
+<td>Criação de pets</td>
+<td><code class="notranslate">create pet</code>, <code class="notranslate">pet actions</code></td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>O autoteste não mexe nos seus dados: lembretes, necessidades, humor e atalhos do usuário são preservados, e o que um check alterar é devolvido. Ele também desliga a apresentação inicial (<code class="notranslate">Onboarding.Disabled</code>) para não atrapalhar as verificações.</p>
+<h2>Testes de movimento</h2>
+<p>São seis suítes que verificam a interpolação de posição, a troca de animação, a reação a bordas e a topologia de monitores, com o pet de verdade na tela:</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Suíte</th>
+<th>Arquivo</th>
+<th>O que confere</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="notranslate">MotionTests</code></td>
+<td><code class="notranslate">tests/MotionTests.cs</code></td>
+<td>a interpolação do <code class="notranslate">MotionTrack</code> e a velocidade de arremesso, sem abrir janela</td>
+</tr>
+<tr>
+<td><code class="notranslate">DisplayTopologyTests</code></td>
+<td><code class="notranslate">tests/DisplayTopologyTests.cs</code></td>
+<td>monitor desconectado: o pet volta para o principal e não fica fora da área visível</td>
+</tr>
+<tr>
+<td><code class="notranslate">MotionAuditTests</code></td>
+<td><code class="notranslate">tests/MotionAuditTests.cs</code></td>
+<td>auditoria do movimento em janela oculta</td>
+</tr>
+<tr>
+<td><code class="notranslate">RuntimeMotionTests</code></td>
+<td><code class="notranslate">tests/RuntimeMotionTests.cs</code></td>
+<td>o movimento rodando, com o pet visível</td>
+</tr>
+<tr>
+<td><code class="notranslate">TransitionRuntimeTests</code></td>
+<td><code class="notranslate">tests/TransitionRuntimeTests.cs</code></td>
+<td>publicação de quadros, criação de janelas filhas e mudança de opções ao vivo</td>
+</tr>
+<tr>
+<td><code class="notranslate">ContinuousTransitionTests</code></td>
+<td><code class="notranslate">tests/ContinuousTransitionTests.cs</code></td>
+<td>transições emendadas, sem reiniciar os temporizadores</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>Para rodar contra a build .NET 10 (a que é publicada), basta o SDK:</p>
+<div class="highlight highlight-source-powershell"><pre class="notranslate">powershell <span class="pl-k">-</span>NoProfile <span class="pl-k">-</span>File tests\run<span class="pl-k">-</span>net<span class="pl-k">-</span>motion<span class="pl-k">-</span>tests.ps1 <span class="pl-k">-</span>Scales <span class="pl-c1">1</span><span class="pl-k">,</span><span class="pl-c1">3</span></pre></div>
+<p>Parâmetros: <code class="notranslate">-Scales</code> (o padrão é <code class="notranslate">1,3</code>), <code class="notranslate">-Displays</code> (o padrão é todos os monitores conectados) e <code class="notranslate">-OutputDirectory</code>. O runner compila cada suíte com <code class="notranslate">tests/MotionTests.Net.csproj</code> passando <code class="notranslate">-p:TestName=&lt;suíte&gt;</code>, sempre x64, e falha se qualquer suíte devolver código diferente de zero.</p>
+<blockquote>
+<p>Feche o DesktopPet antes de rodar: as suítes mostram pets de verdade na tela e precisam de uma sessão de desktop ativa e desbloqueada.</p>
+</blockquote>
+<p>A build legada em .NET Framework tem o runner <code class="notranslate">tests/run-motion-tests.ps1</code>, que precisa do Visual Studio Build Tools (MSBuild desktop), do NuGet e do pacote de referência do .NET Framework 4.7.2.</p>
+<h2>Ferramentas em <code class="notranslate">Tools/</code></h2>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Ferramenta</th>
+<th>O que faz</th>
+<th>Como rodar</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="notranslate">Tools/PetGen</code></td>
+<td>Desenha pixel a pixel os pets oficiais (Claude, Mago, Nuvi, Boo, Pingo e Rex) e grava cada um como uma pasta de pet: <code class="notranslate">animations.xml</code> (com a folha de sprites e o ícone em base64 dentro do XML), <code class="notranslate">icon.png</code> e <code class="notranslate">README.md</code> / <code class="notranslate">README.pt-BR.md</code>. Os sons saem de <code class="notranslate">PetSounds.cs</code>.</td>
+<td><code class="notranslate">dotnet run --project Tools/PetGen/PetGen.csproj -- Pets</code></td>
+</tr>
+<tr>
+<td><code class="notranslate">Tools/PetPack</code></td>
+<td>Monta um pet a partir de quadros PNG prontos (por exemplo gerados no PixelLab), usando o mesmo modelo de XML do PetGen. Os quadros ficam em <code class="notranslate">Tools/PetPack/art/&lt;pet&gt;/&lt;animação&gt;/frame_NNN.png</code>.</td>
+<td><code class="notranslate">dotnet run --project Tools/PetPack/PetPack.csproj -- Pets</code></td>
+</tr>
+<tr>
+<td><code class="notranslate">Tools/update-pets-json.ps1</code></td>
+<td>Reescreve em <code class="notranslate">Pets/pets.json</code> o campo <code class="notranslate">size</code> (o tamanho que o GitHub vai servir, já com LF) e as contagens <code class="notranslate">animations</code> e <code class="notranslate">sounds</code> de cada pet, lendo o <code class="notranslate">animations.xml</code> dele. Rode depois de mexer em um pet.</td>
+<td><code class="notranslate">powershell -ExecutionPolicy Bypass -File Tools\update-pets-json.ps1</code></td>
+</tr>
+<tr>
+<td><code class="notranslate">Tools/make-previews.ps1</code></td>
+<td>Gera o <code class="notranslate">preview.gif</code> de cada pet (o pet andando mais uma de suas maracinhas, ~120 px, fundo transparente, 128 cores) com <code class="notranslate">ffmpeg</code>. O programa mostra esse GIF no painel de detalhes.</td>
+<td><code class="notranslate">powershell -ExecutionPolicy Bypass -File Tools\make-previews.ps1</code> — ou <code class="notranslate">-Only rex</code> para um pet só</td>
+</tr>
+<tr>
+<td><code class="notranslate">Tools/Setup</code></td>
+<td>O instalador em .NET Framework 4.8 (<code class="notranslate">DesktopPet-Instalador.exe</code>). Ele procura o .NET 10 Desktop Runtime, oferece o instalador oficial da Microsoft quando falta, cria os atalhos e instala em <code class="notranslate">%LocalAppData%\DesktopPet</code>.</td>
+<td><code class="notranslate">dotnet build Tools\Setup\Setup.csproj -c Release -p:AppExe=&lt;caminho do exe&gt; -p:Version=&lt;versão&gt;</code></td>
+</tr>
+<tr>
+<td><code class="notranslate">Tools/release.ps1</code></td>
+<td>Monta a versão nova e publica a release no GitHub. Detalhado na seção seguinte.</td>
+<td><code class="notranslate">pwsh Tools\release.ps1 -Version 2.6.2</code></td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>As duas primeiras ferramentas recebem a pasta de destino como primeiro argumento (<code class="notranslate">Pets</code>, por padrão). Depois de rodar o PetGen ou o PetPack, o passo obrigatório é rodar o <code class="notranslate">update-pets-json.ps1</code> e o <code class="notranslate">make-previews.ps1</code>, senão o painel mostra tamanho e contagens errados e a prévia não existe.</p>
+<p><code class="notranslate">Tools/PetEditor</code> e <code class="notranslate">Tools/PetTester</code> são ferramentas antigas em .NET Framework 4.8 (Windows Forms): o PetEditor abre e salva o XML de um pet e o PetTester abre um XML de animação para inspeção. Elas não fazem parte da build publicada.</p>
+<h2>Publicar uma release: <code class="notranslate">Tools/release.ps1</code></h2>
+<p>O script faz tudo em ordem, cada passo conferindo o anterior:</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Passo</th>
+<th>O que acontece</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>Roda <code class="notranslate">update-pets-json.ps1</code> e confere a galeria: avisa se uma pasta em <code class="notranslate">Pets/</code> não está listada em <code class="notranslate">pets.json</code> e <strong>falha</strong> se o <code class="notranslate">pets.json</code> listar uma pasta sem <code class="notranslate">animations.xml</code></td>
+</tr>
+<tr>
+<td>1</td>
+<td>Escreve a versão em <code class="notranslate">src/Properties/AssemblyInfoPortable.cs</code> (<code class="notranslate">AssemblyVersion</code> e <code class="notranslate">AssemblyFileVersion</code> como <code class="notranslate">&lt;versão&gt;.0</code>)</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code class="notranslate">dotnet publish</code> da build normal e conferência: a <code class="notranslate">FileVersion</code> do exe tem de ser exatamente <code class="notranslate">&lt;versão&gt;.0</code></td>
+</tr>
+<tr>
+<td>2b</td>
+<td><code class="notranslate">dotnet publish -p:SelfContained=true</code> e renomeia o resultado para <code class="notranslate">DesktopPet-completo.exe</code></td>
+</tr>
+<tr>
+<td>2c</td>
+<td>Compila o instalador net48 em <code class="notranslate">Tools/Setup</code> com <code class="notranslate">-p:AppExe=&lt;exe&gt;</code> e <code class="notranslate">-p:Version=&lt;versão&gt;</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td>Empacota <code class="notranslate">src/lang/*.json</code> em <code class="notranslate">lang.zip</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td>Escreve <code class="notranslate">SHA256SUMS</code> no formato <code class="notranslate">hash  nome</code> (duas espaços, hex minúsculo, fim de linha LF), uma linha por artefato</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Cria a release <code class="notranslate">v&lt;versão&gt;</code> no repositório com <code class="notranslate">gh release create</code>, alvo <code class="notranslate">master</code>, usando as notas de um arquivo <code class="notranslate">NOTES.md</code></td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<div class="highlight highlight-source-powershell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> só montar e ver os hashes, sem mandar nada para o GitHub</span>
+pwsh Tools\release.ps1 <span class="pl-k">-</span>Version <span class="pl-c1">2.6</span>.<span class="pl-c1">2</span> <span class="pl-k">-</span>NoUpload
+
+<span class="pl-c"><span class="pl-c">#</span> publicar de verdade (precisa de "gh auth login")</span>
+pwsh Tools\release.ps1 <span class="pl-k">-</span>Version <span class="pl-c1">2.6</span>.<span class="pl-c1">3</span> <span class="pl-k">-</span>Notes <span class="pl-s"><span class="pl-pds">"</span>- Novo pet: Rex<span class="pl-pds">"</span></span></pre></div>
+<p>As notas de versão vão por um arquivo (<code class="notranslate">NOTES.md</code>) e não pela linha de comando, porque aspas e quebras de linha quebrariam o comando do <code class="notranslate">gh</code>. Tudo é deixado em <code class="notranslate">release/&lt;versão&gt;/</code>.</p>
+<h3>O que a release contém</h3>
+<p>Cada release <code class="notranslate">vX.Y.Z</code> publica cinco arquivos. Os tamanhos abaixo são os reais da 2.6.2:</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Arquivo</th>
+<th>Tamanho</th>
+<th>Para quê</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="notranslate">DesktopPet.exe</code></td>
+<td>2.750.643 bytes (~2,6 MB)</td>
+<td>o programa; precisa do .NET 10 Desktop Runtime</td>
+</tr>
+<tr>
+<td><code class="notranslate">DesktopPet-completo.exe</code></td>
+<td>52.672.112 bytes (~50 MB)</td>
+<td>o programa com o runtime dentro; não precisa instalar nada</td>
+</tr>
+<tr>
+<td><code class="notranslate">DesktopPet-Instalador.exe</code></td>
+<td>3.150.336 bytes (~3 MB)</td>
+<td>instalador em .NET Framework 4.8: confere o runtime, instala e cria os atalhos</td>
+</tr>
+<tr>
+<td><code class="notranslate">lang.zip</code></td>
+<td>—</td>
+<td>os arquivos de idioma, para quem baixou só o <code class="notranslate">.exe</code></td>
+</tr>
+<tr>
+<td><code class="notranslate">SHA256SUMS</code></td>
+<td>—</td>
+<td>o hash de cada um dos quatro arquivos acima</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>O atualizador do programa (<code class="notranslate">src/Portable/Updater.cs</code>) consulta <code class="notranslate">https://api.github.com/repos/lfeliipeadv-stack/meu-pet/releases/latest</code>, mostra as novidades (limite de 1500 caracteres) e só troca o executável depois de conferir o SHA-256 de cada arquivo contra o <code class="notranslate">SHA256SUMS</code> da própria release. Hash ausente ou divergente cancela a atualização (<code class="notranslate">inst.hashMissing</code> / <code class="notranslate">inst.hashMismatch</code>). Só depois disso o executável em uso é renomeado para <code class="notranslate">DesktopPet_old.exe</code> e o programa se reinicia. A release não é assinada digitalmente: a garantia é o hash publicado junto dos arquivos.</p>
+<p>Depois de publicar, comite a mudança de versão — o <code class="notranslate">release.ps1</code> avisa quando o <code class="notranslate">Pets/pets.json</code> mudou e ainda não foi enviado, porque a galeria lê esse arquivo do GitHub.</p>
+<h2>Workflows do GitHub Actions</h2>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Arquivo</th>
+<th>Quando roda</th>
+<th>O que faz</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="notranslate">.github/workflows/build.yml</code></td>
+<td>todo push no <code class="notranslate">master</code>, pull requests e <code class="notranslate">workflow_dispatch</code></td>
+<td>compila com <code class="notranslate">dotnet build src/DesktopPet.Net.csproj -c Release</code>, roda o autoteste (com limite de 5 minutos: se não terminar, mata o processo e falha), roda os testes de movimento <code class="notranslate">.NET 10</code> com <code class="notranslate">-Scales 1,3</code> e guarda o <code class="notranslate">selftest.txt</code> como artefato <strong>autoteste</strong></td>
+</tr>
+<tr>
+<td><code class="notranslate">.github/workflows/pages.yml</code></td>
+<td>push que muda <code class="notranslate">site/**</code>, <code class="notranslate">Pets/**</code>, <code class="notranslate">.github/readme/**</code> ou o próprio workflow</td>
+<td>monta a pasta <code class="notranslate">_site</code> (copia <code class="notranslate">site/*</code>, o <code class="notranslate">Pets/pets.json</code>, o <code class="notranslate">preview.gif</code> de cada pet como <code class="notranslate">_site/pets/&lt;pasta&gt;.gif</code>, as imagens do README e o ícone do eSheep) e publica com <code class="notranslate">configure-pages</code>, <code class="notranslate">upload-pages-artifact</code> e <code class="notranslate">deploy-pages</code></td>
+</tr>
+<tr>
+<td><code class="notranslate">.github/workflows/wiki.yml</code></td>
+<td>push que muda <code class="notranslate">wiki/**</code> ou o próprio workflow</td>
+<td>publica a pasta <code class="notranslate">wiki/</code> no repositório do Wiki: clona o repositório <code class="notranslate">.wiki.git</code> com o token do GitHub, apaga as páginas antigas, copia as de <code class="notranslate">wiki/</code> e envia o commit</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>O <code class="notranslate">build.yml</code> tem <code class="notranslate">timeout-minutes: 20</code> no job inteiro. O <code class="notranslate">wiki.yml</code> trata o primeiro envio (quando o repositório do Wiki ainda não existe e o clone devolve 404) criando o repositório do zero.</p>
+<p>Ainda existem três workflows legados (<code class="notranslate">build_nosign.yml</code>, <code class="notranslate">dotnet-desktop-signpath.yml</code> e <code class="notranslate">dotnet-desktop.yml</code>) que assinam a build antiga em .NET Framework; eles não são usados no pipeline atual.</p>
+<h2>Estrutura de pastas do repositório</h2>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Pasta</th>
+<th>O que guarda</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="notranslate">src/</code></td>
+<td>o código do programa</td>
+</tr>
+<tr>
+<td><code class="notranslate">src/Portable/</code></td>
+<td>o painel, o menu do pet, a IA, os plugins, o MCP, o autoteste e os utilitários do Windows</td>
+</tr>
+<tr>
+<td><code class="notranslate">src/dotNet/</code></td>
+<td>o motor do pet: <code class="notranslate">FormPet.cs</code> (movimento, colisão, janelas), <code class="notranslate">Animations.cs</code>, <code class="notranslate">Xml.cs</code>, <code class="notranslate">Mp3Player.cs</code>, <code class="notranslate">FormAnimPicker.cs</code>, <code class="notranslate">Program.cs</code></td>
+</tr>
+<tr>
+<td><code class="notranslate">src/LocalData/</code></td>
+<td>o modelo desserializado do <code class="notranslate">animations.xml</code> (<code class="notranslate">AnimationXML.cs</code>)</td>
+</tr>
+<tr>
+<td><code class="notranslate">src/lang/</code></td>
+<td><code class="notranslate">pt-BR.json</code> e <code class="notranslate">es.json</code> — os textos do programa</td>
+</tr>
+<tr>
+<td><code class="notranslate">src/Properties/</code></td>
+<td><code class="notranslate">AssemblyInfoPortable.cs</code> (a versão) e o manifesto do aplicativo</td>
+</tr>
+<tr>
+<td><code class="notranslate">src/Resources/</code></td>
+<td><code class="notranslate">animations.xsd</code> (o esquema XML do pet) e <code class="notranslate">animations.xml</code> (o pet de exemplo)</td>
+</tr>
+<tr>
+<td><code class="notranslate">Pets/</code></td>
+<td>a galeria: uma pasta por pet com <code class="notranslate">animations.xml</code>, <code class="notranslate">icon.png</code>, <code class="notranslate">preview.gif</code> e <code class="notranslate">README.md</code>, mais o índice <code class="notranslate">pets.json</code></td>
+</tr>
+<tr>
+<td><code class="notranslate">Tools/</code></td>
+<td><code class="notranslate">PetGen</code>, <code class="notranslate">PetPack</code>, <code class="notranslate">Setup</code>, <code class="notranslate">update-pets-json.ps1</code>, <code class="notranslate">make-previews.ps1</code>, <code class="notranslate">release.ps1</code></td>
+</tr>
+<tr>
+<td><code class="notranslate">tests/</code></td>
+<td>as suítes de movimento e os runners (<code class="notranslate">run-net-motion-tests.ps1</code> e <code class="notranslate">run-motion-tests.ps1</code>)</td>
+</tr>
+<tr>
+<td><code class="notranslate">site/</code></td>
+<td>a página pública do projeto (a que o <code class="notranslate">pages.yml</code> publica)</td>
+</tr>
+<tr>
+<td><code class="notranslate">wiki/</code></td>
+<td>o conteúdo do Wiki; é a fonte da verdade das páginas</td>
+</tr>
+<tr>
+<td><code class="notranslate">.github/workflows/</code></td>
+<td>os workflows de build, da página e do Wiki</td>
+</tr>
+<tr>
+<td><code class="notranslate">docs/capturas/</code></td>
+<td>as capturas de tela usadas nas imagens do Wiki</td>
+</tr>
+<tr>
+<td><code class="notranslate">release/&lt;versão&gt;/</code></td>
+<td>o que foi gerado por cada versão publicada</td>
+</tr>
+<tr>
+<td><code class="notranslate">publish/</code></td>
+<td>saída do <code class="notranslate">dotnet publish</code> local</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<h2>O formato de <code class="notranslate">Pets/pets.json</code></h2>
+<p>É um objeto com a chave <code class="notranslate">pets</code>, que é uma lista de entradas — uma por pet da galeria:</p>
+<div class="highlight highlight-source-json"><pre class="notranslate">{
+  <span class="pl-ent">"pets"</span> : [
+    {
+      <span class="pl-ent">"folder"</span> : <span class="pl-s"><span class="pl-pds">"</span>rex<span class="pl-pds">"</span></span>,
+      <span class="pl-ent">"name"</span> : <span class="pl-s"><span class="pl-pds">"</span>Rex<span class="pl-pds">"</span></span>,
+      <span class="pl-ent">"author"</span> : <span class="pl-s"><span class="pl-pds">"</span>Luan Felipe<span class="pl-pds">"</span></span>,
+      <span class="pl-ent">"lastupdate"</span> : <span class="pl-s"><span class="pl-pds">"</span>2026-11-11 20:45<span class="pl-pds">"</span></span>,
+      <span class="pl-ent">"size"</span> : <span class="pl-c1">334102</span>,
+      <span class="pl-ent">"animations"</span> : <span class="pl-c1">107</span>,
+      <span class="pl-ent">"sounds"</span> : <span class="pl-c1">16</span>
+    }
+  ]
+}</pre></div>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Campo</th>
+<th>Para que serve</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="notranslate">folder</code></td>
+<td>nome da pasta em <code class="notranslate">Pets/</code>; é o que o programa baixa e o que identifica o pet no disco</td>
+</tr>
+<tr>
+<td><code class="notranslate">name</code></td>
+<td>nome de exibição no painel</td>
+</tr>
+<tr>
+<td><code class="notranslate">author</code></td>
+<td>quem fez o pet</td>
+</tr>
+<tr>
+<td><code class="notranslate">lastupdate</code></td>
+<td>data e hora da última versão, no formato <code class="notranslate">yyyy-MM-dd HH:mm</code>; é comparada com o <code class="notranslate">version.txt</code> local para avisar de versão nova</td>
+</tr>
+<tr>
+<td><code class="notranslate">size</code></td>
+<td>tamanho em bytes do <code class="notranslate">animations.xml</code>, <strong>do jeito que o GitHub serve</strong> (com LF). Aparece no botão de download antes de o arquivo chegar</td>
+</tr>
+<tr>
+<td><code class="notranslate">animations</code></td>
+<td>quantas animações o pet tem; aparece no painel de detalhes</td>
+</tr>
+<tr>
+<td><code class="notranslate">sounds</code></td>
+<td>quantos sons o pet tem; idem</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>Os campos <code class="notranslate">size</code>, <code class="notranslate">animations</code> e <code class="notranslate">sounds</code> são reescritos pelo <code class="notranslate">Tools/update-pets-json.ps1</code> — não edite esses números à mão.</p>
+<p>O programa lê a galeria de <code class="notranslate">https://raw.githubusercontent.com/lfeliipeadv-stack/meu-pet/master/Pets/</code> (constantes em <code class="notranslate">src/Portable/AppInfo.cs</code>) e, de cada pasta, baixa <code class="notranslate">animations.xml</code>, <code class="notranslate">icon.png</code>, <code class="notranslate">preview.gif</code> e o <code class="notranslate">README.md</code> (ou <code class="notranslate">README.pt-BR.md</code>, quando o programa está em português). O tamanho vem de uma requisição <code class="notranslate">HEAD</code> antes do download, e o arquivo recebido é descartado se não tiver o tamanho anunciado.</p>
+<h3>Publicar um pet novo</h3>
+<ol>
+<li>Crie a pasta <code class="notranslate">Pets/&lt;nome&gt;/</code> com <code class="notranslate">animations.xml</code>, <code class="notranslate">icon.png</code> e <code class="notranslate">README.md</code>.</li>
+<li>Rode <code class="notranslate">powershell -ExecutionPolicy Bypass -File Tools\update-pets-json.ps1</code> para incluir o pet no <code class="notranslate">pets.json</code>.</li>
+<li>Rode <code class="notranslate">powershell -ExecutionPolicy Bypass -File Tools\make-previews.ps1</code> para gerar o <code class="notranslate">preview.gif</code>.</li>
+<li>Confira que <code class="notranslate">pets.json</code> não lista nenhum pet sem pasta — o <code class="notranslate">release.ps1</code> falha se isso acontecer.</li>
+<li>Envie para o <code class="notranslate">master</code>: a galeria do programa e a página do site leem o repositório.</li>
+</ol>
+<p><a target="_blank" rel="noopener noreferrer" href="images/pets.png"><img src="images/pets.png" alt="Painel de pets com a galeria de Pets/pets.json" style="max-width: 100%;"></a><br>
+<em>O painel lê a galeria de <code class="notranslate">Pets/pets.json</code> no repositório; cada cartão traz o nome, o autor e o selo de estado.</em></p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/pets-detail.png"><img src="images/pets-detail.png" alt="Detalhes de um pet, com a prévia animada e o README" style="max-width: 100%;"></a><br>
+<em>O painel de detalhes mostra o <code class="notranslate">preview.gif</code>, o README interpretado como markdown e as contagens de animações e sons.</em></p>
+<h2>Como adicionar um idioma novo</h2>
+<p>Os textos vivem em arquivos JSON comuns na pasta <code class="notranslate">src/lang/</code> (hoje <code class="notranslate">pt-BR.json</code> e <code class="notranslate">es.json</code>). O inglês fica embutido no código (<code class="notranslate">Lang.BuiltInEnglish</code>) e é a reserva para qualquer chave que falte.</p>
+<ol>
+<li>
+<p>Crie <code class="notranslate">src/lang/xx.json</code>.</p>
+</li>
+<li>
+<p>A primeira chave precisa ser <code class="notranslate">"language.name"</code> — é ela que aparece na lista de idiomas:</p>
+<div class="highlight highlight-source-json"><pre class="notranslate">{
+  <span class="pl-ent">"language.name"</span>: <span class="pl-s"><span class="pl-pds">"</span>Español<span class="pl-pds">"</span></span>,
+  <span class="pl-ent">"opt.language.title"</span>: <span class="pl-s"><span class="pl-pds">"</span>Idioma<span class="pl-pds">"</span></span>,
+  <span class="pl-ent">"opt.language.desc"</span>: <span class="pl-s"><span class="pl-pds">"</span>Idioma do programa. <span class="pl-cce">\"</span>Auto<span class="pl-cce">\"</span> segue o idioma do Windows. Os arquivos ficam na pasta lang, ao lado do programa.<span class="pl-pds">"</span></span>
+}</pre></div>
+</li>
+<li>
+<p>Traduza as chaves que quiser. As que faltarem caem no inglês embutido.</p>
+</li>
+<li>
+<p>Recompile. O <code class="notranslate">.csproj</code> copia <code class="notranslate">lang\*.json</code> para a pasta <code class="notranslate">lang</code> ao lado do executável e também embute uma cópia como recurso (<code class="notranslate">EmbeddedResource</code> com o nome lógico <code class="notranslate">lang/%(Filename)%(Extension)</code>), para o caso de o usuário baixar só o <code class="notranslate">.exe</code>.</p>
+</li>
+</ol>
+<p>O arquivo aparece sozinho na lista de idiomas da página <strong>Configurações</strong> — <code class="notranslate">Lang.Available()</code> varre <code class="notranslate">lang/*.json</code> e junta com o inglês embutido. Em "Auto", o programa segue o idioma de exibição do Windows (<code class="notranslate">CurrentUICulture</code>), aceitando tanto o nome exato (<code class="notranslate">pt-BR</code>) quanto o idioma neutro (<code class="notranslate">pt</code>). A troca é instantânea, sem reiniciar.</p>
+<p>Para gerar o modelo com todas as chaves, use:</p>
+<div class="highlight highlight-source-powershell"><pre class="notranslate"><span class="pl-c1">DesktopPet.exe</span> <span class="pl-k">--</span><span class="pl-c1">export-lang</span><span class="pl-k">=</span>C:\temp\modelo.json</pre></div>
+<p>Para instalar um idioma numa cópia portátil já em uso, basta soltar o <code class="notranslate">.json</code> na pasta <code class="notranslate">lang</code> ao lado do <code class="notranslate">.exe</code>.</p>
+<h3>O check de idiomas do autoteste</h3>
+<p>O grupo <code class="notranslate">languages</code> do <code class="notranslate">--selftest</code> confere, para cada idioma listado em <code class="notranslate">SelfTest.Languages</code> (<code class="notranslate">src/Portable/SelfTest.cs</code>), três coisas:</p>
+<ul>
+<li>tem <strong>todas</strong> as chaves que o programa usa;</li>
+<li>não tem chave <strong>desconhecida</strong>;</li>
+<li>os <strong>placeholders</strong> <code class="notranslate">{0}</code>, <code class="notranslate">{1}</code> batem com os do inglês.</li>
+</ul>
+<p>Hoje ele verifica <code class="notranslate">pt-BR</code> e <code class="notranslate">es</code>. Ao adicionar um idioma novo, inclua o código dele nessa lista para que o autoteste passe a cobri-lo:</p>
+<div class="highlight highlight-source-cs"><pre class="notranslate"><span class="pl-k">foreach</span> <span class="pl-kos">(</span><span class="pl-smi">string</span> <span class="pl-s1">code</span> <span class="pl-k">in</span> <span class="pl-k">new</span><span class="pl-kos">[</span><span class="pl-kos">]</span> <span class="pl-kos">{</span> <span class="pl-s">"pt-BR"</span><span class="pl-kos">,</span> <span class="pl-s">"es"</span><span class="pl-kos">,</span> <span class="pl-s">"xx"</span> <span class="pl-kos">}</span><span class="pl-kos">)</span><span class="pl-kos"></span></pre></div>
+<h2>Argumentos de linha de comando de desenvolvedor</h2>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Argumento</th>
+<th>Para que serve</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="notranslate">--selftest=&lt;arquivo&gt;</code></td>
+<td>roda os checks e grava as linhas PASS/FAIL; o código de saída é o número de falhas</td>
+</tr>
+<tr>
+<td><code class="notranslate">--only=&lt;texto&gt;</code></td>
+<td>roda só os checks cujo nome contém o texto</td>
+</tr>
+<tr>
+<td><code class="notranslate">--ai-check=&lt;arquivo&gt;</code></td>
+<td>confere os provedores de IA de verdade, com a chave na variável de ambiente <code class="notranslate">DESKTOPPET_AI_KEY</code> e o serviço em <code class="notranslate">DESKTOPPET_AI_PROVIDER</code> (padrão <code class="notranslate">gemini</code>)</td>
+</tr>
+<tr>
+<td><code class="notranslate">--snapshot=&lt;pasta&gt;</code></td>
+<td>grava as capturas de todas as janelas do painel em PNG e fecha (é o que gera as imagens do Wiki)</td>
+</tr>
+<tr>
+<td><code class="notranslate">--export-lang=&lt;arquivo&gt;</code></td>
+<td>grava o modelo em inglês das traduções</td>
+</tr>
+<tr>
+<td><code class="notranslate">--gallery=&lt;url&gt;</code></td>
+<td>aponta a galeria para outro endereço (<code class="notranslate">--gallery=https://nowhere.invalid/</code> testa o painel sem internet)</td>
+</tr>
+<tr>
+<td><code class="notranslate">--write-hooks=&lt;arquivo&gt;</code></td>
+<td>escreve os hooks do Claude Code num <code class="notranslate">settings.json</code> diferente do do usuário</td>
+</tr>
+<tr>
+<td><code class="notranslate">--mcp</code></td>
+<td>sobe o servidor MCP do Claude Code em stdin/stdout, sem janela e sem pet</td>
+</tr>
+<tr>
+<td><code class="notranslate">--agent=&lt;evento&gt;</code></td>
+<td>outro agente de IA avisa o pet em execução (<code class="notranslate">done</code>, <code class="notranslate">stop</code>, <code class="notranslate">thinking</code>, <code class="notranslate">start</code>, <code class="notranslate">waiting</code>, <code class="notranslate">input</code>, <code class="notranslate">error</code>, <code class="notranslate">edit</code>, <code class="notranslate">run</code>, <code class="notranslate">read</code>)</td>
+</tr>
+<tr>
+<td><code class="notranslate">--clean-memory=&lt;arquivo&gt;</code></td>
+<td>arrumada completa de memória, num processo elevado</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>Dois deles precisam de atenção em ambiente de CI: o <code class="notranslate">--selftest</code> abre janelas de verdade e o <code class="notranslate">--snapshot</code> também, então os dois devem rodar numa sessão de desktop interativa.</p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/application.png"><img src="images/application.png" alt="Página de Configurações do programa" style="max-width: 100%;"></a><br>
+<em>Configurações › Programa: idioma, tema, inicialização, tamanho do pet, backup, depuração e instalação.</em></p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/debug.png"><img src="images/debug.png" alt="Janela de depuração do pet" style="max-width: 100%;"></a><br>
+<em>A janela de depuração mostra ao vivo a animação que o pet está tocando; ela também abre segurando CTRL ao iniciar o programa.</em></p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/win-petcreator.png"><img src="images/win-petcreator.png" alt="Criador de pet dentro do programa" style="max-width: 100%;"></a><br>
+<em>"Criar meu pet" transforma imagens suas em um pet completo, sem passar pelo código.</em></p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/about.png"><img src="images/about.png" alt="Página Sobre do painel" style="max-width: 100%;"></a><br>
+<em>A página Sobre mostra a versão do programa e os links do projeto.</em></p>
+<h2>Ver também</h2>
+<ul>
+<li><a href="Instalacao.html">Instalação</a> — os arquivos da release e o que cada um faz</li>
+<li><a href="Crie-o-seu-pet.html">Crie o seu pet</a> — o criador dentro do programa e o formato do XML do pet</li>
+<li><a href="Painel-de-pets.html">Painel de pets</a> — a galeria, as abas e os selos</li>
+<li><a href="Plugins-e-integracoes.html">Plugins e integrações</a> — o canal local, os hooks e o MCP com o Claude Code</li>
+<li><a href="Changelog.html">Changelog</a> — o que mudou em cada versão</li>
+</ul>
+<h2>Onde fica no código</h2>
+<ul>
+<li><code class="notranslate">src/DesktopPet.Net.csproj</code> — o projeto publicado (.NET 10, WinForms, x64, sem NuGet)</li>
+<li><code class="notranslate">src/DesktopPet.csproj</code>, <code class="notranslate">src/DesktopPet_Portable.csproj</code>, <code class="notranslate">src/DesktopPet.sln</code>, <code class="notranslate">src/DesktopPet_Portable.sln</code> — os projetos legados em .NET Framework</li>
+<li><code class="notranslate">src/Properties/AssemblyInfoPortable.cs</code> — a versão do programa</li>
+<li><code class="notranslate">src/dotNet/Program.cs</code> — os argumentos de linha de comando e o ponto de entrada</li>
+<li><code class="notranslate">src/dotNet/FormPet.cs</code>, <code class="notranslate">src/dotNet/FormPet.Motion.cs</code>, <code class="notranslate">src/dotNet/MotionTrack.cs</code> — o motor do pet</li>
+<li><code class="notranslate">src/dotNet/Animations.cs</code>, <code class="notranslate">src/dotNet/Xml.cs</code>, <code class="notranslate">src/LocalData/AnimationXML.cs</code> — as animações e o XML do pet</li>
+<li><code class="notranslate">src/dotNet/Mp3Player.cs</code> — os sons pela API MCI do Windows</li>
+<li><code class="notranslate">src/Portable/SelfTest.cs</code> — o autoteste</li>
+<li><code class="notranslate">src/Portable/Lang.cs</code> — os idiomas (carregar, listar, exportar o modelo)</li>
+<li><code class="notranslate">src/lang/pt-BR.json</code>, <code class="notranslate">src/lang/es.json</code> — os textos do programa</li>
+<li><code class="notranslate">src/Portable/Updater.cs</code>, <code class="notranslate">src/Portable/AppInfo.cs</code> — a atualização automática e os endereços do repositório</li>
+<li><code class="notranslate">src/Portable/FormSettings.Snapshots.cs</code> — as capturas das janelas (<code class="notranslate">--snapshot</code>)</li>
+<li><code class="notranslate">src/Portable/PetCreator.cs</code> — o criador de pet dentro do programa</li>
+<li><code class="notranslate">src/Resources/animations.xsd</code> — o esquema do <code class="notranslate">animations.xml</code></li>
+<li><code class="notranslate">Pets/pets.json</code> — o índice da galeria</li>
+<li><code class="notranslate">Tools/PetGen/Program.cs</code>, <code class="notranslate">Tools/PetGen/PetModel.cs</code>, <code class="notranslate">Tools/PetGen/PetSounds.cs</code> — o gerador de pets</li>
+<li><code class="notranslate">Tools/PetPack/Program.cs</code>, <code class="notranslate">Tools/PetPack/PngPet.cs</code> — o montador de pets a partir de PNG</li>
+<li><code class="notranslate">Tools/update-pets-json.ps1</code> — reescreve o <code class="notranslate">pets.json</code></li>
+<li><code class="notranslate">Tools/make-previews.ps1</code> — gera os <code class="notranslate">preview.gif</code></li>
+<li><code class="notranslate">Tools/Setup/Setup.csproj</code>, <code class="notranslate">Tools/Setup/SetupForm.cs</code> — o instalador</li>
+<li><code class="notranslate">Tools/release.ps1</code> — a publicação da release</li>
+<li><code class="notranslate">tests/run-net-motion-tests.ps1</code>, <code class="notranslate">tests/MotionTests.Net.csproj</code>, <code class="notranslate">tests/README.md</code> — os testes de movimento</li>
+<li><code class="notranslate">.github/workflows/build.yml</code>, <code class="notranslate">.github/workflows/pages.yml</code>, <code class="notranslate">.github/workflows/wiki.yml</code> — os workflows</li>
+</ul>
+  </main>
+</div>
+<footer class="rodape">
+  <p>O <strong>Meu Pet</strong> é um bichinho de área de trabalho para Windows 10 e 11.
+  <a href="https://github.com/lfeliipeadv-stack/meu-pet">Ver no GitHub</a></p>
+</footer>
+</body>
+</html>

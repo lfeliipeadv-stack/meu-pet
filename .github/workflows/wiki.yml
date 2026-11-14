@@ -4,9 +4,14 @@ name: Wiki
 # A pasta wiki/ é a fonte da verdade: editar lá e enviar para o master atualiza o Wiki.
 on:
   push:
-    branches: [master, feature/wiki-publish]
+    branches: [master]
     paths: ['wiki/**', '.github/workflows/wiki.yml']
   workflow_dispatch:
+  # O repositorio do Wiki so nasce quando a primeira pagina e criada pela
+  # interface do GitHub. A rotina de hora em hora publica assim que isso
+  # acontecer, sem precisar de um novo envio.
+  schedule:
+    - cron: '17 * * * *'
 
 permissions:
   contents: write
@@ -58,6 +63,15 @@ jobs:
             echo "Nada novo para publicar."
           else
             git commit -q -m "Wiki: atualiza as paginas do repositorio"
-            git push origin master
-            echo "Wiki publicado."
+            # O primeiro push cria o repositorio do Wiki. A interface do GitHub
+            # e a unica forma de inicializa-lo, entao um erro aqui significa
+            # que a primeira pagina ainda nao foi criada.
+            if git push origin master 2>&1 | tee /tmp/push.log; then
+              echo "Wiki publicado."
+            else
+              echo "::warning::O repositorio do Wiki ainda nao existe. Crie a primeira"
+              echo "::warning::pagina em https://github.com/${REPO}/wiki/_new e a proxima"
+              echo "::warning::rodalia publica o manual inteiro automaticamente."
+              exit 0
+            fi
           fi

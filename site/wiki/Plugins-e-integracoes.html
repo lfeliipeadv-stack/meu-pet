@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plugins e integrações — Wiki do Meu Pet</title>
+<link rel="icon" href="../img/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body class="wiki">
+<header class="topo">
+  <a class="volta" href="../">&larr; Voltar para a página do Meu Pet</a>
+  <span class="marca">Wiki do Meu Pet</span>
+</header>
+<div class="layout">
+  <nav class="lateral">
+    <p class="lateral-titulo">Páginas</p>
+    <ul>
+<li><a href="Home.html">Home</a></li><li><a href="Instalacao.html">Instalação</a></li><li><a href="Primeiros-passos.html">Primeiros passos</a></li><li><a href="Painel-de-pets.html">Painel de pets</a></li><li><a href="Pergunte-ao-pet.html">Pergunte ao pet</a></li><li><a href="Lembretes-e-Pomodoro.html">Lembretes e Pomodoro</a></li><li><a href="Agenda-e-e-mails.html">Agenda e e-mails</a></li><li><a href="Pet-virtual-e-brinquedos.html">Pet virtual e brincadeiras</a></li><li class="on"><a href="Plugins-e-integracoes.html">Plugins e integrações</a></li><li><a href="Crie-o-seu-pet.html">Crie o seu pet</a></li><li><a href="Atalhos-e-comandos.html">Atalhos e comandos</a></li><li><a href="Para-desenvolvedores.html">Para desenvolvedores</a></li><li><a href="Perguntas-frequentes.html">Perguntas frequentes</a></li><li><a href="Changelog.html">Changelog</a></li>
+    </ul>
+  </nav>
+  <main class="conteudo wiki-corpo">
+<h1>Plugins e integrações</h1>
+<p><a href="Home.html">Home</a> · <a href="Instalacao.html">Instalação</a> · <a href="Primeiros-passos.html">Primeiros passos</a> · <a href="Painel-de-pets.html">Painel de pets</a> · <a href="Pergunte-ao-pet.html">Pergunte ao pet</a> · <a href="Lembretes-e-pomodoro.html">Lembretes e Pomodoro</a> · <a href="Agenda-e-e-mails.html">Agenda e e-mails</a> · <a href="Pet-virtual-e-brinquedos.html">Pet virtual e brinquedos</a> · <a href="Crie-o-seu-pet.html">Crie o seu pet</a> · <a href="Atalhos-e-comandos.html">Atalhos e comandos</a> · <a href="Para-desenvolvedores.html">Para desenvolvedores</a> · <a href="Perguntas-frequentes.html">Perguntas frequentes</a> · <a href="Changelog.html">Changelog</a></p>
+<p>A janela de Configurações tem duas páginas que ligam o pet ao que você faz no dia: <strong>Plugins</strong> (os recursos que já vêm no programa) e <strong>Integrações</strong> (as pontes com programas de fora, como o Claude Code). Esta página explica o que tem em cada uma e como ligar, desligar e configurar.</p>
+<h2>A página Plugins</h2>
+<p>Cada recurso do programa é um cartão com um ícone, o nome, uma frase explicando o que ele faz, o estado (Ligado/Desligado) e um botão <strong>Configurar</strong> quando há alguma opção a escolher. Nada é baixado: os plugins já estão no executável e rodam neste computador.</p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/plugins.png"><img src="images/plugins.png" alt="Página Plugins com os cartões de recursos e os filtros por categoria" style="max-width: 100%;"></a></p>
+<p><em>Os 22 plugins ficam em cartões, filtrados pelas categorias "Meu dia", "Bem-estar", "Diversão" e "Computador".</em></p>
+<h3>As categorias</h3>
+<p>Os chips no topo filtram os cartões e mostram a contagem:</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Categoria</th>
+<th>Quantos</th>
+<th>O que entra</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Todos</td>
+<td>22</td>
+<td>Todos os cartões</td>
+</tr>
+<tr>
+<td>Meu dia</td>
+<td>8</td>
+<td>Clima, Lembretes, Agenda, E-mails, Foco, Notas, Avisos, Timer</td>
+</tr>
+<tr>
+<td>Bem-estar</td>
+<td>2</td>
+<td>Cuidar de você, Como estou hoje</td>
+</tr>
+<tr>
+<td>Diversão</td>
+<td>6</td>
+<td>Pet virtual, Pets se cumprimentam, Brincadeiras, Música e jogos, Visitas, Empurrar janelas</td>
+</tr>
+<tr>
+<td>Computador</td>
+<td>6</td>
+<td>Monitor do PC, Reações ao computador, Atalhos, Tela cheia e Não perturbe, Área de transferência, Memória</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<h3>Os 22 plugins</h3>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Plugin</th>
+<th>O que faz</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Clima</td>
+<td>De manhã o pet conta o tempo do dia e avisa antes de chover. Usa o Open-Meteo (grátis): só a sua cidade sai do computador.</td>
+</tr>
+<tr>
+<td>Lembretes</td>
+<td>Água, alongamento, pausas e os seus próprios lembretes, também escritos como frase ("me lembra às 15h…").</td>
+</tr>
+<tr>
+<td>Agenda (Google ou Outlook)</td>
+<td>Avisa antes de cada reunião. Usa o link iCal secreto da sua agenda: não precisa fazer login.</td>
+</tr>
+<tr>
+<td>E-mails novos (Outlook)</td>
+<td>Com o Outlook clássico aberto, avisa quando chega um e-mail novo. Só a quantidade de mensagens é lida, nunca o remetente ou o texto. O novo Outlook não é suportado.</td>
+</tr>
+<tr>
+<td>Foco (Pomodoro)</td>
+<td>Blocos de foco com pausas. Durante o foco o pet fica em silêncio e guarda os avisos para depois.</td>
+</tr>
+<tr>
+<td>Notas e tarefas</td>
+<td>Um bloco de notas, uma lista de tarefas e uma contagem regressiva, guardados pelo pet. Abre pelo menu dele.</td>
+</tr>
+<tr>
+<td>Avisos</td>
+<td>Com os pets escondidos (Ctrl+Alt+P), os avisos viram notificações do Windows. O horário de silêncio deixa tudo quieto à noite.</td>
+</tr>
+<tr>
+<td>Timer</td>
+<td>Um timer que fica junto do pet: tempo restante, barra de progresso, Pausar, +5 min e Cancelar.</td>
+</tr>
+<tr>
+<td>Cuidar de você</td>
+<td>Sugere uma pausa depois de muito tempo sem parar, fica feliz quando você volta e comemora quando você fecha um programa usado por horas. Só usa a hora da última tecla ou movimento do mouse e o nome do programa na frente.</td>
+</tr>
+<tr>
+<td>Como estou hoje</td>
+<td>Uma vez por dia o pet pergunta como você está e guarda o histórico das últimas duas semanas.</td>
+</tr>
+<tr>
+<td>Pet virtual</td>
+<td>O pet sente fome, quer carinho e fica cansado. Dê comida, carinho, brinque e deixe dormir pelo menu do pet.</td>
+</tr>
+<tr>
+<td>Pets se cumprimentam</td>
+<td>Quando dois pets se encontram na tela, eles batem um papo rápido, acenam, dançam ou trocam carinho.</td>
+</tr>
+<tr>
+<td>Brincadeiras</td>
+<td>Biscoito da sorte, bola 8 mágica e piadas, pelo menu do pet.</td>
+</tr>
+<tr>
+<td>Música e jogos</td>
+<td>O pet dança quando começa uma música nova no Spotify e pergunta como foi o jogo quando você volta de uma partida longa.</td>
+</tr>
+<tr>
+<td>Visitas</td>
+<td>De vez em quando um bichinho visita o pet: borboleta, passarinho, abelha ou joaninha.</td>
+</tr>
+<tr>
+<td>Empurrar janelas</td>
+<td>Um pet andando que esbarra numa janela pequena apoiada no mesmo chão empurra a janela. Janelas grandes e maximizadas nunca se movem.</td>
+</tr>
+<tr>
+<td>Monitor do PC</td>
+<td>Passe o mouse sobre o pet para ver CPU, memória e espaço livre. O pet também comenta quando o computador está muito ocupado.</td>
+</tr>
+<tr>
+<td>Reações ao computador</td>
+<td>Dá bom dia e boa noite, avisa quando a bateria está acabando e comemora downloads concluídos.</td>
+</tr>
+<tr>
+<td>Atalhos</td>
+<td>Pastas, programas e sites para abrir pelo menu do pet.</td>
+</tr>
+<tr>
+<td>Tela cheia e Não perturbe</td>
+<td>Enquanto um jogo, vídeo ou apresentação ocupa a tela, os pets se escondem e voltam depois. No Não perturbe do Windows, ficam quietos.</td>
+</tr>
+<tr>
+<td>Área de transferência</td>
+<td>Quando você copia um link ou um texto longo, o pet oferece abrir, resumir ou traduzir. As últimas cópias ficam só na memória, nunca no disco.</td>
+</tr>
+<tr>
+<td>Memória</td>
+<td>Quando a RAM fica cheia por alguns minutos, o pet oferece uma arrumada. Libera memória por um tempo; o Windows volta a ocupá-la aos poucos.</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p><a target="_blank" rel="noopener noreferrer" href="images/pet-menu.png"><img src="images/pet-menu.png" alt="Menu do pet com os itens que dependem dos plugins ligados" style="max-width: 100%;"></a></p>
+<p><em>Os itens do menu do pet que vêm de um plugin (Brincadeiras, Foco, Lembretes, Atalhos, Notas e tarefas, Timer) somem do menu quando o plugin está desligado.</em></p>
+<h3>Como ligar e desligar</h3>
+<ul>
+<li><strong>O interruptor do cartão</strong> liga e desliga o plugin na hora. O estado do plugin é guardado na configuração do programa e vale para as próximas sessões.</li>
+<li><strong>O botão "Configurar"</strong> abre uma janela pequena só com as opções daquele plugin. Quando não há nada a escolher, o botão não aparece.</li>
+<li><strong>Uma instalação nova começa com todos os plugins desligados.</strong> Num computador que já usava uma versão anterior, o programa liga de volta os plugins que antigamente eram ligados por padrão (lembretes, foco, brincadeiras, atalhos, notas, cuidado com você, pets se cumprimentam, reações ao computador, e-mails do Outlook, tela cheia, avisos, música e visitas) e mantém o estado dos outros. Isso vale para plugins como Clima, Pet virtual, Monitor do PC e Memória: todos ficam desligados até você ligar.</li>
+</ul>
+<h3>O que dá para configurar</h3>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Plugin</th>
+<th>Opções</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Clima</td>
+<td>Cidade (escolher…), Tempo do dia, Aviso de chuva, Tempo agora</td>
+</tr>
+<tr>
+<td>Agenda</td>
+<td>Link iCal (Configurar…) e Aviso de reunião (5, 10 ou 15 min)</td>
+</tr>
+<tr>
+<td>Foco (Pomodoro)</td>
+<td>Tempo de foco: 15, 25, 45 ou 50 min (padrão 25). Tempo de pausa: 5, 10 ou 15 min (padrão 5)</td>
+</tr>
+<tr>
+<td>Como estou hoje</td>
+<td>Horário da pergunta: 10h, 13h, 15h ou 17h (padrão 15h) e "Meu humor" (as últimas duas semanas)</td>
+</tr>
+<tr>
+<td>Reações ao computador</td>
+<td>Aviso de bateria fraca: 15%, 20%, 30% ou 40% (padrão 20%) e Carregador ligado e desligado</td>
+</tr>
+<tr>
+<td>Avisos</td>
+<td>Notificações quando escondido, Silêncio a partir de (desligado, 21h, 22h, 23h, 0h) e Silêncio até (6h, 7h, 8h, 9h)</td>
+</tr>
+<tr>
+<td>Área de transferência</td>
+<td>Oferecer ações e Últimas cópias</td>
+</tr>
+<tr>
+<td>Música e jogos</td>
+<td>Dizer a música</td>
+</tr>
+<tr>
+<td>Memória</td>
+<td>Quando oferecer (70%, 80%, 85%, 90%; padrão 85%), Arrumar sozinho, Arrumada simples e Arrumada completa</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>O botão <strong>Abrir</strong> em vez de <strong>Configurar</strong> leva a outra página do painel: os lembretes abrem a página "Lembretes" e as notas e tarefas abrem o caderno do pet.</p>
+<h3>Onde cada plugin guarda o que é dele</h3>
+<p>Os dados ficam em <code class="notranslate">%LocalAppData%\DesktopPet</code>, um arquivo por assunto:</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Arquivo</th>
+<th>Conteúdo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="notranslate">reminders.json</code></td>
+<td>Lembretes (inclusive os quatro prontos: água, alongamento, descanso dos olhos e pausa do almoço)</td>
+</tr>
+<tr>
+<td><code class="notranslate">mood.json</code></td>
+<td>Histórico do humor, uma entrada por dia</td>
+</tr>
+<tr>
+<td><code class="notranslate">notes.json</code></td>
+<td>Notas, tarefas e contagem regressiva</td>
+</tr>
+<tr>
+<td><code class="notranslate">launchers.json</code></td>
+<td>Atalhos de pastas, programas e sites</td>
+</tr>
+<tr>
+<td><code class="notranslate">needs.json</code></td>
+<td>Fome, carinho e energia de cada pet</td>
+</tr>
+<tr>
+<td><code class="notranslate">agent.json</code></td>
+<td>Porta e senha do canal local (usado pelas integrações)</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<h2>A página Integrações</h2>
+<p>Integrações são pontes com programas de fora do pet. A página tem três cartões: <strong>Claude Code</strong>, <strong>Outros agentes de IA</strong> e <strong>API local</strong>.</p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/integrations.png"><img src="images/integrations.png" alt="Página Integrações com os três cartões de ponte" style="max-width: 100%;"></a></p>
+<p><em>O cartão do Claude Code mostra o logo oficial e o estado dos recados (MCP).</em></p>
+<h2>Claude Code</h2>
+<p>A janela do Claude Code é dividida em quatro seções: <strong>Conexão</strong>, <strong>Reações (hooks)</strong>, <strong>Recados (MCP)</strong> e <strong>Avançado</strong>.</p>
+<h3>Conexão</h3>
+<p>Duas linhas de status, com um botão <strong>Atualizar</strong> para reler:</p>
+<ul>
+<li><strong>Claude Code neste computador</strong> — o programa procura o <code class="notranslate">claude.exe</code> (ou <code class="notranslate">claude.cmd</code>) no PATH e depois na pasta do aplicativo Claude. Se achar, mostra "Encontrado: {caminho}"; se não, "Não encontrado. Instale o Claude Code ou use o comando manual abaixo."</li>
+<li><strong>Ouvinte do pet</strong> — mostra "Ouvindo o Claude Code na porta {0} (só neste computador)." quando o canal local está no ar, ou "Desligado: ligue as reações abaixo."</li>
+</ul>
+<h3>Reações (hooks)</h3>
+<p>O pet reage enquanto o Claude Code trabalha: pensa, digita, roda comandos, pesquisa na web, chama outro agente e comemora quando termina.</p>
+<p>Ligar a opção <strong>Reagir ao Claude Code</strong> faz três coisas:</p>
+<ol>
+<li>Liga o ouvinte local do pet (o canal em <code class="notranslate">127.0.0.1</code>).</li>
+<li>Pede confirmação mostrando o arquivo que vai ser mudado e o nome da cópia de segurança.</li>
+<li>Escreve os hooks no arquivo de usuário do Claude Code, <code class="notranslate">%USERPROFILE%\.claude\settings.json</code>. Antes de escrever, o programa guarda uma cópia em <code class="notranslate">settings.json.desktoppet-backup</code> e mantém todo o resto do arquivo como estava.</li>
+</ol>
+<p>Cada hook é um comando só:</p>
+<pre class="notranslate"><code class="notranslate">curl.exe -s -m 2 -X POST -d x -H "X-DesktopPet: &lt;segredo&gt;" http://127.0.0.1:&lt;porta&gt;/hook/&lt;evento&gt;; exit 0
+</code></pre>
+<p>O tipo de ferramenta vem do endereço (um "matcher" por tipo), então o hook nunca lê o que o Claude está fazendo: só o nome do evento. O segredo é o token guardado em <code class="notranslate">%LocalAppData%\DesktopPet\agent.json</code>, e o <code class="notranslate">; exit 0</code> mantém o Claude Code quieto quando o pet não está rodando.</p>
+<p>Os eventos gravados são dez:</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Evento do Claude Code</th>
+<th>Endereço do hook</th>
+<th>Reação do pet</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SessionStart</td>
+<td><code class="notranslate">/hook/SessionStart</code></td>
+<td>"Oi! Vamos programar juntos? 👋"</td>
+</tr>
+<tr>
+<td>UserPromptSubmit</td>
+<td><code class="notranslate">/hook/UserPromptSubmit</code></td>
+<td>"O Claude está pensando… 🤔"</td>
+</tr>
+<tr>
+<td>PreToolUse (Edit, Write, MultiEdit, NotebookEdit)</td>
+<td><code class="notranslate">/hook/PreToolUse/edit</code></td>
+<td>"Editando arquivos… ✏️"</td>
+</tr>
+<tr>
+<td>PreToolUse (Bash, PowerShell)</td>
+<td><code class="notranslate">/hook/PreToolUse/run</code></td>
+<td>"Rodando um comando… ⚙️"</td>
+</tr>
+<tr>
+<td>PreToolUse (Read, Grep, Glob)</td>
+<td><code class="notranslate">/hook/PreToolUse/read</code></td>
+<td>"Lendo o código… 📖"</td>
+</tr>
+<tr>
+<td>PreToolUse (WebFetch, WebSearch)</td>
+<td><code class="notranslate">/hook/PreToolUse/web</code></td>
+<td>"Pesquisando na web… 🔎"</td>
+</tr>
+<tr>
+<td>PreToolUse (Task, Agent)</td>
+<td><code class="notranslate">/hook/PreToolUse/agent</code></td>
+<td>"Chamando um agente ajudante…"</td>
+</tr>
+<tr>
+<td>PostToolUseFailure</td>
+<td><code class="notranslate">/hook/PostToolUseFailure</code></td>
+<td>"Opa, algo falhou. O Claude está resolvendo."</td>
+</tr>
+<tr>
+<td>Notification</td>
+<td><code class="notranslate">/hook/Notification</code></td>
+<td>"O Claude precisa de você! 👀"</td>
+</tr>
+<tr>
+<td>Stop</td>
+<td><code class="notranslate">/hook/Stop</code></td>
+<td>"Pronto! ✅ O Claude terminou."</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>Dois detalhes de comportamento:</p>
+<ul>
+<li><strong>Balões de progresso.</strong> Os balões "pensando", "editando", "rodando" só aparecem se a opção <strong>Balões de progresso do Claude Code</strong> estiver ligada. O fim ("Pronto!") e o "precisa de você" aparecem sempre.</li>
+<li><strong>As animações não piscam.</strong> O pet só troca de animação quando o tipo de trabalho muda, ou de 8 em 8 segundos.</li>
+</ul>
+<p>O botão <strong>Testar</strong> roda um exemplo curto pela porta real: pensando → editando → rodando → pronto.</p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/bubble.png"><img src="images/bubble.png" alt="Balão do pet com um recado e os botões de ação" style="max-width: 100%;"></a></p>
+<p><em>Os recados aparecem no balão do pet, que acompanha o bichinho pela tela.</em></p>
+<h3>Recados (MCP)</h3>
+<p>A opção <strong>Deixar o Claude falar pelo pet (MCP)</strong> registra o programa como servidor MCP do Claude Code. O registro é feito pelo próprio comando do Claude Code (<code class="notranslate">claude mcp add</code>), então nenhum arquivo de configuração é editado à mão:</p>
+<pre class="notranslate"><code class="notranslate">claude mcp add --scope user desktoppet -- "C:\...\DesktopPet.exe" --mcp
+</code></pre>
+<p>Se o Claude Code não for encontrado no computador, o programa copia esse comando para a área de transferência e mostra a caixa com ele, para você colar num terminal.</p>
+<p>O servidor MCP fala JSON-RPC 2.0 por entrada e saída padrão (protocolo <code class="notranslate">2025-06-18</code>) e oferece três ferramentas:</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Ferramenta</th>
+<th>O que faz</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="notranslate">pet_say</code></td>
+<td>Mostra uma frase de até 140 caracteres no balão do pet.</td>
+</tr>
+<tr>
+<td><code class="notranslate">pet_react</code></td>
+<td>Toca uma reação: thinking, working, editing, running, reading, searching, waiting, success, error, celebrating, waving.</td>
+</tr>
+<tr>
+<td><code class="notranslate">pet_status</code></td>
+<td>Confirma que o pet está rodando e ouvindo.</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>Filtro importante: o <code class="notranslate">pet_say</code> recusa textos com caminhos, links, blocos de código ou sequências longas que pareçam chave. A resposta ao Claude é "Not shown: the pet never shows file paths, links, code or keys. Say it in plain words." — o recado fica escrito para quem está olhando a tela.</p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/chat.png"><img src="images/chat.png" alt="Conversa com o pet, com o estado &quot;Pronto&quot; no cabeçalho e o botão de voz" style="max-width: 100%;"></a></p>
+<p><em>O MCP usa o mesmo canal local do chat: a mensagem vai para o balão do pet e também entra na conversa.</em></p>
+<h3>Avançado</h3>
+<p>O botão <strong>Abrir pasta</strong> abre a pasta <code class="notranslate">%USERPROFILE%\.claude</code>, onde ficam o <code class="notranslate">settings.json</code> com os hooks e a cópia de segurança <code class="notranslate">settings.json.desktoppet-backup</code>.</p>
+<h2>Outros agentes de IA</h2>
+<p>O segundo cartão cobre quem não é o Claude Code, com quatro linhas:</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Item</th>
+<th>O que faz</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Codex</td>
+<td>Coloca o pet no <code class="notranslate">notify</code> do Codex, em <code class="notranslate">.codex\config.toml</code>. Se o Codex já tinha um notify próprio, ele é preservado (com uma cópia da linha original) e roda depois do pet.</td>
+</tr>
+<tr>
+<td>Cursor</td>
+<td>Adiciona hooks de arquivo editado e de resposta concluída em <code class="notranslate">.cursor\hooks.json</code>, sem apagar os hooks que você já tinha.</td>
+</tr>
+<tr>
+<td>Qualquer outro programa</td>
+<td>Um comando para rodar quando uma tarefa terminar (também <code class="notranslate">thinking</code>, <code class="notranslate">waiting</code>, <code class="notranslate">error</code>, <code class="notranslate">edit</code>, <code class="notranslate">run</code>).</td>
+</tr>
+<tr>
+<td>Subir de nível</td>
+<td>Cada tarefa que um agente de IA conclui vale um ponto; o pet comemora cada nível novo.</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>O comando do item "Qualquer outro programa" é:</p>
+<pre class="notranslate"><code class="notranslate">"C:\...\DesktopPet.exe" --agent=done
+</code></pre>
+<p>Ele avisa o pet que já está rodando e não falha se o pet estiver fechado. O nível começa em 1 e sobe de 3, 8, 15, 24… tarefas; a cada nível novo o pet comemora com "Nível {0}! Obrigado por todo o trabalho juntos 🎉".</p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/ai.png"><img src="images/ai.png" alt="Página Assistente com os provedores de IA configurados" style="max-width: 100%;"></a></p>
+<p><em>Os provedores de IA (Ollama, Gemini, Groq, OpenRouter) ficam na página Assistente, não em Plugins.</em></p>
+<h2>API local</h2>
+<p>O terceiro cartão deixa scripts e programas deste computador falarem com o pet. A escuta fica só em <code class="notranslate">127.0.0.1</code> (nunca na rede), protegida por uma senha aleatória guardada em <code class="notranslate">%LocalAppData%\DesktopPet\agent.json</code>, junto com a porta.</p>
+<p>Endpoints disponíveis:</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>O que faz</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="notranslate">POST /say</code></td>
+<td>Mostra um texto curto no balão do pet.</td>
+</tr>
+<tr>
+<td><code class="notranslate">POST /react</code></td>
+<td>Toca uma reação pelo nome da atividade.</td>
+</tr>
+<tr>
+<td><code class="notranslate">POST /hook/&lt;evento&gt;</code></td>
+<td>O mesmo caminho usado pelos hooks do Claude Code.</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>O cabeçalho <code class="notranslate">X-DesktopPet</code> traz o segredo. A janela tem o botão <strong>Copiar</strong>, que copia um exemplo em PowerShell já pronto para funcionar:</p>
+<div class="highlight highlight-source-powershell"><pre class="notranslate"><span class="pl-smi">$c</span> <span class="pl-k">=</span> <span class="pl-c1">Get-Content</span> <span class="pl-s"><span class="pl-pds">"</span><span class="pl-smi">$<span class="pl-c1">env:</span>LOCALAPPDATA</span>\DesktopPet\agent.json<span class="pl-pds">"</span></span> <span class="pl-k">|</span> <span class="pl-c1">ConvertFrom-Json</span>
+<span class="pl-c1">Invoke-RestMethod</span> <span class="pl-k">-</span>Method Post <span class="pl-k">-</span>Uri <span class="pl-s"><span class="pl-pds">"</span>http://127.0.0.1:<span class="pl-k"><span class="pl-pse">$</span></span><span class="pl-pse">(</span><span class="pl-smi">$c<span class="pl-smi">.port</span></span><span class="pl-pse">)</span>/say<span class="pl-pds">"</span></span> <span class="pl-k">-</span>Headers <span class="pl-k">@</span>{ <span class="pl-s"><span class="pl-pds">'</span>X-DesktopPet<span class="pl-pds">'</span></span> <span class="pl-k">=</span> <span class="pl-smi">$c<span class="pl-smi">.token</span></span> } <span class="pl-k">-</span>Body <span class="pl-s"><span class="pl-pds">'</span>Oi do PowerShell!<span class="pl-pds">'</span></span></pre></div>
+<p>O botão <strong>Abrir pasta</strong> mostra onde fica o <code class="notranslate">agent.json</code> com a porta e a senha.</p>
+<h2>Como o canal local se protege</h2>
+<p>O servidor do pet escuta só no endereço de loopback e recusa qualquer requisição que não seja:</p>
+<ul>
+<li>um <code class="notranslate">POST</code> de <code class="notranslate">127.0.0.1</code> ou <code class="notranslate">localhost</code> na porta certa;</li>
+<li>sem cabeçalho <code class="notranslate">Origin</code> (isto é, não vindo de uma página da web);</li>
+<li>com o segredo <code class="notranslate">X-DesktopPet</code> comparado em tempo fixo.</li>
+</ul>
+<p>As chamadas que passam viram reação do pet: cada evento do Claude Code vira uma animação e, em alguns casos, um balão.</p>
+<h2>Ver também</h2>
+<ul>
+<li><a href="Primeiros-passos.html">Primeiros passos</a> — o primeiro uso do programa e a tela de apresentação.</li>
+<li><a href="Lembretes-e-pomodoro.html">Lembretes e Pomodoro</a> — os plugins de lembretes, foco e notas em detalhe.</li>
+<li><a href="Agenda-e-e-mails.html">Agenda e e-mails</a> — os plugins de agenda e de e-mail do Outlook.</li>
+<li><a href="Pergunte-ao-pet.html">Pergunte ao pet</a> — a conversa com o pet e os provedores de IA.</li>
+<li><a href="Atalhos-e-comandos.html">Atalhos e comandos</a> — os atalhos de teclado e os argumentos de linha de comando.</li>
+</ul>
+<h2>Onde fica no código</h2>
+<ul>
+<li><code class="notranslate">src/Portable/FormSettings.Plugins.cs</code> — os cartões das duas páginas, as categorias, os botões e a janela do Claude Code.</li>
+<li><code class="notranslate">src/Portable/MorePlugins.cs</code> — tela cheia e Não perturbe, avisos e horário de silêncio, área de transferência, Codex/Cursor e o nível do pet, API local, música e jogos, visitas, empurrar janelas, memória.</li>
+<li><code class="notranslate">src/Portable/ClaudeHooks.cs</code> — a lista de hooks, o arquivo do Claude Code e a cópia de segurança.</li>
+<li><code class="notranslate">src/Portable/ClaudeMcp.cs</code> — o registro do servidor MCP no Claude Code.</li>
+<li><code class="notranslate">src/Portable/McpServer.cs</code> — o servidor MCP (<code class="notranslate">pet_say</code>, <code class="notranslate">pet_react</code>, <code class="notranslate">pet_status</code>) e o filtro de texto do balão.</li>
+<li><code class="notranslate">src/Portable/AgentBridge.cs</code> — o canal local em <code class="notranslate">127.0.0.1</code>, o token e as reações.</li>
+<li><code class="notranslate">src/Portable/FormSettings.Extras.cs</code> — ligar/desligar as reações, registrar o MCP e o botão de teste.</li>
+<li><code class="notranslate">src/Portable/Weather.cs</code> — <code class="notranslate">PluginSwitch</code>, a chave que liga e desliga cada plugin.</li>
+<li><code class="notranslate">src/Portable/PetMenu.cs</code> — os itens do menu do pet que dependem dos plugins ligados.</li>
+<li><code class="notranslate">src/dotNet/Program.cs</code> — os argumentos <code class="notranslate">--mcp</code> e <code class="notranslate">--agent=</code>.</li>
+<li><code class="notranslate">src/lang/pt-BR.json</code> — os textos de todos os cartões e opções (<code class="notranslate">plug.*</code>, <code class="notranslate">int.*</code>, <code class="notranslate">opt.claude*</code>, <code class="notranslate">agent.*</code>, <code class="notranslate">agents.*</code>, <code class="notranslate">mcp.*</code>, <code class="notranslate">claude.*</code>).</li>
+</ul>
+  </main>
+</div>
+<footer class="rodape">
+  <p>O <strong>Meu Pet</strong> é um bichinho de área de trabalho para Windows 10 e 11.
+  <a href="https://github.com/lfeliipeadv-stack/meu-pet">Ver no GitHub</a></p>
+</footer>
+</body>
+</html>

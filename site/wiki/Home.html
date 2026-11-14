@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Home — Wiki do Meu Pet</title>
+<link rel="icon" href="../img/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body class="wiki">
+<header class="topo">
+  <a class="volta" href="../">&larr; Voltar para a página do Meu Pet</a>
+  <span class="marca">Wiki do Meu Pet</span>
+</header>
+<div class="layout">
+  <nav class="lateral">
+    <p class="lateral-titulo">Páginas</p>
+    <ul>
+<li class="on"><a href="Home.html">Home</a></li><li><a href="Instalacao.html">Instalação</a></li><li><a href="Primeiros-passos.html">Primeiros passos</a></li><li><a href="Painel-de-pets.html">Painel de pets</a></li><li><a href="Pergunte-ao-pet.html">Pergunte ao pet</a></li><li><a href="Lembretes-e-Pomodoro.html">Lembretes e Pomodoro</a></li><li><a href="Agenda-e-e-mails.html">Agenda e e-mails</a></li><li><a href="Pet-virtual-e-brinquedos.html">Pet virtual e brincadeiras</a></li><li><a href="Plugins-e-integracoes.html">Plugins e integrações</a></li><li><a href="Crie-o-seu-pet.html">Crie o seu pet</a></li><li><a href="Atalhos-e-comandos.html">Atalhos e comandos</a></li><li><a href="Para-desenvolvedores.html">Para desenvolvedores</a></li><li><a href="Perguntas-frequentes.html">Perguntas frequentes</a></li><li><a href="Changelog.html">Changelog</a></li>
+    </ul>
+  </nav>
+  <main class="conteudo wiki-corpo">
+<h1>Meu Pet (desktopPet)</h1>
+<p><a href="Instalacao.html">Instalação</a> · <a href="Primeiros-passos.html">Primeiros passos</a> · <a href="Painel-de-pets.html">Painel de pets</a> · <a href="Pergunte-ao-pet.html">Pergunte ao pet</a> · <a href="Lembretes-e-pomodoro.html">Lembretes e Pomodoro</a> · <a href="Agenda-e-e-mails.html">Agenda e e-mails</a> · <a href="Pet-virtual-e-brinquedos.html">Pet virtual e brincadeiras</a> · <a href="Plugins-e-integracoes.html">Plugins e integrações</a> · <a href="Crie-o-seu-pet.html">Crie o seu pet</a> · <a href="Atalhos-e-comandos.html">Atalhos e comandos</a> · <a href="Para-desenvolvedores.html">Para desenvolvedores</a> · <a href="Perguntas-frequentes.html">Perguntas frequentes</a> · <a href="Changelog.html">Changelog</a></p>
+<p>O <strong>Meu Pet</strong> (o programa se chama <strong>desktopPet</strong>) é um bichinho que vive na sua área de trabalho do Windows: ele anda pelo topo das suas janelas, cai na barra de tarefas, dorme, dança e pode ser arrastado e arremessado com o mouse.</p>
+<h2>O que é</h2>
+<p>Escrito em C# (Windows Forms) sobre .NET 10, o Meu Pet é um executável único para Windows 10 e 11. A versão atual é a <strong>2.6.2</strong>: o <code class="notranslate">DesktopPet.exe</code> tem 2.750.643 bytes (cerca de 2,6 MB) e precisa do .NET 10 Desktop Runtime instalado; o <code class="notranslate">DesktopPet-completo.exe</code> (52.672.112 bytes, cerca de 50 MB) traz o runtime dentro e abre em qualquer Windows 10/11; e o <code class="notranslate">DesktopPet-Instalador.exe</code> (3.150.336 bytes) é o instalador em .NET Framework 4.8, que confere o runtime e cria os atalhos.</p>
+<p>O programa tem duas partes:</p>
+<ul>
+<li><strong>O pet</strong> — uma janela sem borda, sempre no topo e transparente, que se move quadro a quadro guiado por um arquivo XML de animações, com os sons embutidos no próprio arquivo.</li>
+<li><strong>O painel</strong> — a janela de Configurações, com barra lateral e oito páginas: <strong>Início</strong>, <strong>Pets</strong>, <strong>Lembretes</strong>, <strong>Assistente</strong>, <strong>Plugins</strong>, <strong>Integrações</strong>, <strong>Configurações</strong> e <strong>Sobre</strong>.</li>
+</ul>
+<h2>O que ele faz</h2>
+<h3>Na tela</h3>
+<ul>
+<li>O pet anda sobre o topo das janelas e pela barra de tarefas, cai, quica nas bordas e perde o chão quando a janela em que estava é fechada ou coberta.</li>
+<li>Você o arrasta com o botão esquerdo: ao soltar com força, ele é arremessado e volta a andar sozinho.</li>
+<li><strong>Botão do meio</strong> sobre o pet abre o seletor de animações ("Animações de {0}"), com busca e o contador de animações do pet.</li>
+<li><strong>Botão direito</strong> sobre o pet abre o menu dele: brincadeiras, Foco (Pomodoro), lembretes, atalhos, Timer, notas, agenda e o resto.</li>
+<li><strong>Ctrl+Alt+P</strong> (a opção "Esconder pets com Ctrl+Alt+P") esconde todos os pets e os sons, de qualquer programa, e mostra de novo.</li>
+<li>Os sons são MP3 que já vêm dentro do arquivo do pet e tocam pela API de multimídia do Windows.</li>
+</ul>
+<h3>No painel</h3>
+<ul>
+<li>A galeria tem duas abas: <strong>Meus pets</strong> (o que já está no computador) e <strong>Baixar pets</strong> (o que está publicado no repositório). O <code class="notranslate">Pets/pets.json</code> do repositório lista hoje 16 pets, entre eles o eSheep original, o Pingus, as sete ovelhas coloridas e os pets criados pelo autor.</li>
+<li>Antes de baixar, o programa mostra o tamanho do arquivo; durante o download, o botão vira barra de progresso e pode ser cancelado ou repetido.</li>
+<li>O botão <strong>Criar meu pet</strong> transforma as suas imagens (PNG, GIF, JPG) em um pet que anda, dorme e cai como os outros.</li>
+<li>Exportar e importar pets, tema claro/escuro/automático, idioma, inicialização com o Windows e tamanho 1×, 2× ou 4×.</li>
+</ul>
+<h3>Na sua rotina</h3>
+<ul>
+<li><strong>22 plugins</strong> na página Plugins, todos desligados até você ligar: Clima, Lembretes, Agenda, E-mails do Outlook, Foco (Pomodoro), Cuidar de você, Como estou hoje, Pet virtual, Pets se cumprimentam, Brincadeiras, Monitor do PC, Reações ao computador, Atalhos, Notas e tarefas, Tela cheia e Não perturbe, Avisos, Área de transferência, Música e jogos, Visitas, Empurrar janelas, Timer e Memória.</li>
+<li><strong>Lembretes</strong>: quatro prontos (beber água, alongar, descanso dos olhos e pausa do almoço) e outros criados à mão, por frase ("me lembra de ligar para a Ana às 15h"), lidos no próprio computador, sem depender de IA.</li>
+<li><strong>Foco (Pomodoro)</strong>: durante o bloco de foco o pet cala a voz e os sons e guarda os avisos para depois.</li>
+</ul>
+<h3>Conversando com o pet</h3>
+<ul>
+<li>O item <strong>Perguntar ao pet…</strong> (botão direito no pet, ou os botões que aparecem ao passar o mouse) abre uma caixinha de conversa em balão sobre o pet.</li>
+<li>O programa responde sozinho as perguntas de rotina — lembretes, clima, próxima reunião, estado do computador — mesmo sem nenhuma IA configurada.</li>
+<li>Para perguntas livres você liga um serviço de IA na página <strong>Assistente</strong>: Ollama (roda no seu computador, sem chave), Google Gemini, Groq, OpenRouter ou outro compatível com o formato da OpenAI. A chave fica gravada com criptografia do Windows (DPAPI), no escopo do seu usuário.</li>
+<li>A página <strong>Integrações</strong> liga o pet ao Claude Code: por <em>hooks</em> o pet reage ("pensando", "editando", "pronto") e por MCP o Claude pode falar pelo balão do pet.</li>
+</ul>
+<h2>Se você quer… vá para…</h2>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Se você quer…</th>
+<th>Vá para</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Instalar o programa no Windows</td>
+<td><a href="Instalacao.html">Instalação</a></td>
+</tr>
+<tr>
+<td>Saber o que fazer depois de instalar</td>
+<td><a href="Primeiros-passos.html">Primeiros passos</a></td>
+</tr>
+<tr>
+<td>Escolher, baixar ou adotar um pet</td>
+<td><a href="Painel-de-pets.html">Painel de pets</a></td>
+</tr>
+<tr>
+<td>Conversar com o pet e configurar a IA</td>
+<td><a href="Pergunte-ao-pet.html">Pergunte ao pet</a></td>
+</tr>
+<tr>
+<td>Criar lembretes, focar com Pomodoro e usar o Timer</td>
+<td><a href="Lembretes-e-pomodoro.html">Lembretes e Pomodoro</a></td>
+</tr>
+<tr>
+<td>Ligar a agenda do Google/Outlook e o e-mail do Outlook</td>
+<td><a href="Agenda-e-e-mails.html">Agenda e e-mails</a></td>
+</tr>
+<tr>
+<td>Dar comida, fazer carinho, brincar e ver as brincadeiras</td>
+<td><a href="Pet-virtual-e-brinquedos.html">Pet virtual e brincadeiras</a></td>
+</tr>
+<tr>
+<td>Saber quais plugins existem e integrar com o Claude Code</td>
+<td><a href="Plugins-e-integracoes.html">Plugins e integrações</a></td>
+</tr>
+<tr>
+<td>Fazer um pet com as suas próprias imagens</td>
+<td><a href="Crie-o-seu-pet.html">Crie o seu pet</a></td>
+</tr>
+<tr>
+<td>Ver todos os atalhos de teclado e de mouse</td>
+<td><a href="Atalhos-e-comandos.html">Atalhos e comandos</a></td>
+</tr>
+<tr>
+<td>Compilar, publicar uma release ou rodar o autoteste</td>
+<td><a href="Para-desenvolvedores.html">Para desenvolvedores</a></td>
+</tr>
+<tr>
+<td>Tirar uma dúvida sobre o programa</td>
+<td><a href="Perguntas-frequentes.html">Perguntas frequentes</a></td>
+</tr>
+<tr>
+<td>Saber o que mudou em cada versão</td>
+<td><a href="Changelog.html">Changelog</a></td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<h2>Galeria de telas</h2>
+<p><a target="_blank" rel="noopener noreferrer" href="images/home.png"><img src="images/home.png" alt="Página Início do painel, com o cartão do pet em uso e os números do dia" style="max-width: 100%;"></a><br>
+<em>Página Início: o pet em uso, o estado dele e os números do dia (foco, pausas, lembretes e humor).</em></p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/pets.png"><img src="images/pets.png" alt="Página Pets do painel, com os cartões dos pets do computador" style="max-width: 100%;"></a><br>
+<em>Galeria de pets: cada cartão mostra o ícone em pixel art, o autor e o selo ("Em uso", "Novo" ou "Atualização").</em></p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/plugins.png"><img src="images/plugins.png" alt="Página Plugins do painel, com os cartões dos recursos e o botão Configurar" style="max-width: 100%;"></a><br>
+<em>Os 22 plugins, em cartões, com o botão que liga e desliga cada um.</em></p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/chat.png"><img src="images/chat.png" alt="Caixinha de conversa sobre o pet, com as perguntas e respostas em balões" style="max-width: 100%;"></a><br>
+<em>A conversa em balão: as perguntas ficam à direita, as respostas do pet à esquerda.</em></p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/bubble.png"><img src="images/bubble.png" alt="Balão de fala do pet com os botões Feito e Daqui a 10 min" style="max-width: 100%;"></a><br>
+<em>O balão de fala que acompanha o pet pela tela e oferece até dois botões de ação.</em></p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/pet-menu.png"><img src="images/pet-menu.png" alt="Menu de contexto do pet, com as barras de necessidades e os itens do menu" style="max-width: 100%;"></a><br>
+<em>O menu do botão direito no pet: necessidades do pet virtual, brincadeiras, foco, lembretes, atalhos e Timer.</em></p>
+<h2>Este Wiki é feito pela comunidade</h2>
+<p>Este Wiki não é uma documentação oficial da Microsoft nem do autor do programa: <strong>foi escrito pela comunidade</strong>, a partir do código-fonte do repositório <a href="https://github.com/lfeliipeadv-stack/meu-pet"><code class="notranslate">lfeliipeadv-stack/meu-pet</code></a> e do que dá para ver funcionando no programa. Qualquer pessoa pode corrigir, completar e ampliar.</p>
+<p>Como contribuir:</p>
+<ul>
+<li><strong>Corrigir ou completar uma página</strong> — no topo de cada página do Wiki há o botão <em>Edit</em>; a alteração vai como <em>pull request</em> no repositório do Wiki e é revisada antes de publicar.</li>
+<li><strong>Sugerir uma mudança no programa</strong> — abra uma <em>issue</em> em <a href="https://github.com/lfeliipeadv-stack/meu-pet/issues">github.com/lfeliipeadv-stack/meu-pet/issues</a> descrevendo o que você esperava e o que aconteceu.</li>
+<li><strong>Publicar um pet na galeria</strong> — o pet é uma pasta em <code class="notranslate">Pets/</code> com <code class="notranslate">animations.xml</code>, <code class="notranslate">icon.png</code>, <code class="notranslate">preview.gif</code> e o <code class="notranslate">README.md</code>; depois rode <code class="notranslate">Tools/update-pets-json.ps1</code> para que ele entre no <code class="notranslate">Pets/pets.json</code> e apareça na aba "Baixar pets".</li>
+<li><strong>Traduzir ou ajustar um texto</strong> — os textos vivem em <code class="notranslate">src/lang/*.json</code> (<code class="notranslate">pt-BR.json</code> e <code class="notranslate">es.json</code> hoje); o inglês embutido no código é a reserva para qualquer chave que falte.</li>
+<li><strong>Ajudar nas capturas de tela</strong> — o comando <code class="notranslate">DesktopPet.exe --snapshot=&lt;pasta&gt;</code> grava as telas do programa para uso nas páginas.</li>
+</ul>
+<p>Se algo aqui estiver errado ou desatualizado, prefira conferir no código: os caminhos citados na seção "Onde fica no código" são a referência para isso.</p>
+<h2>Ver também</h2>
+<ul>
+<li><a href="Primeiros-passos.html">Primeiros passos</a></li>
+<li><a href="Painel-de-pets.html">Painel de pets</a></li>
+<li><a href="Pergunte-ao-pet.html">Pergunte ao pet</a></li>
+<li><a href="Atalhos-e-comandos.html">Atalhos e comandos</a></li>
+<li><a href="Para-desenvolvedores.html">Para desenvolvedores</a></li>
+</ul>
+<h2>Onde fica no código</h2>
+<ul>
+<li><code class="notranslate">src/DesktopPet.Net.csproj</code> — projeto SDK-style .NET 10 (<code class="notranslate">net10.0-windows</code>), WinForms, <code class="notranslate">win-x64</code></li>
+<li><code class="notranslate">src/Properties/AssemblyInfoPortable.cs</code> — versão do programa (2.6.2.0)</li>
+<li><code class="notranslate">src/lang/pt-BR.json</code> — todos os textos em português do Brasil</li>
+<li><code class="notranslate">src/lang/es.json</code> — textos em espanhol</li>
+<li><code class="notranslate">src/Portable/FormSettings.cs</code> — janela do painel (barra lateral e páginas)</li>
+<li><code class="notranslate">src/Portable/FormSettings.Sidebar.cs</code> — ordem das páginas da barra lateral</li>
+<li><code class="notranslate">src/Portable/FormSettings.Home.cs</code> — página Início</li>
+<li><code class="notranslate">src/Portable/FormSettings.Pets.cs</code> e <code class="notranslate">src/Portable/FormSettings.PetsView.cs</code> — galeria de pets e painel de detalhes</li>
+<li><code class="notranslate">src/Portable/FormSettings.Plugins.cs</code> — página de plugins</li>
+<li><code class="notranslate">src/Portable/FormSettings.Options.cs</code> — página de Configurações (seções "Pet" e "Programa")</li>
+<li><code class="notranslate">src/Portable/FormSettings.About.cs</code> — página Sobre</li>
+<li><code class="notranslate">src/Portable/PetMenu.cs</code> — menu de contexto do pet</li>
+<li><code class="notranslate">src/dotNet/ContextMenus.cs</code> — menu do ícone da bandeja</li>
+<li><code class="notranslate">src/dotNet/FormAnimPicker.cs</code> — seletor de animações (botão do meio)</li>
+<li><code class="notranslate">src/dotNet/FormPet.cs</code> e <code class="notranslate">src/dotNet/FormPet.Motion.cs</code> — motor do pet (movimento, bordas, queda, arremesso)</li>
+<li><code class="notranslate">src/dotNet/Xml.cs</code> e <code class="notranslate">src/LocalData/AnimationXML.cs</code> — leitura do <code class="notranslate">animations.xml</code> do pet</li>
+<li><code class="notranslate">src/dotNet/Animations.cs</code> e <code class="notranslate">src/dotNet/Mp3Player.cs</code> — animações e sons (API MCI do Windows)</li>
+<li><code class="notranslate">src/Portable/HideHotkey.cs</code> — atalhos globais (Ctrl+Alt+P e o atalho de perguntar)</li>
+<li><code class="notranslate">src/Portable/Chat.cs</code>, <code class="notranslate">src/Portable/AiAssistant.cs</code>, <code class="notranslate">src/Portable/FormAi.cs</code> — conversa com o pet e serviços de IA</li>
+<li><code class="notranslate">src/Portable/ClaudeHooks.cs</code>, <code class="notranslate">src/Portable/ClaudeMcp.cs</code>, <code class="notranslate">src/Portable/McpServer.cs</code>, <code class="notranslate">src/Portable/AgentBridge.cs</code> — integração com o Claude Code</li>
+<li><code class="notranslate">src/Portable/PetCreator.cs</code> — criador de pets</li>
+<li><code class="notranslate">src/Portable/SelfTest.cs</code> — autoteste (<code class="notranslate">--selftest</code>)</li>
+<li><code class="notranslate">Pets/pets.json</code> — índice da galeria de pets</li>
+<li><code class="notranslate">Tools/release.ps1</code> — publicação das releases</li>
+</ul>
+  </main>
+</div>
+<footer class="rodape">
+  <p>O <strong>Meu Pet</strong> é um bichinho de área de trabalho para Windows 10 e 11.
+  <a href="https://github.com/lfeliipeadv-stack/meu-pet">Ver no GitHub</a></p>
+</footer>
+</body>
+</html>

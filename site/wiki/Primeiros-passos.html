@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Primeiros passos — Wiki do Meu Pet</title>
+<link rel="icon" href="../img/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body class="wiki">
+<header class="topo">
+  <a class="volta" href="../">&larr; Voltar para a página do Meu Pet</a>
+  <span class="marca">Wiki do Meu Pet</span>
+</header>
+<div class="layout">
+  <nav class="lateral">
+    <p class="lateral-titulo">Páginas</p>
+    <ul>
+<li><a href="Home.html">Home</a></li><li><a href="Instalacao.html">Instalação</a></li><li class="on"><a href="Primeiros-passos.html">Primeiros passos</a></li><li><a href="Painel-de-pets.html">Painel de pets</a></li><li><a href="Pergunte-ao-pet.html">Pergunte ao pet</a></li><li><a href="Lembretes-e-Pomodoro.html">Lembretes e Pomodoro</a></li><li><a href="Agenda-e-e-mails.html">Agenda e e-mails</a></li><li><a href="Pet-virtual-e-brinquedos.html">Pet virtual e brincadeiras</a></li><li><a href="Plugins-e-integracoes.html">Plugins e integrações</a></li><li><a href="Crie-o-seu-pet.html">Crie o seu pet</a></li><li><a href="Atalhos-e-comandos.html">Atalhos e comandos</a></li><li><a href="Para-desenvolvedores.html">Para desenvolvedores</a></li><li><a href="Perguntas-frequentes.html">Perguntas frequentes</a></li><li><a href="Changelog.html">Changelog</a></li>
+    </ul>
+  </nav>
+  <main class="conteudo wiki-corpo">
+<h1>Primeiros passos</h1>
+<p><a href="Home.html">Home</a> · <a href="Instalacao.html">Instalação</a> · <a href="Painel-de-pets.html">Painel de pets</a> · <a href="Pergunte-ao-pet.html">Pergunte ao pet</a> · <a href="Lembretes-e-pomodoro.html">Lembretes e pomodoro</a> · <a href="Agenda-e-e-mails.html">Agenda e e-mails</a> · <a href="Pet-virtual-e-brinquedos.html">Pet virtual e brincadeiras</a> · <a href="Plugins-e-integracoes.html">Plugins e integrações</a> · <a href="Crie-o-seu-pet.html">Crie o seu pet</a> · <a href="Atalhos-e-comandos.html">Atalhos e comandos</a> · <a href="Para-desenvolvedores.html">Para desenvolvedores</a> · <a href="Perguntas-frequentes.html">Perguntas frequentes</a> · <a href="Changelog.html">Changelog</a></p>
+<p>Este é o tour do programa depois de instalar: o que acontece na primeira execução, como escolher e adotar um pet, como mexer com o mouse nele, o que fica na bandeja do sistema, como é a janela de Configurações e o que o pet conta quando o programa é atualizado.</p>
+<h2>A primeira execução</h2>
+<h3>O pet chega do céu</h3>
+<p>Na primeira vez que o programa abre, o primeiro pet <strong>cai do céu</strong> (a animação de queda do próprio <code class="notranslate">animations.xml</code>) e espera pousar. O programa acompanha o pouso: quando o pet fica em cima de alguma coisa por um instante, ele para e se apresenta.</p>
+<p>O Painel (a janela de Configurações) <strong>não</strong> abre sozinho nessa hora. Ele é aberto depois, pelo item <strong>Abrir &amp;Painel</strong> do ícone da bandeja ou pelo botão direito no pet (<strong>Abrir Painel</strong>). A página <strong>Início</strong> mostra o nome do pet em uso, a linha de estado ("Pronto para te fazer companhia.") e os números do dia (Foco hoje, Pausas, Lembretes e Humor).</p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/home.png"><img src="images/home.png" alt="Página Início do painel, com o cartão do pet em uso e os números do dia" style="max-width: 100%;"></a></p>
+<p><em>Página Início: o nome do pet em uso, a linha de estado e os botões Trocar pet, Perguntar e Adicionar outro.</em></p>
+<h3>A apresentação</h3>
+<p>Depois de pousar, o pet se apresenta em balões. O primeiro diz:</p>
+<blockquote>
+<p>Oi! Eu sou {0}. Posso te mostrar o que eu sei fazer? Leva um minutinho.</p>
+</blockquote>
+<p>Com os botões <strong>Mostrar</strong> (começa o tour) e <strong>Agora não</strong> (pula tudo). Se você escolher mostrar, vêm mais cinco passos, um por balão:</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Passo</th>
+<th>O que o balão diz</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>"Clique com o botão direito em mim para abrir meu menu: brincadeiras, foco, lembretes, atalhos e mais."</td>
+</tr>
+<tr>
+<td>2</td>
+<td>"Você pode me arrastar com o mouse e me soltar. O botão do meio (rodinha) escolhe uma das minhas animações."</td>
+</tr>
+<tr>
+<td>3</td>
+<td>"Eu te lembro de beber água e fazer pausas (Lembretes), e te faço companhia enquanto você foca (Pomodoro)."</td>
+</tr>
+<tr>
+<td>4</td>
+<td>"Em reunião? Ctrl+Alt+P me esconde e me deixa em silêncio. Aperte de novo para eu voltar."</td>
+</tr>
+<tr>
+<td>5</td>
+<td>"Passe o mouse em mim e clique em "Perguntar" para conversar: lembretes, clima e agenda já funcionam. Para perguntas livres, configure a IA (é grátis)."</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>O quinto passo muda um pouco conforme o seu programa:</p>
+<ul>
+<li><strong>Com IA configurada e atalho de pergunta ligado</strong> — "Passe o mouse em mim e clique em "Perguntar" (ou aperte {0}) para me perguntar qualquer coisa.", com {0} sendo o atalho escolhido.</li>
+<li><strong>Com IA configurada e sem atalho</strong> — "Passe o mouse em mim e clique em "Perguntar" para me perguntar qualquer coisa. Nas configurações você também pode ligar um atalho de teclado para isso."</li>
+<li><strong>Sem IA</strong> — o balão é o texto original e o botão vira <strong>Configurar a IA</strong>, que abre a página Assistente.</li>
+</ul>
+<p>O botão de avançar é <strong>Próximo (n/5)</strong> e o último balão traz <strong>Entendi!</strong>; em qualquer passo dá para pular com <strong>Pular</strong>. Durante a apresentação os pets ficam parados onde estão.</p>
+<p><strong>Para ver a apresentação de novo:</strong> Painel → <strong>Configurações</strong> → seção <strong>Programa</strong> → <strong>Apresentação</strong> → botão <strong>Mostrar</strong>.</p>
+<h3>Os quatro lembretes prontos</h3>
+<p>Na primeira execução o programa também cria quatro lembretes de exemplo, <strong>todos desligados</strong> para você escolher:</p>
+<ul>
+<li>"Hora de beber água! 💧" — a cada 60 min, das 9h às 18h, seg a sex</li>
+<li>"Vamos alongar um pouco? Levante e se mexa!" — a cada 90 min, das 9h às 18h, seg a sex</li>
+<li>"Descanse os olhos: olhe para algo longe por 20 segundos." — a cada 30 min, das 9h às 18h, seg a sex</li>
+<li>"Hora do almoço! Faça uma pausa de verdade." — todo dia às 12:00, seg a sex</li>
+</ul>
+<p>Eles ficam na página <strong>Lembretes</strong> do painel, com o interruptor de cada um ao lado. Os detalhes estão em <a href="Lembretes-e-pomodoro.html">Lembretes e pomodoro</a>.</p>
+<h2>Escolher um pet e adotar</h2>
+<p>O único pet que vem dentro do executável é o <strong>eSheep</strong> original. Todo o resto vem da galeria publicada no repositório, e o caminho é o mesmo para todos.</p>
+<h3>Os passos</h3>
+<ol>
+<li><strong>Abra o Painel</strong> — botão direito no pet → <strong>Abrir Painel</strong>, ou o item <strong>Abrir &amp;Painel</strong> do ícone da bandeja. Ou o botão <strong>＋ Adicionar pet</strong> no rodapé da barra lateral, que adiciona outro pet da mesma jeito.</li>
+<li><strong>Vá até a página Pets</strong> (segundo item da barra lateral).</li>
+<li><strong>Escolha a aba</strong>: <strong>Meus pets</strong> (o que já está no computador) ou <strong>Baixar pets</strong> (o que está na galeria do GitHub). Cada aba mostra a contagem entre parênteses.</li>
+<li><strong>Clique no cartão</strong> do pet. Abre à direita o painel de detalhes, com a prévia animada, o nome, "por {autor}", "Atualizado em {data}" e três caixas: <strong>animações</strong>, <strong>sons</strong> e <strong>visuais</strong>.</li>
+<li><strong>Baixe, se precisar.</strong> O botão vira "Baixar (850 KB)" — o tamanho é o do arquivo <code class="notranslate">animations.xml</code>. Durante o download o próprio botão vira barra de progresso ("Baixando… 42%") e há um ✕ para cancelar.</li>
+<li><strong>Adote.</strong> O botão principal vira <strong>Adotar este pet</strong> e o pet substitui o anterior na tela. Na hora, o novo pet diz "Oi! Eu sou {0}. Prazer em te conhecer!".</li>
+</ol>
+<p><a target="_blank" rel="noopener noreferrer" href="images/pets.png"><img src="images/pets.png" alt="A galeria de pets, com os cartões e os selos Em uso e Atualização" style="max-width: 100%;"></a></p>
+<p><em>Aba Meus pets: cada cartão mostra o ícone em pixel art, o nome, o autor e um selo no canto — "Em uso", "Novo" ou "Atualização".</em></p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/pets-detail.png"><img src="images/pets-detail.png" alt="O painel de detalhes de um pet, com a prévia animada e o botão de ação" style="max-width: 100%;"></a></p>
+<p><em>O painel de detalhes à direita: prévia animada, autor, data de atualização, o botão principal e as três caixas de estatísticas.</em></p>
+<p><strong>Atalhos da galeria:</strong> <strong>Ctrl+F</strong> dentro da página Pets leva o cursor para o campo "Buscar pet ou autor…"; <strong>Esc</strong> fecha o painel de detalhes (e, se ele já estiver fechado, fecha a janela); <strong>duplo clique num cartão</strong> já executa a ação principal dele, sem abrir os detalhes — baixar o arquivo, adotar o pet, ou, se for o pet que já está em uso, colocar mais uma cópia na tela.</p>
+<h3>Os pets que já estão no computador</h3>
+<p>O arquivo <code class="notranslate">Pets/pets.json</code> na raiz do repositório é o índice da galeria. Os pets baixados ficam em <code class="notranslate">%LocalAppData%\DesktopPet\pets\&lt;pasta&gt;\animations.xml</code>, com um <code class="notranslate">version.txt</code> ao lado, e continuam funcionando sem internet. Sem conexão, a aba Baixar pets mostra uma faixa "Sem conexão com a internet" e só os pets do disco aparecem.</p>
+<p>Mais detalhes da galeria (selos, cores do grupo de ovelhas, download, remoção) estão em <a href="Painel-de-pets.html">Painel de pets</a>.</p>
+<h2>Mexer com o pet</h2>
+<h3>Arrastar e arremessar</h3>
+<p><strong>Botão esquerdo + arrastar</strong> pega o pet: ele passa para a animação "drag" e segue o cursor, com o cálculo de movimento reiniciado a cada tique. Ao soltar:</p>
+<ul>
+<li><strong>Soltar com força</strong> (velocidade maior que 5 na medição dos últimos 80 ms de arrasto) → o pet é <strong>arremessado</strong>: animação "toss" e física própria, com gravidade de 1,5 por passo de 30 ms. Ele bate nas bordas da tela e nas laterais das janelas, quica (a força horizontal é invertida e reduzida à metade) e ao aterrissar escolhe entre "fall soft" e "fall hard" conforme a velocidade vertical.</li>
+<li><strong>Soltar devagar</strong> → o pet simplesmente cai, com a animação "fall".</li>
+</ul>
+<p>Se você soltar o pet em outro monitor, ele passa a ficar naquele monitor.</p>
+<p><strong>Arrastar um arquivo <code class="notranslate">.xml</code> (ou um texto XML) sobre o pet</strong> troca o pet carregado por aquele arquivo.</p>
+<h3>Botão do meio: o seletor de animações</h3>
+<p><strong>Botão do meio</strong> (a rodinha) sobre o pet abre a janela <strong>"Animações de {nome do pet}"</strong>, com todas as animações do pet em blocos — cada bloco com um emoji e o nome, e o número da animação embaixo.</p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/anim-picker.png"><img src="images/anim-picker.png" alt="O seletor de animações, com a busca e a grade de animações do pet" style="max-width: 100%;"></a></p>
+<p><em>O seletor: busca "Buscar animação…", o contador "51 animações · clique em uma para ver" e a marca "tocando" na animação em execução.</em></p>
+<ul>
+<li><strong>Buscar animação…</strong> filtra por nome enquanto você digita. A janela abre sem o campo em foco (para o texto de ajuda aparecer), mas basta digitar qualquer tecla para a busca começar.</li>
+<li>Clicar num bloco toca a animação na hora; a janela fica aberta para você testar várias em sequência.</li>
+<li><strong>Esc</strong> fecha a janela.</li>
+</ul>
+<h3>Botão direito: o menu do pet</h3>
+<p><strong>Botão direito</strong> sobre o pet abre o menu dele, montado na hora. O primeiro item é o nome do pet (desativado, em negrito) e, se o Pet virtual estiver ligado, vêm as barras de necessidades e as ações <strong>Dar comida</strong>, <strong>Fazer carinho</strong>, <strong>Brincar</strong> e <strong>Deixar dormir</strong>.</p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/pet-menu.png"><img src="images/pet-menu.png" alt="O menu de contexto do pet, com as barras de necessidades e os itens do menu" style="max-width: 100%;"></a></p>
+<p><em>O menu do botão direito no pet: necessidades, brincadeiras, foco, lembretes, atalhos e, no fim, "Abrir Painel" e "Mandar este pet embora".</em></p>
+<p>Depois: <strong>Perguntar ao pet…</strong> (em negrito), <strong>Brincadeiras</strong>, <strong>Foco (Pomodoro)</strong>, <strong>Como está o tempo?</strong> (só com o clima ligado), <strong>Lembretes</strong>, <strong>Atalhos</strong>, <strong>Timer</strong>, <strong>📝 Notas e tarefas</strong>, <strong>📋 Últimas cópias</strong>, a linha da agenda ("Próximo: {0} {1}" ou "Nenhuma reunião nas próximas 24 h"), <strong>Como estou hoje?</strong>, <strong>Mostrar CPU e memória</strong>, e no fim <strong>Abrir Painel</strong> e <strong>Mandar este pet embora</strong>.</p>
+<p>Itens de plugins desligados (Brincadeiras, Foco, Lembretes, Atalhos, Notas, Timer) somem do menu. Enquanto o menu está aberto, todos os pets param de andar.</p>
+<p><strong>Para mandar um pet embora</strong>, use o item <strong>Mandar este pet embora</strong>, no fim do menu. (O código do projeto ainda tem, do eSheep original, um duplo clique com o botão direito que removeria o pet, mas hoje o primeiro clique já abre este menu e o duplo clique não chega a acontecer.)</p>
+<h2>A bandeja do sistema</h2>
+<p>O ícone do programa fica na bandeja, ao lado do relógio. O <strong>botão direito</strong> abre o menu principal:</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Item</th>
+<th>O que faz</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Abrir &amp;Painel</strong> (primeiro item, em negrito)</td>
+<td>Abre o painel na página Início. Vira "Abrir &amp;Painel (1 atualização)" quando há pet desatualizado.</td>
+</tr>
+<tr>
+<td><strong>&amp;Adicionar outro {nome do pet}</strong></td>
+<td>Põe mais um pet na tela (até 16).</td>
+</tr>
+<tr>
+<td><strong>&amp;Esconder pets</strong> / <strong>&amp;Mostrar pets</strong></td>
+<td>Esconde ou mostra todos os pets. Mostra o atalho Ctrl+Alt+P ao lado.</td>
+</tr>
+<tr>
+<td><strong>&amp;Lembretes</strong></td>
+<td>Submenu: "Lembrar daqui a {0} min" (5, 10, 15, 30 e 60 min), separador, "Lembrete por texto…", "Gerenciar lembretes…".</td>
+</tr>
+<tr>
+<td><strong>&amp;Instalar o programa...</strong></td>
+<td>Só na versão portátil. Vira "Reparar ou &amp;desinstalar..." quando o programa já está instalado.</td>
+</tr>
+<tr>
+<td><strong>&amp;Tocar sons</strong> / <strong>&amp;Sons de {nome do pet}</strong></td>
+<td>Liga e desliga o som do pet da tela.</td>
+</tr>
+<tr>
+<td><strong>&amp;Sobre</strong></td>
+<td>Abre a página Sobre do painel.</td>
+</tr>
+<tr>
+<td><strong>Aj&amp;uda</strong></td>
+<td>Abre a documentação do programa no navegador.</td>
+</tr>
+<tr>
+<td><strong>&amp;Remover o pet e fechar</strong></td>
+<td>Fecha o programa (na versão com pet: "&amp;Remover {nome do pet} e fechar").</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>Com o <strong>botão esquerdo</strong> no ícone da bandeja, os pets voltam para a frente de todas as janelas. <strong>Clique duplo</strong> no ícone da bandeja <strong>adiciona outro pet</strong>.</p>
+<h2>A janela de Configurações</h2>
+<p>O Painel é uma janela de 980×660 (mínimo 760×520) com barra lateral à esquerda (220 px) e oito páginas, nesta ordem:</p>
+<p><strong>Início</strong> · <strong>Pets</strong> · <strong>Lembretes</strong> · <strong>Assistente</strong> · <strong>Plugins</strong> · <strong>Integrações</strong> · <strong>Configurações</strong> · <strong>Sobre</strong></p>
+<p>No rodapé da barra lateral fica o botão <strong>＋ Adicionar pet</strong>.</p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/application.png"><img src="images/application.png" alt="A página Configurações, com a seção Pet e as opções do pet" style="max-width: 100%;"></a></p>
+<p><em>A página Configurações, seção "Pet": as opções que mudam o jeito do pet andar e o volume dos sons.</em></p>
+<h3>A página Configurações</h3>
+<p>Ela é dividida em duas seções, <strong>Pet</strong> e <strong>Programa</strong>.</p>
+<p><strong>Seção Pet</strong></p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Opção</th>
+<th>O que faz</th>
+<th>Padrão</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Vários monitores</strong></td>
+<td>Deixa o pet aparecer e andar em todos os monitores, não só no principal.</td>
+<td>Desligado</td>
+</tr>
+<tr>
+<td><strong>Movimentos suaves</strong></td>
+<td>Suaviza o movimento entre um quadro e outro. Fica mais fluido, mas menos parecido com o andar em saltos do original.</td>
+<td>Desligado</td>
+</tr>
+<tr>
+<td><strong>Ficar acima da barra de tarefas</strong></td>
+<td>Impede que a barra de tarefas cubra o pet. Pode ficar mais difícil clicar no ícone da bandeja.</td>
+<td>Desligado</td>
+</tr>
+<tr>
+<td><strong>Trazer janelas para a frente</strong></td>
+<td>Como no eSheep original, traz para a frente a janela em que o pet pousa. Atrapalha o trabalho, por isso vem desligado.</td>
+<td>Desligado</td>
+</tr>
+<tr>
+<td><strong>Volume dos sons</strong></td>
+<td>Volume dos efeitos sonoros, se o pet tiver algum. Valor 0 silencia tudo.</td>
+<td>30 %</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p><strong>Seção Programa</strong></p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Opção</th>
+<th>O que faz</th>
+<th>Padrão</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Idioma</strong></td>
+<td>"Auto" segue o idioma do Windows. Os arquivos ficam na pasta <code class="notranslate">lang</code>, ao lado do programa.</td>
+<td>Auto</td>
+</tr>
+<tr>
+<td><strong>Tema</strong></td>
+<td>Automático, Claro ou Escuro. "Automático" segue o que está configurado no Windows.</td>
+<td>Automático</td>
+</tr>
+<tr>
+<td><strong>Iniciar com o Windows</strong></td>
+<td>Abre o programa (e os seus pets) automaticamente quando você entra no Windows.</td>
+<td>Desligado</td>
+</tr>
+<tr>
+<td><strong>Pets ao iniciar</strong></td>
+<td>Quantos pets aparecem quando o programa abre (de 1 a 16).</td>
+<td>1 pet</td>
+</tr>
+<tr>
+<td><strong>Tamanho do pet</strong></td>
+<td>1×, 2× ou 4×. O programa reinicia para aplicar.</td>
+<td>1×</td>
+</tr>
+<tr>
+<td><strong>Restaurar o pet original</strong></td>
+<td>Volta para a ovelha original que vem com o programa.</td>
+<td>ação pontual</td>
+</tr>
+<tr>
+<td><strong>Esconder pets com Ctrl+Alt+P</strong></td>
+<td>O atalho esconde todos os pets (e os sons) ou mostra de novo, de qualquer programa. Útil em reuniões.</td>
+<td>Ligado</td>
+</tr>
+<tr>
+<td><strong>Backup dos meus pets e configurações</strong></td>
+<td>Exporta tudo num arquivo <code class="notranslate">.desktoppet</code>.</td>
+<td>Exportar…</td>
+</tr>
+<tr>
+<td><strong>Importar pets</strong></td>
+<td>Traz de volta os pets de um arquivo exportado.</td>
+<td>Importar…</td>
+</tr>
+<tr>
+<td><strong>Criar meu pet</strong></td>
+<td>Transforma as suas próprias imagens (PNG, GIF, JPG) em um pet.</td>
+<td>Criar…</td>
+</tr>
+<tr>
+<td><strong>Janela de depuração</strong></td>
+<td>Mostra ao vivo o que o pet está fazendo. Também abre se você segurar CTRL ao iniciar o programa.</td>
+<td>Abrir</td>
+</tr>
+<tr>
+<td><strong>Apresentação</strong></td>
+<td>Mostra de novo o que o pet sabe fazer.</td>
+<td>Mostrar</td>
+</tr>
+<tr>
+<td><strong>Arquivos de registro</strong></td>
+<td>Avisos e erros dos últimos 7 dias.</td>
+<td>Abrir pasta</td>
+</tr>
+<tr>
+<td><strong>Instalar neste computador</strong></td>
+<td>Só na versão portátil. Copia o programa para a sua pasta de usuário e cria os atalhos.</td>
+<td>Abrir…</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<h3>Iniciar com o Windows</h3>
+<p>A chave liga um item em <code class="notranslate">HKCU\Software\Microsoft\Windows\CurrentVersion\Run</code> (sem precisar de administrador) apontando para o executável. O atalho antigo da pasta de inicialização do Windows é apagado, para o programa nunca abrir duas vezes. Se o Windows recusar a alteração, a barra de status da janela avisa: "O Windows não permitiu mudar a inicialização automática."</p>
+<h2>Esconder tudo na hora de uma reunião</h2>
+<p><strong>Ctrl+Alt+P</strong> (a opção "Esconder pets com Ctrl+Alt+P") esconde <strong>todos</strong> os pets e os sons, de qualquer programa, e mostra de novo no segundo aperto. O atalho é global, registrado no Windows, e vem ligado por padrão.</p>
+<p>Enquanto os pets estão escondidos, o pet também cala a boca: nenhum balão aparece, nenhum som toca e os recados que ele teria dado ficam guardados (até 30). Quando você mostra os pets de novo, o pet avisa "Durante o silêncio, chegou 1 aviso." (ou "Durante o silêncio, chegaram {0} avisos.") com os botões <strong>Mostrar</strong>, <strong>Próximo ({0})</strong> e <strong>Dispensar</strong>.</p>
+<p>O item da bandeja mostra o estado: "&amp;Esconder pets" quando eles estão na tela e "&amp;Mostrar pets" quando estão escondidos. A página Início do painel também muda a linha de estado para "Escondido (Ctrl+Alt+P para mostrar).".</p>
+<p>Se outro programa já estiver usando o Ctrl+Alt+P, o painel avisa na barra de status: "Ctrl+Alt+P já está sendo usado por outro programa."</p>
+<h2>O que o pet conta depois de uma atualização</h2>
+<p>Quando o programa é atualizado para uma versão nova, o pet avisa no balão com o resumo da versão:</p>
+<blockquote>
+<p>Novidades da versão {0}:</p>
+</blockquote>
+<p>seguido do texto escrito para aquela versão (2.6.0, 2.6.1, 2.6.2… — o que existir no arquivo de idioma). Os botões são <strong>Ver tudo</strong> (abre as notas completas da versão no GitHub) e <strong>OK</strong>.</p>
+<p>Esse aviso aparece cerca de 6 segundos depois de o programa abrir, e só quando a versão é realmente diferente da última rodada. Na primeira execução não é esse aviso que aparece, e sim a apresentação do pet.</p>
+<h2>Ver também</h2>
+<ul>
+<li><a href="Painel-de-pets.html">Painel de pets</a> — a galeria inteira: selos, cores, download, remoção e backup.</li>
+<li><a href="Instalacao.html">Instalação</a> — instalar, reparar e desinstalar, e as duas builds (.NET 10 e "completa").</li>
+<li><a href="Atalhos-e-comandos.html">Atalhos e comandos</a> — a lista completa de atalhos de teclado e de mouse.</li>
+<li><a href="Pergunte-ao-pet.html">Pergunte ao pet</a> — a conversa em balão e a configuração da IA.</li>
+<li><a href="Lembretes-e-pomodoro.html">Lembretes e pomodoro</a> — os lembretes prontos e o Foco (Pomodoro).</li>
+</ul>
+<h2>Onde fica no código</h2>
+<ul>
+<li><code class="notranslate">src/Portable/Onboarding.cs</code> — a apresentação (tour), a chegada do céu e o aviso de novidades.</li>
+<li><code class="notranslate">src/dotNet/StartUp.cs</code> — a criação dos pets no arranque (e o limite de 16).</li>
+<li><code class="notranslate">src/dotNet/FormPet.cs</code> — o mouse sobre o pet: arrasto, arremesso, botão do meio, botão direito e o <em>drop</em> de XML.</li>
+<li><code class="notranslate">src/dotNet/FormPet.Motion.cs</code> — a física do arremesso e a detecção de bordas.</li>
+<li><code class="notranslate">src/dotNet/MotionTrack.cs</code> — a classe <code class="notranslate">DragVelocity</code>, que mede a força do arremesso.</li>
+<li><code class="notranslate">src/dotNet/FormAnimPicker.cs</code> — o seletor de animações (botão do meio).</li>
+<li><code class="notranslate">src/Portable/PetMenu.cs</code> — o menu de contexto do pet.</li>
+<li><code class="notranslate">src/dotNet/ContextMenus.cs</code> — o menu do ícone da bandeja.</li>
+<li><code class="notranslate">src/dotNet/ProcessIcon.cs</code> — o ícone da bandeja (clique, clique duplo e menu).</li>
+<li><code class="notranslate">src/Portable/HideHotkey.cs</code> — o Ctrl+Alt+P e o atalho de perguntar.</li>
+<li><code class="notranslate">src/Portable/FormSettings.cs</code> — a janela do painel (barra lateral, páginas, Esc e Ctrl+F).</li>
+<li><code class="notranslate">src/Portable/FormSettings.Sidebar.cs</code> — a ordem das páginas e o botão "＋ Adicionar pet".</li>
+<li><code class="notranslate">src/Portable/FormSettings.Options.cs</code> — a página Configurações (seções "Pet" e "Programa").</li>
+<li><code class="notranslate">src/Portable/FormSettings.Pets.cs</code> e <code class="notranslate">src/Portable/FormSettings.PetsView.cs</code> — a galeria, o download e a adoção.</li>
+<li><code class="notranslate">src/Portable/Reminders.cs</code> — os quatro lembretes prontos da primeira execução.</li>
+<li><code class="notranslate">src/Portable/WindowsStartup.cs</code> — "Iniciar com o Windows".</li>
+<li><code class="notranslate">src/Portable/SpeechBubble.cs</code> — o balão de fala e o silêncio (que o Ctrl+Alt+P liga).</li>
+<li><code class="notranslate">src/lang/pt-BR.json</code> — os textos da interface citados nesta página.</li>
+</ul>
+  </main>
+</div>
+<footer class="rodape">
+  <p>O <strong>Meu Pet</strong> é um bichinho de área de trabalho para Windows 10 e 11.
+  <a href="https://github.com/lfeliipeadv-stack/meu-pet">Ver no GitHub</a></p>
+</footer>
+</body>
+</html>

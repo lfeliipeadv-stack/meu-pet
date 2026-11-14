@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Instalação — Wiki do Meu Pet</title>
+<link rel="icon" href="../img/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body class="wiki">
+<header class="topo">
+  <a class="volta" href="../">&larr; Voltar para a página do Meu Pet</a>
+  <span class="marca">Wiki do Meu Pet</span>
+</header>
+<div class="layout">
+  <nav class="lateral">
+    <p class="lateral-titulo">Páginas</p>
+    <ul>
+<li><a href="Home.html">Home</a></li><li class="on"><a href="Instalacao.html">Instalação</a></li><li><a href="Primeiros-passos.html">Primeiros passos</a></li><li><a href="Painel-de-pets.html">Painel de pets</a></li><li><a href="Pergunte-ao-pet.html">Pergunte ao pet</a></li><li><a href="Lembretes-e-Pomodoro.html">Lembretes e Pomodoro</a></li><li><a href="Agenda-e-e-mails.html">Agenda e e-mails</a></li><li><a href="Pet-virtual-e-brinquedos.html">Pet virtual e brincadeiras</a></li><li><a href="Plugins-e-integracoes.html">Plugins e integrações</a></li><li><a href="Crie-o-seu-pet.html">Crie o seu pet</a></li><li><a href="Atalhos-e-comandos.html">Atalhos e comandos</a></li><li><a href="Para-desenvolvedores.html">Para desenvolvedores</a></li><li><a href="Perguntas-frequentes.html">Perguntas frequentes</a></li><li><a href="Changelog.html">Changelog</a></li>
+    </ul>
+  </nav>
+  <main class="conteudo wiki-corpo">
+<h1>Instalação</h1>
+<p><a href="Home.html">Home</a> · <a href="Primeiros-passos.html">Primeiros passos</a> · <a href="Painel-de-pets.html">Painel de pets</a> · <a href="Pergunte-ao-pet.html">Pergunte ao pet</a> · <a href="Lembretes-e-pomodoro.html">Lembretes e Pomodoro</a> · <a href="Agenda-e-e-mails.html">Agenda e e-mails</a> · <a href="Pet-virtual-e-brinquedos.html">Pet virtual e brincadeiras</a> · <a href="Plugins-e-integracoes.html">Plugins e integrações</a> · <a href="Crie-o-seu-pet.html">Crie o seu pet</a> · <a href="Atalhos-e-comandos.html">Atalhos e comandos</a> · <a href="Para-desenvolvedores.html">Para desenvolvedores</a> · <a href="Perguntas-frequentes.html">Perguntas frequentes</a> · <a href="Changelog.html">Changelog</a></p>
+<p>O Meu Pet (desktopPet) roda em Windows 10 e 11 de 64 bits. Toda a instalação é feita dentro da sua conta: não é preciso ser administrador e nada é gravado fora da sua pasta de usuário.</p>
+<h2>Escolha o download</h2>
+<p>Os arquivos ficam na aba <strong>Releases</strong> do repositório: <a href="https://github.com/lfeliipeadv-stack/meu-pet/releases">https://github.com/lfeliipeadv-stack/meu-pet/releases</a>. A página do projeto (<a href="https://lfeliipeadv-stack.github.io/meu-pet/" rel="nofollow">https://lfeliipeadv-stack.github.io/meu-pet/</a>) tem um botão que aponta sempre para a versão mais recente.</p>
+<p>Cada release publica cinco arquivos. Na release 2.6.2:</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Arquivo</th>
+<th>Tamanho</th>
+<th>O que precisa</th>
+<th>Quando usar</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="notranslate">DesktopPet-Instalador.exe</code></td>
+<td>3.150.336 bytes (≈ 3 MB)</td>
+<td>Nada: é .NET Framework 4.8, que já vem no Windows 10 e 11</td>
+<td><strong>Recomendado.</strong> Confere o .NET 10, instala o programa e cria os atalhos</td>
+</tr>
+<tr>
+<td><code class="notranslate">DesktopPet.exe</code></td>
+<td>2.750.643 bytes (≈ 2,6 MB)</td>
+<td>.NET 10 Desktop Runtime (64 bits)</td>
+<td>Só o programa, para quem já tem o runtime instalado</td>
+</tr>
+<tr>
+<td><code class="notranslate">DesktopPet-completo.exe</code></td>
+<td>52.672.112 bytes (≈ 50,2 MB)</td>
+<td>Nada: o runtime vem embutido dentro do executável</td>
+<td>Para abrir em qualquer Windows 10/11 sem instalar nada antes</td>
+</tr>
+<tr>
+<td><code class="notranslate">lang.zip</code></td>
+<td>36.374 bytes</td>
+<td>—</td>
+<td>Idiomas extras. Português e espanhol já vêm embutidos no executável</td>
+</tr>
+<tr>
+<td><code class="notranslate">SHA256SUMS</code></td>
+<td>338 bytes</td>
+<td>—</td>
+<td>Conferência do download (veja <a href="#conferir-o-download">Conferir o download</a>)</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<h2>Instalar com o instalador (recomendado)</h2>
+<ol>
+<li>Baixe o <code class="notranslate">DesktopPet-Instalador.exe</code> e abra com dois cliques.</li>
+<li><strong>Passo 1 — ".NET 10 Desktop Runtime".</strong> O instalador procura o runtime no computador. Se achar, aparece <em>"O .NET 10 já está instalado neste computador. Tudo pronto!"</em>. Se faltar, o botão <strong>"Instalar o .NET 10"</strong> baixa o instalador oficial da Microsoft e o abre; o botão <strong>"Instalar"</strong> continua desabilitado até o runtime ser encontrado, e o instalador reconfere a cada 3 segundos.</li>
+<li><strong>Passo 2 — "Atalhos".</strong> Três caixas: <strong>"Menu Iniciar"</strong> e <strong>"Área de trabalho"</strong> já vêm marcadas, <strong>"Iniciar com o Windows"</strong> vem desmarcada.</li>
+<li><strong>"Instalar".</strong> O programa é copiado para <code class="notranslate">%LocalAppData%\DesktopPet</code>, os atalhos <code class="notranslate">.url</code> são criados, o <code class="notranslate">uninstall.cmd</code> e a entrada de desinstalação no registro (<code class="notranslate">HKCU\Software\Microsoft\Windows\CurrentVersion\Uninstall\DesktopPet</code>) são gravados, e o programa é aberto. A confirmação é: <em>"Pronto! O desktopPet foi instalado e já está aberto. Procure o ícone perto do relógio."</em></li>
+</ol>
+<p>Nada disso pede privilégio de administrador: a dica da própria tela é <em>"Instala só para você, sem precisar de administrador."</em></p>
+<h2>Aviso do Windows sobre editor desconhecido</h2>
+<p>As releases <strong>não são assinadas digitalmente</strong> — a garantia de integridade é o hash SHA-256 publicado junto dos arquivos. Por isso o Windows pode mostrar o aviso de que o editor é desconhecido (<em>"O Windows protegeu seu PC"</em>). O caminho é: clique em <strong>"Mais informações"</strong> e depois em <strong>"Executar assim mesmo"</strong>.</p>
+<h3>Conferir o download</h3>
+<p>O arquivo <code class="notranslate">SHA256SUMS</code> da release traz uma linha por artefato, no formato <code class="notranslate">hash  nome</code>. Para conferir, abra um Prompt de Comando na pasta do download e rode <code class="notranslate">certutil -hashfile DesktopPet.exe SHA256</code> — o resultado tem que ser igual ao hash da linha correspondente do <code class="notranslate">SHA256SUMS</code>. É a mesma conferência que o próprio programa faz antes de trocar o executável por uma versão nova.</p>
+<h2>Instalar o .exe que precisa do .NET 10</h2>
+<ol>
+<li>Instale o <strong>.NET 10 Desktop Runtime</strong> (64 bits) da Microsoft: <a href="https://dotnet.microsoft.com/download/dotnet/10.0" rel="nofollow">https://dotnet.microsoft.com/download/dotnet/10.0</a>.</li>
+<li>Baixe o <code class="notranslate">DesktopPet.exe</code> e abra com dois cliques.</li>
+</ol>
+<p>O programa abre direto, sem instalar nada, e mostra o pet na tela. Para criar os atalhos e a entrada de desinstalação, use <strong>"Instalar o programa..."</strong> no menu do ícone da bandeja (veja <a href="#instalar-a-partir-do-pr%C3%B3prio-programa">Instalar a partir do próprio programa</a>).</p>
+<h2>Usar a versão completa</h2>
+<p>O <code class="notranslate">DesktopPet-completo.exe</code> traz o runtime do .NET dentro dele (build <em>self-contained</em>): é bem maior, mas abre em qualquer Windows 10/11, sem instalar o .NET e sem precisar de internet para isso. Ele também não cria atalhos sozinho — para isso, use <strong>"Instalar o programa..."</strong> na bandeja.</p>
+<h2>Instalar a partir do próprio programa</h2>
+<p>Quem baixou apenas o executável pode instalar pelo próprio programa, sem baixar o instalador separado:</p>
+<ul>
+<li><strong>Menu do ícone da bandeja</strong> → <strong>"Instalar o programa..."</strong> — ou <strong>"Reparar ou desinstalar..."</strong>, quando o programa já está instalado.</li>
+<li><strong>Painel</strong> → <strong>Configurações</strong> → seção "Programa" → <strong>"Instalar neste computador"</strong> (o rótulo vira <strong>"Reparar ou desinstalar"</strong> depois de instalado) → botão <strong>"Abrir…"</strong>.</li>
+</ul>
+<p><a target="_blank" rel="noopener noreferrer" href="images/win-install.png"><img src="images/win-install.png" alt="Tela de instalação do programa, com o texto da licença e o botão Aceitar" style="max-width: 100%;"></a></p>
+<p><em>A tela de instalação do próprio programa começa pelo texto da licença e o botão "Aceitar". O texto legal fica em inglês de propósito, mesmo com o programa em português.</em></p>
+<p>Na segunda etapa aparecem as três caixas — <strong>"Criar atalho no Menu Iniciar"</strong>, <strong>"Criar atalho na Área de Trabalho"</strong> e <strong>"Abrir junto com o Windows"</strong> — e uma barra de progresso. Já instalado, a tela mostra <strong>"Atualizar"</strong> (recria ou apaga os atalhos conforme as caixas) e <strong>"Desinstalar"</strong>.</p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/application.png"><img src="images/application.png" alt="Página de Configurações do painel, com a seção de opções do pet" style="max-width: 100%;"></a></p>
+<p><em>Na página "Configurações" do painel ficam as opções do pet e do programa, entre elas "Instalar neste computador".</em></p>
+<h2>O que o instalador confere</h2>
+<p>O instalador (<code class="notranslate">Tools/Setup</code>, em .NET Framework 4.8) procura o <strong>.NET 10 Desktop Runtime de 64 bits</strong> — o <code class="notranslate">Microsoft.WindowsDesktop.App</code> versão 10.x — em quatro lugares:</p>
+<ol>
+<li>a pasta <code class="notranslate">shared\Microsoft.WindowsDesktop.App</code> dentro de <code class="notranslate">DOTNET_ROOT</code>;</li>
+<li><code class="notranslate">%ProgramFiles%\dotnet</code>;</li>
+<li><code class="notranslate">C:\Program Files\dotnet</code>;</li>
+<li>o registro <code class="notranslate">HKLM\SOFTWARE\dotnet\Setup\InstalledVersions\x64\sharedfx\Microsoft.WindowsDesktop.App</code>, procurando uma chave que comece com <code class="notranslate">10.</code>.</li>
+</ol>
+<p>Enquanto o runtime não for encontrado, o botão <strong>"Instalar"</strong> fica desabilitado. Se a leitura do registro ou das pastas falhar, o instalador simplesmente trata como "não encontrado" e mostra o botão de baixar o runtime da Microsoft.</p>
+<p>Antes de copiar o executável, o instalador fecha qualquer <code class="notranslate">DesktopPet.exe</code> que já estiver rodando.</p>
+<h2>Requisitos mínimos</h2>
+<ul>
+<li><strong>Windows 10 ou 11, 64 bits.</strong> O projeto é compilado como <code class="notranslate">net10.0-windows</code> com <code class="notranslate">RuntimeIdentifier</code> <code class="notranslate">win-x64</code> e <code class="notranslate">PlatformTarget</code> <code class="notranslate">x64</code>.</li>
+<li><strong>.NET 10 Desktop Runtime</strong> — só para o <code class="notranslate">DesktopPet.exe</code> e para o <code class="notranslate">DesktopPet-Instalador.exe</code>; a versão completa não precisa.</li>
+<li><strong>Espaço em disco:</strong> o programa instalado ocupa poucos MB; a versão completa ocupa cerca de 50 MB.</li>
+<li><strong>Nenhuma conta e nenhum privilégio de administrador.</strong></li>
+<li><strong>Internet é opcional.</strong> Ela é usada para baixar pets da galeria, procurar versão nova do programa e talking com um serviço de IA. Todo o resto funciona sem rede.</li>
+</ul>
+<h2>Abrir o painel pela bandeja</h2>
+<p>Depois de instalar, o programa fica na <strong>bandeja do sistema</strong>, perto do relógio. Clique com o botão direito no ícone e escolha <strong>"Abrir &amp;Painel"</strong> (o item vira <em>"Abrir Painel (1 atualização)"</em> quando há atualização de pet pendente). O mesmo painel abre pelo menu do próprio pet, em <strong>"Abrir Painel"</strong>.</p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/home.png"><img src="images/home.png" alt="Página Início do painel, com o nome do pet em uso e os números do dia" style="max-width: 100%;"></a></p>
+<p><em>Na página "Início" fica o pet em uso, os botões "Trocar pet", "Perguntar" e "Adicionar outro" e os números do dia.</em></p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/pets.png"><img src="images/pets.png" alt="Aba Meus pets da galeria, com os cartões dos pets e o selo Em uso" style="max-width: 100%;"></a></p>
+<p><em>Na aba "Meus pets" você vê o que já está no computador. O eSheep vem embutido no executável; os outros são baixados da galeria.</em></p>
+<p>Na primeira execução o pet cai do céu e se apresenta em cinco balões (menu do botão direito, arrastar, foco, esconder com Ctrl+Alt+P e como perguntar). Dá para repetir a apresentação em <strong>Configurações</strong> → <strong>"Apresentação"</strong> → <strong>"Mostrar"</strong>. Por padrão abre <strong>1 pet</strong> ("Pets ao iniciar"), ajustável na mesma página.</p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/about.png"><img src="images/about.png" alt="Página Sobre do painel, com a versão do programa e os links" style="max-width: 100%;"></a></p>
+<p><em>A página "Sobre" mostra a versão instalada e os links para o código-fonte, a galeria e a ajuda.</em></p>
+<h2>Desinstalar</h2>
+<p>Duas formas, as duas usam o mesmo script (<code class="notranslate">uninstall.cmd</code>):</p>
+<ul>
+<li><strong>Windows</strong> → <em>Configurações</em> → <em>Aplicativos</em> → <strong>desktopPet</strong> → <strong>Desinstalar</strong>.</li>
+<li><strong>Pelo programa:</strong> bandeja → <strong>"Reparar ou desinstalar..."</strong> → <strong>"Desinstalar"</strong>.</li>
+</ul>
+<p>O script fecha o <code class="notranslate">DesktopPet.exe</code>, apaga os atalhos, remove a chave de registro de desinstalação e a de inicialização automática, e depois pergunta:</p>
+<blockquote>
+<p>Apagar tambem seus pets, lembretes, humor, atalhos e configuracoes? [S]im / [N]ao (em 30 s: Nao)</p>
+</blockquote>
+<ul>
+<li><strong>S</strong>im: apaga também a pasta <code class="notranslate">%LocalAppData%\DesktopPet</code>, onde ficam os pets baixados (<code class="notranslate">pets\</code>), os lembretes (<code class="notranslate">reminders.json</code>), o humor (<code class="notranslate">mood.json</code>), as notas (<code class="notranslate">notes.json</code>), os atalhos do menu (<code class="notranslate">launchers.json</code>), as necessidades do pet (<code class="notranslate">needs.json</code>), a chave da API local (<code class="notranslate">agent.json</code>) e os logs.</li>
+<li><strong>N</strong>ão (ou sem resposta em 30 segundos): só os arquivos do programa são removidos. Os seus dados ficam guardados e <strong>voltam intactos se você instalar de novo</strong>.</li>
+</ul>
+<h2>Sem internet</h2>
+<p>O programa continua funcionando; o que muda é apenas a galeria:</p>
+<ul>
+<li>A aba <strong>"Baixar pets"</strong> mostra a faixa <em>"Sem conexão com a internet. Aparecem só os pets que já estão no computador: conecte-se para ver os pets para baixar."</em>, com o botão <strong>"Tentar de novo"</strong> para refazer a busca quando a rede voltar.</li>
+<li>A lista passa a mostrar só os pets já baixados, e o <strong>eSheep continua disponível</strong> — ele vem embutido dentro do executável, então existe um pet funcionando mesmo nunca tendo conectado.</li>
+<li>Os pets que você já baixado continuam rodando normalmente.</li>
+<li>A conversa por texto continua respondendo o que o próprio programa sabe: lembretes, próxima reunião, estado do computador (CPU e memória) e ajuda.</li>
+<li>O instalador só precisa de internet no caso específico de o .NET 10 estar faltando — é quando ele baixa o instalador oficial da Microsoft.</li>
+</ul>
+<h2>Ver também</h2>
+<ul>
+<li><a href="Primeiros-passos.html">Primeiros passos</a> — o que fazer logo depois de instalar</li>
+<li><a href="Painel-de-pets.html">Painel de pets</a> — adotar e trocar de bichinho</li>
+<li><a href="Perguntas-frequentes.html">Perguntas frequentes</a> — dúvidas comuns sobre instalação e execução</li>
+<li><a href="Plugins-e-integracoes.html">Plugins e integrações</a> — o que dá para ligar depois de instalar</li>
+<li><a href="Para-desenvolvedores.html">Para desenvolvedores</a> — compilar e publicar uma release</li>
+</ul>
+<h2>Onde fica no código</h2>
+<ul>
+<li><code class="notranslate">Tools/Setup/SetupForm.cs</code> — o instalador: conferência do .NET 10, atalhos, cópia do programa, registro e <code class="notranslate">uninstall.cmd</code></li>
+<li><code class="notranslate">Tools/Setup/Setup.csproj</code> — projeto do instalador em .NET Framework 4.8 (<code class="notranslate">net48</code>)</li>
+<li><code class="notranslate">src/Portable/Install.cs</code> — tela de instalação do próprio programa (licença, atalhos, Atualizar, Desinstalar)</li>
+<li><code class="notranslate">src/Portable/UninstallScript.cs</code> — texto do <code class="notranslate">uninstall.cmd</code> e a pergunta sobre apagar os dados</li>
+<li><code class="notranslate">src/dotNet/ContextMenus.cs</code> — item "Instalar o programa..." / "Reparar ou desinstalar..." da bandeja</li>
+<li><code class="notranslate">src/dotNet/Program.cs</code> — <code class="notranslate">IsApplicationInstalled()</code> e o <code class="notranslate">--snapshot</code> usado nas capturas</li>
+<li><code class="notranslate">src/Portable/Onboarding.cs</code> — apresentação da primeira execução</li>
+<li><code class="notranslate">src/Portable/BuiltInPets.cs</code> — o eSheep embutido no executável</li>
+<li><code class="notranslate">src/Portable/PetStore.cs</code> — pasta <code class="notranslate">%LocalAppData%\DesktopPet\pets</code> dos pets baixados</li>
+<li><code class="notranslate">src/Portable/AppInfo.cs</code> — endereços do repositório, da galeria e da API de releases</li>
+<li><code class="notranslate">src/DesktopPet.Net.csproj</code> — <code class="notranslate">net10.0-windows</code>, <code class="notranslate">win-x64</code>, <code class="notranslate">PublishSingleFile</code> e a build <code class="notranslate">SelfContained</code></li>
+<li><code class="notranslate">src/lang/pt-BR.json</code> — textos da interface (<code class="notranslate">inst.*</code>, <code class="notranslate">opt.install.*</code>, <code class="notranslate">tray.install</code>, <code class="notranslate">tray.repair</code>)</li>
+<li><code class="notranslate">site/index.html</code> — página do projeto, com os links de download e o aviso do editor desconhecido</li>
+<li><code class="notranslate">release/2.6.2/SHA256SUMS</code> — hashes publicados de cada artefato</li>
+</ul>
+  </main>
+</div>
+<footer class="rodape">
+  <p>O <strong>Meu Pet</strong> é um bichinho de área de trabalho para Windows 10 e 11.
+  <a href="https://github.com/lfeliipeadv-stack/meu-pet">Ver no GitHub</a></p>
+</footer>
+</body>
+</html>

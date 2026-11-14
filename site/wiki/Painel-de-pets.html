@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Painel de pets — Wiki do Meu Pet</title>
+<link rel="icon" href="../img/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body class="wiki">
+<header class="topo">
+  <a class="volta" href="../">&larr; Voltar para a página do Meu Pet</a>
+  <span class="marca">Wiki do Meu Pet</span>
+</header>
+<div class="layout">
+  <nav class="lateral">
+    <p class="lateral-titulo">Páginas</p>
+    <ul>
+<li><a href="Home.html">Home</a></li><li><a href="Instalacao.html">Instalação</a></li><li><a href="Primeiros-passos.html">Primeiros passos</a></li><li class="on"><a href="Painel-de-pets.html">Painel de pets</a></li><li><a href="Pergunte-ao-pet.html">Pergunte ao pet</a></li><li><a href="Lembretes-e-Pomodoro.html">Lembretes e Pomodoro</a></li><li><a href="Agenda-e-e-mails.html">Agenda e e-mails</a></li><li><a href="Pet-virtual-e-brinquedos.html">Pet virtual e brincadeiras</a></li><li><a href="Plugins-e-integracoes.html">Plugins e integrações</a></li><li><a href="Crie-o-seu-pet.html">Crie o seu pet</a></li><li><a href="Atalhos-e-comandos.html">Atalhos e comandos</a></li><li><a href="Para-desenvolvedores.html">Para desenvolvedores</a></li><li><a href="Perguntas-frequentes.html">Perguntas frequentes</a></li><li><a href="Changelog.html">Changelog</a></li>
+    </ul>
+  </nav>
+  <main class="conteudo wiki-corpo">
+<h1>Painel de pets</h1>
+<p><a href="Home.html">Home</a> · <a href="Instalacao.html">Instalação</a> · <a href="Primeiros-passos.html">Primeiros passos</a> · <a href="Pergunte-ao-pet.html">Pergunte ao pet</a> · <a href="Lembretes-e-pomodoro.html">Lembretes e Pomodoro</a> · <a href="Agenda-e-e-mails.html">Agenda e e-mails</a> · <a href="Pet-virtual-e-brinquedos.html">Pet virtual e brinquedos</a> · <a href="Plugins-e-integracoes.html">Plugins e integrações</a> · <a href="Crie-o-seu-pet.html">Crie o seu pet</a> · <a href="Atalhos-e-comandos.html">Atalhos e comandos</a> · <a href="Para-desenvolvedores.html">Para desenvolvedores</a> · <a href="Perguntas-frequentes.html">Perguntas frequentes</a> · <a href="Changelog.html">Changelog</a></p>
+<p>O painel de pets é a página <strong>Pets</strong> da janela de Configurações. É onde você escolhe o bichinho que vai passear pela área de trabalho: vê a galeria, baixa o que quiser, adota e depois tira do computador o que não usa mais.</p>
+<p>Você chega nela pelo item <strong>Pets</strong> da barra lateral ou pelo item <code class="notranslate">Abrir &amp;Painel</code> do menu do ícone na bandeja do sistema.</p>
+<p>O botão <code class="notranslate">＋  Adicionar pet</code> no rodapé da barra lateral não abre o painel: ele coloca mais uma cópia do pet em uso na tela.</p>
+<h2>As duas abas</h2>
+<p>A página tem duas abas, no formato de pivô do Windows 11, com a contagem entre parênteses:</p>
+<ul>
+<li><strong>Meus pets (n)</strong> — o que já está neste computador.</li>
+<li><strong>Baixar pets (n)</strong> — o que está na galeria publicada no repositório do projeto.</li>
+</ul>
+<p>O que entra em cada aba:</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Aba</th>
+<th>Conteúdo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Meus pets</td>
+<td>O eSheep que vem embutido no executável, os pets já baixados e os pets que você mesmo criou neste computador.</td>
+</tr>
+<tr>
+<td>Baixar pets</td>
+<td>Os pets da galeria (repositório do projeto, pasta <code class="notranslate">Pets/</code>), que ainda não estão no disco.</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>Alguns detalhes que talvez não fiquem óbvios:</p>
+<ul>
+<li>O eSheep (pasta <code class="notranslate">esheep64</code>) é o único pet que vem dentro do executável. Por isso ele é sempre o primeiro cartão da lista em "Meus pets" e funciona mesmo sem internet.</li>
+<li>Um pet que <strong>saiu da galeria</strong> (o autor o removeu do repositório) continua aparecendo em "Meus pets" enquanto estiver em uso, com a descrição <em>"Este pet saiu da galeria. Ele continua aqui enquanto estiver em uso."</em></li>
+<li>Um pet <strong>criado neste computador</strong> aparece com <em>"Você criou este pet neste computador. Ele vai junto nos seus backups."</em> e o campo de data fica vazio.</li>
+<li>Quando o programa abre pela primeira vez e não há nenhum pet baixado, a página já abre na aba "Baixar pets".</li>
+<li>Um clique no cartão abre o painel de detalhes à direita. <strong>Dois cliques</strong> executam a ação principal do pet (baixar ou adotar) direto, sem precisar apertar o botão do painel.</li>
+<li><code class="notranslate">Esc</code> fecha o painel de detalhes; se ele já estiver fechado, <code class="notranslate">Esc</code> fecha a janela de Configurações.</li>
+</ul>
+<p><a target="_blank" rel="noopener noreferrer" href="images/pets.png"><img src="images/pets.png" alt="A aba &quot;Meus pets&quot; da página Pets, com cartões do eSheep, Pingus, Boo, Claude, Mago, Nuvi, Pingo e Rex e os selos &quot;Em uso&quot; e &quot;Atualização&quot;." style="max-width: 100%;"></a></p>
+<p><em>Cartões da galeria com o selo "Em uso" no pet adotado e o selo "Atualização" quando a galeria tem versão nova.</em></p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/pets-tab2.png"><img src="images/pets-tab2.png" alt="A aba &quot;Baixar pets&quot;, com o cartão único do grupo gSheep e a fileira de sete bolinhas coloridas." style="max-width: 100%;"></a></p>
+<p><em>A aba "Baixar pets" mostra apenas o que ainda não está no computador.</em></p>
+<h2>Busca e ordenação</h2>
+<ul>
+<li>No alto da janela aparece o campo de busca <strong>"Buscar pet ou autor…"</strong>. <code class="notranslate">Ctrl+F</code> leva o cursor para ele.</li>
+<li>A busca compara o nome, a pasta do pet, o autor e, no caso do grupo de ovelhas, também o nome da cor escrito por extenso ("rosa") e o nome da pasta ("pink_sheep").</li>
+<li>Abaixo das abas ficam os chips <strong>Ordenar por</strong>: <code class="notranslate">Recentes</code> (padrão), <code class="notranslate">Nome</code> e <code class="notranslate">Autor</code>.</li>
+</ul>
+<p>Quando a busca não encontra nada, a página avisa: <em>"Nenhum pet encontrado para "{0}"."</em> Se a aba "Baixar pets" está vazia porque você já tem tudo, a mensagem é <em>"Você já tem todos os pets da galeria."</em></p>
+<h2>O painel de detalhes</h2>
+<p>Clicando num cartão, abre-se um painel à direita (340 px) com:</p>
+<ul>
+<li>A <strong>prévia animada</strong> do pet (o <code class="notranslate">preview.gif</code>, que toca quadro a quadro).</li>
+<li>O nome, o autor (<code class="notranslate">por {autor}</code>) e a data (<code class="notranslate">Atualizado em {data}</code>).</li>
+<li>O <strong>seletor de cores</strong>, só no caso do grupo de ovelhas.</li>
+<li>O <strong>botão principal</strong>, que muda conforme o estado do pet.</li>
+<li>O link <strong>"Remover do computador"</strong>, quando o pet pode ser apagado.</li>
+<li>Três caixas de estatísticas: <strong>animações</strong>, <strong>sons</strong> e <strong>visuais</strong> (no grupo de ovelhas a terceira caixa conta as <strong>cores</strong>).</li>
+<li>A chave <strong>"Sons deste pet"</strong>, que liga e desliga os sons só daquele pet.</li>
+<li>O <strong>README</strong> do pet, interpretado como markdown (títulos, listas e links clicáveis) numa área com rolagem própria.</li>
+</ul>
+<p>As estatísticas vêm do próprio <code class="notranslate">animations.xml</code> quando o pet já está no computador; antes de baixar, os números vêm do <code class="notranslate">pets.json</code> (o índice da galeria) e a terceira caixa mostra <code class="notranslate">1</code> visual. No grupo de ovelhas, a terceira caixa mostra quantas cores existem para escolher.</p>
+<p>O botão principal é a parte mais importante do painel, porque ele muda de texto conforme a situação:</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Situação</th>
+<th>Botão</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O pet não está no computador</td>
+<td><code class="notranslate">Baixar</code> ou <code class="notranslate">Baixar (326 KB)</code></td>
+</tr>
+<tr>
+<td>O pet está, mas a galeria tem versão nova</td>
+<td><code class="notranslate">Baixar atualização</code> ou <code class="notranslate">Baixar atualização (326 KB)</code></td>
+</tr>
+<tr>
+<td>É o pet que está em uso</td>
+<td><code class="notranslate">Em uso – adicionar mais um</code></td>
+</tr>
+<tr>
+<td>Já está no computador</td>
+<td><code class="notranslate">Adotar este pet</code></td>
+</tr>
+<tr>
+<td>O último download falhou</td>
+<td><code class="notranslate">Tentar novamente</code></td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>O tamanho mostrado vem do <code class="notranslate">pets.json</code> ou de uma requisição <code class="notranslate">HEAD</code> ao servidor — o arquivo ainda não é baixado para você saber o tamanho. O formato é KB abaixo de 1 MB e MB acima (por exemplo, <code class="notranslate">Baixar (1,1 MB)</code>).</p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/pets-detail.png"><img src="images/pets-detail.png" alt="O painel de detalhes do eSheep, com a prévia animada, o botão &quot;Em uso – adicionar mais um&quot;, as caixas 58 animações / 0 sons / 1 visuais e a descrição do pet." style="max-width: 100%;"></a></p>
+<p><em>O detalhe do eSheep: o pet embutido, que não tem som e por isso não mostra a chave "Sons deste pet".</em></p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/detalhe-rex.png"><img src="images/detalhe-rex.png" alt="O detalhe do Rex, com o botão &quot;Adotar este pet&quot;, o link &quot;Remover do computador&quot;, as caixas 107 animações / 16 sons / 1 visuais, a chave &quot;Sons deste pet&quot; e a descrição &quot;Rex, o Dino&quot;." style="max-width: 100%;"></a></p>
+<p><em>Pet já baixado: aparece o link de remoção e a chave que liga e desliga os sons dele.</em></p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/pets-group.png"><img src="images/pets-group.png" alt="O detalhe do grupo gSheep com o seletor de cores, o texto &quot;Cor: Rosa&quot;, o botão &quot;Baixar (1,1 MB)&quot; e as caixas 271 animações / 35 sons / 7 cores." style="max-width: 100%;"></a></p>
+<p><em>As sete ovelhas coloridas são um cartão só; a cor escolhida é a que aparece na prévia.</em></p>
+<h2>Baixar: barra de progresso, cancelar e repetir</h2>
+<ul>
+<li>Durante o download, o botão principal <strong>vira a própria barra de progresso</strong>: ele se preenche da esquerda para a direita e mostra <code class="notranslate">Baixando… 42%</code>.</li>
+<li>Ao lado da barra fica um botão <strong>✕</strong> que cancela o download. A barra de status da janela passa a mostrar <em>"Download de {pet} cancelado."</em></li>
+<li>O arquivo baixado é conferido antes de ser gravado:
+<ul>
+<li>se vier incompleto: <em>"o download foi interrompido. Tente de novo."</em>;</li>
+<li>se o tamanho for diferente do anunciado: <em>"o arquivo não confere com a galeria (tamanho diferente). Tente de novo daqui a alguns minutos."</em>;</li>
+<li>se o conteúdo não for um pet: <em>"o arquivo não é um pet válido."</em></li>
+</ul>
+</li>
+<li>Nenhum desses casos grava alguma coisa no computador. Quando o download falha, o botão vira <code class="notranslate">Tentar novamente</code>.</li>
+<li>Depois de baixar, o botão vira <code class="notranslate">Adotar este pet</code> e a barra de status mostra <em>"{pet} baixado. Agora é só adotar!"</em></li>
+</ul>
+<p><strong>Baixar não adota.</strong> O arquivo é só salvo em <code class="notranslate">%LocalAppData%\DesktopPet\pets\&lt;pasta&gt;\animations.xml</code>, junto de um <code class="notranslate">version.txt</code> com a data da galeria. É a adoção que troca o pet na tela; o arquivo baixado continua no disco para você adotar mais tarde, mesmo sem internet.</p>
+<p>Ao adotar, o pet novo assume a tela na hora e cumprimenta: <em>"Oi! Eu sou {0}. Prazer em te conhecer!"</em></p>
+<h2>Aviso de pet com versão nova</h2>
+<p>O programa confere de tempos em tempos (15 segundos depois de abrir e depois a cada 6 horas) se algum pet já baixado ganhou versão nova na galeria, comparando o <code class="notranslate">version.txt</code> salvo com a data do <code class="notranslate">pets.json</code>.</p>
+<p>Quando isso acontece:</p>
+<ul>
+<li>O cartão do pet ganha o selo <strong>"Atualização"</strong>.</li>
+<li>O item da bandeja passa a dizer <code class="notranslate">Abrir &amp;Painel (1 atualização)</code> ou <code class="notranslate">Abrir &amp;Painel ({n} atualizações)</code>.</li>
+<li>Aparece uma notificação do Windows (o balão do ícone na bandeja): <strong>"Atualização de pet disponível"</strong> (ou "{n} atualizações de pets disponíveis") com o texto <em>"{nomes}. Clique para abrir o painel."</em> — uma vez por versão, não a cada vez que o programa é aberto.</li>
+</ul>
+<p>Na aba "Meus pets", o botão do pet passa a ser <code class="notranslate">Baixar atualização</code>, que substitui o arquivo velho pelo novo.</p>
+<h2>Remover um pet do computador</h2>
+<ul>
+<li>O link <strong>"Remover do computador"</strong> aparece no detalhe de um pet que foi baixado e <strong>não</strong> está em uso. O eSheep embutido nunca pode ser removido.</li>
+<li>O programa pede confirmação: <em>"Remover {pet} do computador?\n\nVocê pode baixar de novo quando quiser."</em></li>
+<li>Depois: <em>"{pet} foi removido do computador."</em></li>
+</ul>
+<p>O cartão continua na galeria, então dá para baixar o mesmo pet outra vez a qualquer momento.</p>
+<p>Pets que <strong>saem</strong> da galeria (deixam de aparecer no <code class="notranslate">pets.json</code>) também são apagados do computador sozinhos — com duas exceções: o pet que está em uso e os pets que você criou aqui.</p>
+<h2>Exportar e importar seus pets</h2>
+<p>Para levar os seus pets para outro computador:</p>
+<ol>
+<li>Abra <strong>Configurações</strong> → seção <strong>Programa</strong>.</li>
+<li>Em <strong>"Backup dos meus pets e configurações"</strong>, clique em <code class="notranslate">Exportar…</code>. (Ao lado, em <strong>"Importar pets"</strong>, está o <code class="notranslate">Importar…</code>.)</li>
+</ol>
+<p>O arquivo sai com a extensão <code class="notranslate">.desktoppet</code> (é um zip), nome padrão <code class="notranslate">meus-pets</code>, salvo na pasta Documentos, com o filtro <em>"Pets do DesktopPet (</em>.desktoppet)"*. Se você ainda não baixou nenhum pet, o programa avisa: <em>"Ainda não há pets baixados para exportar."</em></p>
+<p>O que vai dentro do arquivo:</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Parte</th>
+<th>Conteúdo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="notranslate">pets/&lt;pasta&gt;/</code></td>
+<td>O <code class="notranslate">animations.xml</code> e o <code class="notranslate">version.txt</code> de cada pet baixado.</td>
+</tr>
+<tr>
+<td><code class="notranslate">settings.txt</code></td>
+<td>O pet em uso, os pets com o som desligado e as configurações (tema, idioma, volume, atalhos do Pomodoro, pet virtual, monitor do PC, humor, agenda, balões do Claude Code…).</td>
+</tr>
+<tr>
+<td><code class="notranslate">data/</code></td>
+<td><code class="notranslate">reminders.json</code>, <code class="notranslate">launchers.json</code>, <code class="notranslate">mood.json</code> e <code class="notranslate">needs.json</code>.</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>A descrição da própria opção avisa: <em>"Ele também guarda o link da sua agenda: não compartilhe."</em> A chave do serviço de IA e a senha da API local <strong>nunca</strong> entram no backup.</p>
+<p>Na importação, o programa é desconfiado com o arquivo:</p>
+<ul>
+<li>Só aceita entradas no formato <code class="notranslate">pets/&lt;nome&gt;/animations.xml</code>, com nome de pasta simples e arquivo de até 50 MB, e o XML tem que ser de fato um pet. Um arquivo corrompido nunca substitui o bom.</li>
+<li>Se o backup também trouxer lembretes, atalhos, histórico de humor e configurações, o programa pergunta: <em>"Este arquivo também tem lembretes, atalhos, histórico de humor e configurações.\n\nSubstituir os deste computador por eles?"</em></li>
+<li>Se o pet que estava em uso no outro computador não for o que está em uso aqui, ele pergunta: <em>"{0}" era o pet em uso no outro computador. Adotar agora?"</em></li>
+</ul>
+<p><a target="_blank" rel="noopener noreferrer" href="images/detalhe-meu-thronglet.png"><img src="images/detalhe-meu-thronglet.png" alt="O detalhe de um pet criado neste computador, com as caixas 49 animações / 6 sons / 1 visuais, a chave de som ligada e a frase &quot;Você criou este pet neste computador. Ele vai junto nos seus backups.&quot;." style="max-width: 100%;"></a></p>
+<p><em>Um pet criado aqui entra nos backups e não é apagado quando sai da galeria.</em></p>
+<h2>Sem internet</h2>
+<p>Quando o programa não consegue buscar a galeria, a aba "Baixar pets" mostra uma faixa:</p>
+<blockquote>
+<p><em>"Sem conexão com a internet. Aparecem só os pets que já estão no computador: conecte-se para ver os pets para baixar."</em></p>
+</blockquote>
+<p>Com o botão <strong>"Tentar de novo"</strong> ao lado, que refaz a busca. A barra de status da janela confirma: <em>"Sem internet: mostrando só os pets do computador."</em></p>
+<p>Sem internet:</p>
+<ul>
+<li>A lista mostra apenas os pets que já estão no disco.</li>
+<li>O eSheep continua disponível, porque vem dentro do executável.</li>
+<li>O que já foi baixado continua utilizável: dá para adotar e usar um pet sem rede.</li>
+</ul>
+<h2>A lista de pets do projeto</h2>
+<p>A galeria é o arquivo <code class="notranslate">Pets/pets.json</code> do repositório do projeto. Estes são os pets publicados e o número de animações e sons de cada um:</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Pet</th>
+<th>Pasta</th>
+<th>Autor</th>
+<th>Animações</th>
+<th>Sons</th>
+<th>Tamanho do <code class="notranslate">animations.xml</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>eSheep</td>
+<td><code class="notranslate">esheep64</code></td>
+<td>Adriano</td>
+<td>58</td>
+<td>0</td>
+<td>170 KB</td>
+</tr>
+<tr>
+<td>Rex</td>
+<td><code class="notranslate">rex</code></td>
+<td>Luan Felipe</td>
+<td>107</td>
+<td>16</td>
+<td>326 KB</td>
+</tr>
+<tr>
+<td>Pingo</td>
+<td><code class="notranslate">pingo</code></td>
+<td>Luan Felipe</td>
+<td>104</td>
+<td>16</td>
+<td>282 KB</td>
+</tr>
+<tr>
+<td>Boo</td>
+<td><code class="notranslate">boo</code></td>
+<td>Luan Felipe</td>
+<td>86</td>
+<td>15</td>
+<td>262 KB</td>
+</tr>
+<tr>
+<td>Mago</td>
+<td><code class="notranslate">mago</code></td>
+<td>Luan Felipe</td>
+<td>49</td>
+<td>13</td>
+<td>225 KB</td>
+</tr>
+<tr>
+<td>Nuvi</td>
+<td><code class="notranslate">nuvi</code></td>
+<td>Luan Felipe</td>
+<td>45</td>
+<td>14</td>
+<td>202 KB</td>
+</tr>
+<tr>
+<td>Claude</td>
+<td><code class="notranslate">claude</code></td>
+<td>Luan Felipe</td>
+<td>45</td>
+<td>10</td>
+<td>215 KB</td>
+</tr>
+<tr>
+<td>Thronglet</td>
+<td><code class="notranslate">thronglet</code></td>
+<td>Luan Felipe</td>
+<td>49</td>
+<td>6</td>
+<td>1,0 MB</td>
+</tr>
+<tr>
+<td>Pingus</td>
+<td><code class="notranslate">pingus</code></td>
+<td>Adriano &amp; Zecheriah</td>
+<td>69</td>
+<td>30</td>
+<td>1,2 MB</td>
+</tr>
+<tr>
+<td>gSheep Azul</td>
+<td><code class="notranslate">blue_sheep</code></td>
+<td>Oliver B.</td>
+<td>271</td>
+<td>35</td>
+<td>1,1 MB</td>
+</tr>
+<tr>
+<td>gSheep Verde</td>
+<td><code class="notranslate">green_sheep</code></td>
+<td>Oliver B.</td>
+<td>271</td>
+<td>35</td>
+<td>1,1 MB</td>
+</tr>
+<tr>
+<td>gSheep Amarelo</td>
+<td><code class="notranslate">yellow_sheep</code></td>
+<td>Oliver B.</td>
+<td>271</td>
+<td>35</td>
+<td>1,1 MB</td>
+</tr>
+<tr>
+<td>gSheep Laranja</td>
+<td><code class="notranslate">orange_sheep</code></td>
+<td>Oliver B.</td>
+<td>271</td>
+<td>35</td>
+<td>1,1 MB</td>
+</tr>
+<tr>
+<td>gSheep Vermelho</td>
+<td><code class="notranslate">red_sheep</code></td>
+<td>Oliver B.</td>
+<td>271</td>
+<td>35</td>
+<td>1,1 MB</td>
+</tr>
+<tr>
+<td>gSheep Rosa</td>
+<td><code class="notranslate">pink_sheep</code></td>
+<td>Oliver B.</td>
+<td>271</td>
+<td>35</td>
+<td>1,1 MB</td>
+</tr>
+<tr>
+<td>gSheep Roxo</td>
+<td><code class="notranslate">purple_sheep</code></td>
+<td>Oliver B.</td>
+<td>271</td>
+<td>35</td>
+<td>1,1 MB</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>Observações sobre a tabela:</p>
+<ul>
+<li>As sete <strong>gSheep</strong> são o mesmo desenho em cores diferentes. Na galeria elas aparecem como <strong>um cartão só</strong>, com uma fileira de bolinhas coloridas; o painel de detalhes mostra <em>"Cor: Rosa"</em> (ou a cor escolhida) e a terceira caixa de estatísticas conta as <strong>7 cores</strong>.</li>
+<li>O tamanho é o do arquivo <code class="notranslate">animations.xml</code> como o GitHub serve (o valor do <code class="notranslate">pets.json</code>), e é ele que aparece no botão de download.</li>
+<li>O eSheep não tem som, por isso o número <code class="notranslate">0</code> — e o detalhe dele não mostra a chave "Sons deste pet".</li>
+</ul>
+<h2>Ver também</h2>
+<ul>
+<li><a href="Primeiros-passos.html">Primeiros passos</a> — o que fazer depois de instalar, incluindo como adotar o primeiro pet.</li>
+<li><a href="Crie-o-seu-pet.html">Crie o seu pet</a> — como transformar as suas imagens em um pet que entra nesta galeria.</li>
+<li><a href="Instalacao.html">Instalação</a> — instalar, reparar e desinstalar o programa.</li>
+<li><a href="Plugins-e-integracoes.html">Plugins e integrações</a> — as outras partes do painel (Plugins, Integrações, Assistente).</li>
+<li><a href="Para-desenvolvedores.html">Para desenvolvedores</a> — como a galeria é gerada e publicada.</li>
+</ul>
+<h2>Onde fica no código</h2>
+<ul>
+<li><code class="notranslate">src/Portable/FormSettings.Pets.cs</code> — carrega a galeria, baixa, adota, remove, exporta e importa os pets.</li>
+<li><code class="notranslate">src/Portable/FormSettings.PetsView.cs</code> — as abas, os cartões, os selos, o painel de detalhes e a barra de progresso.</li>
+<li><code class="notranslate">src/Portable/FormOptions2.cs</code> — a classe <code class="notranslate">OptionsGit</code>: busca a lista, baixa os arquivos e pergunta o tamanho ao servidor.</li>
+<li><code class="notranslate">src/Portable/FormOptions2.SurfacePets.cs</code> — a classe <code class="notranslate">OptionsPet</code> (nome, autor, data, tamanho, animações, sons) e o grupo de cores.</li>
+<li><code class="notranslate">src/Portable/PetStore.cs</code> — a pasta <code class="notranslate">%LocalAppData%\DesktopPet\pets</code> onde os pets baixados ficam.</li>
+<li><code class="notranslate">src/Portable/PetUpdates.cs</code> — a checagem de versão nova (15 s depois de abrir e depois a cada 6 h).</li>
+<li><code class="notranslate">src/Portable/PetBackup.cs</code> — a exportação e a importação do arquivo <code class="notranslate">.desktoppet</code>.</li>
+<li><code class="notranslate">src/Portable/BuiltInPets.cs</code> — o eSheep embutido no executável.</li>
+<li><code class="notranslate">src/Portable/FormSettings.Options.cs</code> — os botões "Exportar…" e "Importar…" da seção "Programa".</li>
+<li><code class="notranslate">src/lang/pt-BR.json</code> — os textos da interface citados nesta página.</li>
+<li><code class="notranslate">Pets/pets.json</code> — o índice da galeria (pasta, nome, autor, data, tamanho, animações e sons).</li>
+</ul>
+  </main>
+</div>
+<footer class="rodape">
+  <p>O <strong>Meu Pet</strong> é um bichinho de área de trabalho para Windows 10 e 11.
+  <a href="https://github.com/lfeliipeadv-stack/meu-pet">Ver no GitHub</a></p>
+</footer>
+</body>
+</html>

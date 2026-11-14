@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pet virtual e brincadeiras — Wiki do Meu Pet</title>
+<link rel="icon" href="../img/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body class="wiki">
+<header class="topo">
+  <a class="volta" href="../">&larr; Voltar para a página do Meu Pet</a>
+  <span class="marca">Wiki do Meu Pet</span>
+</header>
+<div class="layout">
+  <nav class="lateral">
+    <p class="lateral-titulo">Páginas</p>
+    <ul>
+<li><a href="Home.html">Home</a></li><li><a href="Instalacao.html">Instalação</a></li><li><a href="Primeiros-passos.html">Primeiros passos</a></li><li><a href="Painel-de-pets.html">Painel de pets</a></li><li><a href="Pergunte-ao-pet.html">Pergunte ao pet</a></li><li><a href="Lembretes-e-Pomodoro.html">Lembretes e Pomodoro</a></li><li><a href="Agenda-e-e-mails.html">Agenda e e-mails</a></li><li class="on"><a href="Pet-virtual-e-brinquedos.html">Pet virtual e brincadeiras</a></li><li><a href="Plugins-e-integracoes.html">Plugins e integrações</a></li><li><a href="Crie-o-seu-pet.html">Crie o seu pet</a></li><li><a href="Atalhos-e-comandos.html">Atalhos e comandos</a></li><li><a href="Para-desenvolvedores.html">Para desenvolvedores</a></li><li><a href="Perguntas-frequentes.html">Perguntas frequentes</a></li><li><a href="Changelog.html">Changelog</a></li>
+    </ul>
+  </nav>
+  <main class="conteudo wiki-corpo">
+<h1>Pet virtual e brincadeiras</h1>
+<p><a href="Home.html">Home</a> · <a href="Instalacao.html">Instalação</a> · <a href="Primeiros-passos.html">Primeiros passos</a> · <a href="Painel-de-pets.html">Painel de pets</a> · <a href="Pergunte-ao-pet.html">Pergunte ao pet</a> · <a href="Lembretes-e-pomodoro.html">Lembretes e Pomodoro</a> · <a href="Agenda-e-e-mails.html">Agenda e e-mails</a> · <a href="Plugins-e-integracoes.html">Plugins e integrações</a> · <a href="Crie-o-seu-pet.html">Crie o seu pet</a> · <a href="Atalhos-e-comandos.html">Atalhos e comandos</a> · <a href="Para-desenvolvedores.html">Para desenvolvedores</a> · <a href="Perguntas-frequentes.html">Perguntas frequentes</a> · <a href="Changelog.html">Changelog</a></p>
+<p>O menu do botão direito sobre o pet é o painel de controle dele: as necessidades do bicho, as brincadeiras, o check-in de humor, o monitor do computador e mais. Esta página explica o que tem em cada item e como cada um se comporta.</p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/pet-menu.png"><img src="images/pet-menu.png" alt="Menu do botão direito sobre o pet, com a régua das necessidades no topo e os itens Brincadeiras, Como estou hoje? e Mostrar CPU e memória" style="max-width: 100%;"></a></p>
+<p><em>O menu do pet: no topo, o nome dele e a régua "🍖 80%   ❤️ 80%   ⚡ 80%" (só aparece com o pet virtual ligado), depois os itens de cada recurso.</em></p>
+<h2>O pet virtual: fome, carinho e sono</h2>
+<p>Com o plugin <strong>🍖 Pet virtual</strong> ligado, cada pet passa a ter três necessidades independentes, guardadas em <code class="notranslate">%LocalAppData%\DesktopPet\needs.json</code>, uma entrada por pet:</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Necessidade</th>
+<th>Queda por hora</th>
+<th>De 80 a 0 (o valor inicial)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Fome</td>
+<td>8 pontos</td>
+<td>10 h</td>
+</tr>
+<tr>
+<td>Carinho</td>
+<td>6 pontos</td>
+<td>cerca de 13 h</td>
+</tr>
+<tr>
+<td>Energia (sono)</td>
+<td>5 pontos</td>
+<td>16 h</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>As três começam em 80 e nunca passam de 100 nem de 0. Quando o programa fica fechado mais de 30 minutos, a queda é mais suave: nesse período nenhuma necessidade desce abaixo de 10.</p>
+<h3>As quatro ações</h3>
+<p>O menu do pet ganha quatro itens logo abaixo da régua:</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Item do menu</th>
+<th>O que muda</th>
+<th>O que o pet diz</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Dar comida</strong></td>
+<td>fome +35, energia +5</td>
+<td>"Hmm, que delícia! Valeu!"</td>
+</tr>
+<tr>
+<td><strong>Fazer carinho</strong></td>
+<td>carinho +30</td>
+<td>"Hehe, adoro carinho!"</td>
+</tr>
+<tr>
+<td><strong>Brincar</strong></td>
+<td>carinho +15, energia −12, fome −5</td>
+<td>"Que divertido!"</td>
+</tr>
+<tr>
+<td><strong>Deixar dormir</strong></td>
+<td>energia +45</td>
+<td>"Zzz… agora sim, que soneca boa!"</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>"Deixar dormir" é a única que fala depois da animação: o recado aparece quando o pet acorda, porque só depois de uma boa soneca faz sentido dizer isso.</p>
+<h3>Quando o pet pede</h3>
+<p>Um temporizador de 1 minuto confere as necessidades. Quando alguma fica baixa, o pet pede uma vez — no máximo uma vez por hora:</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Necessidade baixa</th>
+<th>Aviso</th>
+<th>Botão da ação</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Fome abaixo de 25</td>
+<td>"Estou com fome… 🍖"</td>
+<td>Dar comida</td>
+</tr>
+<tr>
+<td>Carinho abaixo de 25</td>
+<td>"Estou com saudade… me faz um carinho? ❤️"</td>
+<td>Fazer carinho</td>
+</tr>
+<tr>
+<td>Energia abaixo de 20</td>
+<td>"Que cansaço… posso tirar um cochilo? 💤"</td>
+<td>Deixar dormir</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>Todos os avisos trazem ainda a opção <strong>"Depois"</strong>, que apenas adia o pedido.</p>
+<h3>A animação certa para cada ação</h3>
+<p>Cada ação roda a primeira animação que o pet realmente tem, numa lista que muda de pet para pet. Os pets de outros autores usam os nomes usuais ("eat", "love", "dance", "sleep"…). Exemplos:</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Pet</th>
+<th>Comer</th>
+<th>Carinho</th>
+<th>Brincar</th>
+<th>Dormir</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Rex</td>
+<td>eat meat, pizza, popcorn, drink</td>
+<td>in love, love, tail wag, wink</td>
+<td>soccer, dance, juggle, basketball, guitar, party</td>
+<td>sleep</td>
+</tr>
+<tr>
+<td>Pingo</td>
+<td>eat fish, hold fish</td>
+<td>love, blow kiss, giggle</td>
+<td>dance, ice skate, juggle fish, belly drum, hop hop</td>
+<td>sleep</td>
+</tr>
+<tr>
+<td>Boo</td>
+<td>ice cream, bubble gum, jelly</td>
+<td>hearts, wink kiss, blow kiss, giggle</td>
+<td>yo-yo, dance, juggle, spin, bounce</td>
+<td>sleep</td>
+</tr>
+<tr>
+<td>Mago</td>
+<td>potion, brew</td>
+<td>rabbit, owl, bow</td>
+<td>juggle, fireworks, dance, bubbles</td>
+<td>sleep</td>
+</tr>
+<tr>
+<td>Nuvi</td>
+<td>coffee, download</td>
+<td>love, happy, wink</td>
+<td>dance, matrix, happy</td>
+<td>sleep</td>
+</tr>
+<tr>
+<td>Claude</td>
+<td>eat, coffee, chef</td>
+<td>flower, wave</td>
+<td>dance, skate, music, confetti, spin</td>
+<td>sleep</td>
+</tr>
+<tr>
+<td>eSheep (ovelha original)</td>
+<td>eat</td>
+<td>flower, boing</td>
+<td>jump, boing, run</td>
+<td>sleep1a, sleep2a, sleep3a</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p><a target="_blank" rel="noopener noreferrer" href="images/anim-picker.png"><img src="images/anim-picker.png" alt="Seletor de animações com as animações do pet em blocos e o contador de quantas há" style="max-width: 100%;"></a></p>
+<p><em>O seletor de animações (botão do meio do mouse) mostra o que o pet tem: 51 animações no pet da captura.</em></p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/detalhe-rex.png"><img src="images/detalhe-rex.png" alt="Painel de detalhes do pet Rex com o número de animações, sons e visuais" style="max-width: 100%;"></a></p>
+<p><em>Os números do painel de detalhes dizem quanto cada pet traz: o Rex tem 107 animações, 16 sons e 1 visual.</em></p>
+<h2>Brincadeiras</h2>
+<p>O submenu <strong>Brincadeiras</strong> tem três itens e só aparece quando o plugin <strong>🥠 Brincadeiras</strong> está ligado. Os textos das frases ficam no arquivo de idioma, separados por "|", e o programa sorteia um:</p>
+<ul>
+<li><strong>Biscoito da sorte</strong> — o pet come (uma das animações "eat", "eat fish", "eat meat", "cookie", "happy") e mostra um biscoito 🥠 com uma das 10 frases de <code class="notranslate">fun.fortunes</code>, por 14 segundos.</li>
+<li><strong>Bola 8 mágica</strong> — o pet pergunta "Pense numa pergunta de sim ou não… e chacoalhe a bola!" e o balão fica na tela até você apertar <strong>"Chacoalhar"</strong>. Aí ele roda "think", "spin" ou "dizzy" e mostra uma das 12 respostas de <code class="notranslate">fun.ballAnswers</code> ("Sim!", "Não.", "Com certeza.", "Os sinais dizem que sim…"), por 10 segundos.</li>
+<li><strong>Conte uma piada</strong> — uma das 6 piadas de <code class="notranslate">fun.jokes</code>, como "Qual é o café mais perigoso do mundo? O ex-presso.", por 14 segundos.</li>
+</ul>
+<p><a target="_blank" rel="noopener noreferrer" href="images/bubble.png"><img src="images/bubble.png" alt="Balão do pet com o nome, a frase e os botões de ação" style="max-width: 100%;"></a></p>
+<p><em>Os balões do pet trazem o nome dele, a frase e até dois botões de ação.</em></p>
+<h2>Como estou hoje?</h2>
+<p>O item <strong>"Como estou hoje?"</strong> do menu pergunta na hora. O plugin <strong>😊 Como estou hoje</strong> (categoria Bem-estar) também faz a pergunta sozinha, uma vez por dia, a partir do horário escolhido (15h por padrão).</p>
+<p>A pergunta é "Como você está hoje?" e a resposta são cinco carinhas:</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Carinha</th>
+<th>Resposta do pet</th>
+<th>Animação</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>😄</td>
+<td>"Que maravilha! Vamos manter essa energia! ✨"</td>
+<td>happy, cheer, dance, jump</td>
+</tr>
+<tr>
+<td>🙂</td>
+<td>"Que bom! Tenha um ótimo dia."</td>
+<td>happy, cheer, dance, jump</td>
+</tr>
+<tr>
+<td>😐</td>
+<td>"Ok. Que tal uma voltinha ou um copo d'água?"</td>
+<td>—</td>
+</tr>
+<tr>
+<td>😕</td>
+<td>"Sinto muito. Vai com calma, uma coisa de cada vez. Estou aqui."</td>
+<td>love, hearts, hug, wave</td>
+</tr>
+<tr>
+<td>😢</td>
+<td>"Sinto muito que você esteja mal. Converse com alguém de confiança e seja gentil com você. ❤️"</td>
+<td>love, hearts, hug, wave</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>A resposta fica guardada em <code class="notranslate">%LocalAppData%\DesktopPet\mood.json</code>, com a data no formato <code class="notranslate">yyyy-MM-dd</code>. O botão <strong>"Meu humor" › "Ver"</strong> mostra as últimas duas semanas como uma fileira de carinhas, da mais antiga para a mais recente, com "·" nos dias sem resposta. Na página Início do painel, o cartão <strong>Humor</strong> mostra a carinha de hoje.</p>
+<p><a target="_blank" rel="noopener noreferrer" href="images/home.png"><img src="images/home.png" alt="Página Início do painel com o cartão do pet e os quatro cartões de números do dia, incluindo Humor" style="max-width: 100%;"></a></p>
+<p><em>A página Início mostra o pet em uso e os números do dia: Foco hoje, Pausas, Lembretes e Humor.</em></p>
+<h2>Pets que conversam entre si</h2>
+<p>Com o plugin <strong>🐑 Pets se cumprimentam</strong> ligado, o programa procura pets que estejam lado a lado na tela. A cada 700 milissegundos ele confere as posições: dois pets estão "junto" quando a distância entre os centros é menor que 80% da metade da soma das duas larguras, a base de um está a menos de 24 pixels da base do outro e os centros estão a mais de 4 pixels de distância. O mesmo par não se cumprimenta de novo por 90 segundos.</p>
+<p>Em 40% dos encontros os dois conversam; nos outros, apenas acenam, dançam ou trocam carinho:</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Tipo</th>
+<th>Animações</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cumprimento</td>
+<td>wave, hello, happy</td>
+</tr>
+<tr>
+<td>Comemoração</td>
+<td>dance, jump, cheer, spin</td>
+</tr>
+<tr>
+<td>Carinho</td>
+<td>love, in love, hearts, blow kiss, wink</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<h3>A conversa</h3>
+<p>Quando conversam, um dos dois fala primeiro e o outro responde 2,2 segundos depois, com a frase que faz par com a primeira. São 8 pares de frases guardados em <code class="notranslate">chat.first</code> e <code class="notranslate">chat.answer</code>, como "Oi! Dia bonito, né?" e "Perfeito para passear na barra de tarefas!".</p>
+<p>Cada frase sai num balão próprio do pet que falou, ao lado do balão principal, sem botões, e some sozinho depois de 4 segundos. Só há uma conversa por vez (uma janela de 8 segundos entre elas), e a conversa não acontece em horário de silêncio nem por cima de um balão que esteja falando com você.</p>
+<h2>Monitor de CPU e memória</h2>
+<p>O plugin <strong>📊 Monitor do PC</strong> mede o computador; o item <strong>"Mostrar CPU e memória"</strong> do menu do pet liga e desliga o mesmo recurso (e fica marcado quando está ligado).</p>
+<p>O programa mede a cada 2 segundos: a CPU com <code class="notranslate">GetSystemTimes</code>, a memória com <code class="notranslate">GlobalMemoryStatusEx</code> e o espaço livre do disco onde o Windows está instalado. A plaquinha com as barras de <strong>CPU</strong> e <strong>RAM</strong> e o texto do espaço livre ("C: 128 GB livres") aparece ao lado do pet <strong>só enquanto o mouse está sobre ele</strong> — ela é transparente para o clique, então o pet continua usável.</p>
+<p>Se a CPU ficar acima de 90% por 1 minuto, o pet comenta: "Ufa, o computador está trabalhando muito: CPU em {0}%!". Esse aviso sai no máximo uma vez a cada 30 minutos.</p>
+<h2>Onde ligar cada coisa</h2>
+<p>Tudo isso se liga na página <strong>Plugins</strong> do painel, e os itens do menu do pet somem quando o plugin correspondente está desligado:</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>Cartão</th>
+<th>Categoria</th>
+<th>O que liga</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🍖 Pet virtual</td>
+<td>Diversão</td>
+<td>fome, carinho e sono</td>
+</tr>
+<tr>
+<td>🐑 Pets se cumprimentam</td>
+<td>Diversão</td>
+<td>a conversa entre os pets</td>
+</tr>
+<tr>
+<td>🥠 Brincadeiras</td>
+<td>Diversão</td>
+<td>biscoito, bola 8 e piadas</td>
+</tr>
+<tr>
+<td>😊 Como estou hoje</td>
+<td>Bem-estar</td>
+<td>a pergunta diária e o histórico</td>
+</tr>
+<tr>
+<td>📊 Monitor do PC</td>
+<td>Computador</td>
+<td>a plaquinha de CPU, RAM e disco</td>
+</tr>
+<tr>
+<td>🔋 Reações ao computador</td>
+<td>Computador</td>
+<td>bom dia, boa noite, bateria e downloads</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p><a target="_blank" rel="noopener noreferrer" href="images/plugins.png"><img src="images/plugins.png" alt="Página Plugins do painel, com os cartões de recursos e os filtros por categoria no topo" style="max-width: 100%;"></a></p>
+<p><em>Na página Plugins, os cartões trazem o nome, a descrição, o estado e o botão Configurar; no topo ficam os filtros por categoria.</em></p>
+<h2>Ver também</h2>
+<ul>
+<li><a href="Primeiros-passos.html">Primeiros passos</a> — o primeiro uso do programa e a tela de apresentação.</li>
+<li><a href="Painel-de-pets.html">Painel de pets</a> — a galeria de pets e o painel de detalhes de cada um.</li>
+<li><a href="Lembretes-e-pomodoro.html">Lembretes e Pomodoro</a> — os lembretes, o foco e as notas que dividem o menu do pet.</li>
+<li><a href="Plugins-e-integracoes.html">Plugins e integrações</a> — todos os cartões da página Plugins e as pontes com o Claude Code.</li>
+<li><a href="Atalhos-e-comandos.html">Atalhos e comandos</a> — os atalhos de teclado e os argumentos de linha de comando.</li>
+</ul>
+<h2>Onde fica no código</h2>
+<ul>
+<li><code class="notranslate">src/Portable/VirtualPet.cs</code> — as três necessidades, o decaimento, o arquivo <code class="notranslate">needs.json</code> e os avisos de fome, saudade e cansaço.</li>
+<li><code class="notranslate">src/Portable/PetActions.cs</code> — a lista de animações de cada ação, por pet, e a lista comum dos pets de outros autores.</li>
+<li><code class="notranslate">src/Portable/PetMenu.cs</code> — o menu do botão direito: a régua das necessidades, as quatro ações, as brincadeiras, "Como estou hoje?" e "Mostrar CPU e memória".</li>
+<li><code class="notranslate">src/Portable/Fun.cs</code> — o biscoito da sorte, a bola 8 e as piadas.</li>
+<li><code class="notranslate">src/Portable/Companions.cs</code> — <code class="notranslate">PetsMeet</code> (a regra de proximidade, o sorteio da conversa e os pares de frases) e <code class="notranslate">ComputerEvents</code>.</li>
+<li><code class="notranslate">src/Portable/Mood.cs</code> — as cinco carinhas, as respostas, o arquivo <code class="notranslate">mood.json</code> e o histórico de 14 dias.</li>
+<li><code class="notranslate">src/Portable/PcMonitor.cs</code> — a leitura da CPU, da RAM e do disco, a plaquinha ao lado do pet e o aviso de computador ocupado.</li>
+<li><code class="notranslate">src/Portable/SpeechBubble.cs</code> — os balões, o balão de conversa entre pets (<code class="notranslate">SpeechBubble.Chat</code>) e o horário de silêncio.</li>
+<li><code class="notranslate">src/Portable/FormSettings.Plugins.cs</code> — os cartões da página Plugins e o botão "Meu humor › Ver".</li>
+<li><code class="notranslate">src/Portable/Weather.cs</code> — <code class="notranslate">PluginSwitch</code>, a chave que liga e desliga cada plugin.</li>
+<li><code class="notranslate">src/lang/pt-BR.json</code> — os textos (<code class="notranslate">vpet.*</code>, <code class="notranslate">fun.*</code>, <code class="notranslate">mood.*</code>, <code class="notranslate">mon.*</code>, <code class="notranslate">chat.first</code>, <code class="notranslate">chat.answer</code>, <code class="notranslate">menu.games</code>, <code class="notranslate">menu.fortune</code>, <code class="notranslate">menu.ball</code>, <code class="notranslate">menu.joke</code>, <code class="notranslate">menu.mood</code>, <code class="notranslate">menu.monitor</code>).</li>
+</ul>
+  </main>
+</div>
+<footer class="rodape">
+  <p>O <strong>Meu Pet</strong> é um bichinho de área de trabalho para Windows 10 e 11.
+  <a href="https://github.com/lfeliipeadv-stack/meu-pet">Ver no GitHub</a></p>
+</footer>
+</body>
+</html>

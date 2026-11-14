@@ -5,7 +5,7 @@ name: Página de download
 on:
   push:
     branches: [master]
-    paths: ['site/**', 'Pets/**', 'docs/capturas/**', '.github/readme/**', '.github/workflows/pages.yml']
+    paths: ['site/**', 'wiki/**', 'Pets/**', 'docs/capturas/**', '.github/readme/**', '.github/workflows/pages.yml']
   workflow_dispatch:
 
 permissions:
@@ -26,10 +26,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Gerar as páginas do Wiki
+        # O Wiki do GitHub (github.com/OWNER/REPO/wiki) precisa da primeira página
+        # criada pela interface do site. Esta gera a mesma pasta wiki/ como HTML
+        # navegável, para o manual já ficar no ar.
+        # Se a API falhar, o site principal continua valendo: a cópia gerada
+        # antes fica no repositório e é a que vai para o ar.
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          bash site/gerar-wiki.sh
+
       - name: Montar o site
         run: |
           mkdir -p _site/pets _site/img/capturas
-          cp site/* _site/
+          cp -r site/index.html site/style.css _site/
+          [ -d site/wiki ] && cp -r site/wiki _site/
+          # As imagens do Wiki ficam na pasta wiki/images e vao junto.
+          [ -d wiki/images ] && cp -r wiki/images _site/wiki/ 2>/dev/null || true
           cp Pets/pets.json _site/
           for d in Pets/*/; do f=$(basename "$d"); [ -f "$d/preview.gif" ] && cp "$d/preview.gif" "_site/pets/$f.gif"; done
           cp .github/readme/painel-meus-pets.png .github/readme/painel-detalhe.png _site/img/
