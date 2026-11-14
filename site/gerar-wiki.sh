@@ -18,7 +18,11 @@ SAIDA="$RAIZ/site/wiki"
 
 command -v gh >/dev/null || { echo "ERRO: precisa do gh CLI." >&2; exit 1; }
 
-rm -rf "$SAIDA"
+# Gera numa pasta temporaria e so troca no final: se uma pagina falhar, a
+# copia que ja estava no ar continua de pe.
+TMP="$(mktemp -d)"
+trap 'rm -rf "$TMP"' EXIT
+SAIDA="$TMP/wiki"
 mkdir -p "$SAIDA"
 # As imagens nao sao copiadas aqui: o workflow pega a pasta wiki/images e
 # coloca em _site/wiki/images, que e o mesmo lugar.
@@ -117,4 +121,8 @@ done
 # index.html aponta para a Home, para /wiki/ abrir direto no manual.
 cp "$SAIDA/Home.html" "$SAIDA/index.html"
 
-echo "Wiki gerado em site/wiki/ ($(ls -1 "$SAIDA"/*.html | wc -l) paginas)"
+# Só agora troca a cópia antiga pela nova.
+rm -rf "$RAIZ/site/wiki"
+mv "$SAIDA" "$RAIZ/site/wiki"
+
+echo "Wiki gerado em site/wiki/ ($(ls -1 "$RAIZ/site/wiki"/*.html | wc -l) paginas)"
