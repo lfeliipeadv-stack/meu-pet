@@ -32,15 +32,15 @@
 /* --------------------------------------------------- a janela do desktop */
 .demo-window {
   position: absolute;
-  left: 10%; top: 96px;
-  width: min(540px, 60%);
+  left: 0; top: 0;
   background: #f6f7f5;
   color: #16191c;
   border-radius: 7px 7px 0 0;
   box-shadow: 0 20px 46px rgba(0,0,0,.5);
-  pointer-events: none;
   overflow: hidden;
+  pointer-events: auto;
 }
+.demo-window.maximized { border-radius: 0; }
 .demo-window-bar {
   background: linear-gradient(90deg, var(--navy), var(--navy-2));
   color: #fff;
@@ -48,8 +48,9 @@
   padding: 7px 10px 7px 12px;
   display: flex; align-items: center; gap: 9px;
   cursor: grab;
+  user-select: none;
 }
-.demo-window-bar .dot { width: 11px; height: 11px; flex: none; }
+.demo-window-bar .dot { width: 11px; height: 11px; flex: none; cursor: pointer; }
 .demo-window-bar .dot.min { background: #d0d0d0; }
 .demo-window-bar .dot.max { background: #4a6fa5; }
 .demo-window-bar .dot.close { background: #a63c34; }
@@ -63,24 +64,64 @@
 .demo-blocks span {
   height: 26px; flex: 1; border-radius: 4px; background: #e8ebe9;
 }
+/* O bloco de notas: um pouco de texto, como uma janela de verdade. */
+.demo-note { color: #2b3134; font-size: .86rem; line-height: 1.55; }
+.demo-note-title { font-weight: 700; margin: 0 0 6px; }
+.demo-note p { margin: 0; }
+
+/* -------------------------------------------- os ícones da área de trabalho */
+.demo-icons {
+  position: absolute; z-index: 2;
+  top: 12px; left: 12px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.demo-icon {
+  width: 76px; padding: 7px 4px 6px;
+  border: 0; border-radius: 6px; background: transparent;
+  color: #e6eef6; cursor: pointer; font: inherit;
+  display: grid; justify-items: center; gap: 3px;
+}
+.demo-icon b { font-size: 24px; font-weight: 400; line-height: 1; }
+.demo-icon span {
+  font-size: 10.5px; line-height: 1.25;
+  text-shadow: 0 1px 2px rgba(0,0,0,.8);
+}
+.demo-icon:hover { background: rgba(255,255,255,.14); }
 
 /* ------------------------------------------------------- a barra de tarefas */
 .demo-taskbar {
   position: absolute; left: 0; right: 0; bottom: 0; height: 36px;
+  z-index: 15;
   background: rgba(9,17,24,.86);
   border-top: 1px solid rgba(255,255,255,.12);
   color: #cbd9e4;
-  display: flex; align-items: center; justify-content: space-between;
+  display: flex; align-items: center; gap: 12px;
   padding: 0 14px;
   font-family: var(--font-pixel); font-size: 11px;
   backdrop-filter: blur(3px);
 }
-.demo-start { color: #e7eef5; }
-.demo-clock { opacity: .85; }
+.demo-start { color: #e7eef5; flex: none; }
+.demo-taskbar-apps { display: flex; gap: 6px; flex: 1; min-width: 0; overflow: hidden; }
+.demo-task {
+  display: flex; align-items: center; gap: 6px;
+  max-width: 190px;
+  border: 1px solid transparent; border-radius: 5px;
+  background: rgba(255,255,255,.06); color: #cbd9e4;
+  padding: 3px 9px 3px 6px; cursor: pointer;
+  font: inherit; font-size: 11px;
+}
+.demo-task b { font-size: 13px; font-weight: 400; line-height: 1; }
+.demo-task span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.demo-task:hover { background: rgba(255,255,255,.14); }
+.demo-task.on { background: rgba(255,255,255,.16); border-color: rgba(255,255,255,.22); color: #fff; }
+.demo-clock { flex: none; opacity: .85; }
 
-/* ---------------------------------------------------------------- o pet */
+/* ---------------------------------------------------------------- o pet
+   O canvas fica acima de tudo: o pet passa por cima das janelas e da
+   barra de tarefas, como o pet do Windows, que é sempre por cima.   */
 .demo-canvas {
   position: absolute; inset: 0;
+  z-index: 20;
   width: 100%; height: 100%;
   pointer-events: none;
   image-rendering: pixelated;
@@ -88,7 +129,7 @@
 
 /* --------------------------------------------------------- o balão de fala */
 .demo-bubble {
-  position: absolute; z-index: 5;
+  position: absolute; z-index: 30;
   max-width: 250px;
   background: #fff;
   color: #16191c;
@@ -124,7 +165,7 @@
 
 /* ------------------------------------------------------------- o menu */
 .demo-menu {
-  position: absolute; z-index: 6;
+  position: absolute; z-index: 32;
   min-width: 210px;
   background: #fff;
   border: 1px solid #cfd6d2;
@@ -147,7 +188,7 @@
 
 /* ------------------------------------------------------ o carregamento */
 .demo-loading {
-  position: absolute; inset: 0; z-index: 8;
+  position: absolute; inset: 0; z-index: 40;
   display: grid; place-content: center; justify-items: center; gap: 12px;
   background: rgba(10,15,20,.78); color: #dfe8f4; font-size: .9rem;
 }
@@ -200,22 +241,28 @@
 .demo-stage.dragging-pet { cursor: grabbing; }
 
 @media (max-width: 760px) {
-  .demo-window { width: 78%; left: 6%; top: 74px; }
   .demo-controls { flex-direction: column; align-items: stretch; }
+  .demo-icon { width: 62px; }
+  .demo-icon b { font-size: 20px; }
 }
 
 /* --------------------------------------------------------------- o modo
-   embutido: a mesma página, mostrada dentro de um iframe do site
-   principal. Some tudo, menos o palco.                            */
+   embutido: a mesma página, mostrada dentro de um iframe. Some tudo,
+   menos o palco — fica só a mini área de trabalho.               */
 body.embed .titlebar,
 body.embed .hero,
 body.embed footer,
 body.embed #o-que-e-real,
 body.embed #demo h2,
 body.embed #demo .section-intro,
-body.embed .demo-hint { display: none; }
+body.embed .demo-hint,
+body.embed .demo-controls { display: none; }
 body.embed #demo { padding: 0; border: 0; }
 body.embed #demo .wrap { padding: 0; max-width: none; }
-body.embed .demo-stage { border-radius: 0; border: 0; box-shadow: none; }
-body.embed .demo-controls { padding: 10px 0 0; margin-top: 0; }
+body.embed,
+body.embed main { margin: 0; padding: 0; background: #0e1216; }
+body.embed .demo-stage {
+  border-radius: 0; border: 0; box-shadow: none;
+  height: 100vh;
+}
 

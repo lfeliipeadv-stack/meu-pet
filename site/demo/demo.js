@@ -2,8 +2,13 @@
    demo.js — a página de demonstração.
 
    Aqui ficam as três coisas que o motor não faz sozinho: o mundo
-   (a área de trabalho da página), o desenho no canvas e as
-   conversas com o pet.
+   (a área de trabalho da página), o desenho no canvas e as conversas
+   com o pet.
+
+   O mundo é uma mini área de trabalho: uma janela de cada vez pode
+   ser arrastada, maximizada, minimizada ou fechada, e o pet anda
+   em cima delas, perde o chão quando elas somem e acompanha a
+   janela que se move — como no Windows.
    --------------------------------------------------------------- */
 
 import { Pet, World } from "./pet-engine.js";
@@ -75,14 +80,15 @@ const ANSWERS = [
 
 /* --------------------------------------------------------------- o mundo */
 const EMBED = new URLSearchParams(window.location.search).has("embed");
+// Modo foto: usado para tirar a imagem da documentação. A simulação roda
+// adiantada e o quadro é desenhado uma vez só, com o pet já em cima da janela.
+const SHOT = new URLSearchParams(window.location.search).has("shot");
 if (EMBED) document.body.classList.add("embed");
 
 const world = new World();
 const stage = document.getElementById("stage");
 const canvas = document.getElementById("canvas");
 const context = canvas.getContext("2d");
-const fakeWindow = document.getElementById("fake-window");
-const fakeWindowBar = document.getElementById("fake-window-bar");
 const bubble = document.getElementById("bubble");
 const bubbleText = document.getElementById("bubble-text");
 const bubbleChoices = document.getElementById("bubble-choices");
@@ -92,33 +98,234 @@ const clock = document.getElementById("clock");
 const petList = document.getElementById("pet-list");
 const askButton = document.getElementById("ask");
 const soundButton = document.getElementById("sound");
+const iconList = document.getElementById("icons");
+const taskbarApps = document.getElementById("taskbar-apps");
 
 let pet = null;
 let currentFolder = null;
 let soundOn = true;
-let drag = null;           // o que está sendo arrastado: o pet ou a janela
+let drag = null;           // o que está sendo arrastado: o pet ou uma janela
+let topZ = 2;              // a ordem das janelas (maior = na frente)
 
-/* ----------------------------------------------------------- a janela do desktop */
-world.windows.push({ id: "painel", title: "Meu Pet — Painel", left: 0, top: 0, right: 0, bottom: 0, z: 1 });
+/* ----------------------------------------------------------- as janelas
+   Cada janela é um retângulo do mundo, como as janelas de verdade do
+   Windows: o pet anda no título, cai quando elas somem e acompanha
+   a que se move.                                                    */
 
-/** Mede o palco e a janela, e prepara o canvas. */
+const WINDOW_DEFS = [
+  { id: "notas", title: "Bloco de Notas", kind: "notes", icon: "📝",
+    x: 0.13, y: 0.52, w: 300, h: 190, z: 1 },
+  { id: "painel", title: "Meu Pet — Painel", kind: "panel", icon: "🐑",
+    x: 0.34, y: 0.07, w: 460, h: 250, z: 2 }
+];
+
+const windows = WINDOW_DEFS.map((def) => {
+  const win = {
+    id: def.id,
+    title: def.title,
+    kind: def.kind,
+    icon: def.icon,
+    def,
+    x: 0, y: 0,              // posição normal, em pixels
+    w: def.w, h: def.h,      // tamanho normal, em pixels
+    left: 0, top: 0, right: 0, bottom: 0,
+    z: def.z,
+    maximized: false,
+    minimized: false,
+    closed: false,
+    gone: false,             // para o motor: janela que não existe mais
+    el: null
+  };
+  world.windows.push(win);
+  return win;
+});
+
+function windowById(id) {
+  return windows.find((win) => win.id === id) || null;
+}
+
+function windowOf(element) {
+  const holder = element && element.closest ? element.closest(".demo-window") : null;
+  return holder ? windowById(holder.dataset.window) : null;
+}
+
+/** O corpo de cada janela: o painel do programa e um bloco de notas. */
+function windowBody(win) {
+  if (win.kind === "notes") {
+    return `<div class="demo-note">
+      <p class="demo-note-title">Lista de compras</p>
+      <p>· pão de mel<br>· café<br>· mais uma ovelha<br>· Windows 11</p>
+    </div>`;
+  }
+  return `<div class="demo-line w60"></div>
+    <div class="demo-line w85"></div>
+    <div class="demo-line w40"></div>
+    <div class="demo-blocks"><span></span><span></span><span></span></div>`;
+}
+
+/** Cria o elemento de cada janela na tela. */
+function buildWindows() {
+  for (const win of windows) {
+    const el = document.createElement("div");
+    el.className = "demo-window";
+    el.dataset.window = win.id;
+    el.innerHTML = `
+      <div class="demo-window-bar">
+        <span class="dot min" data-action="min" title="Minimizar"></span>
+        <span class="dot max" data-action="max" title="Maximizar"></span>
+        <span class="dot close" data-action="close" title="Fechar"></span>
+        <span class="demo-window-title"></span>
+      </div>
+      <div class="demo-window-body">${windowBody(win)}</div>`;
+    el.querySelector(".demo-window-title").textContent = win.title;
+    stage.appendChild(el);
+    win.el = el;
+  }
+}
+
+/** Os ícones da área de trabalho: abrem as janelas de novo. */
+function buildIcons() {
+  iconList.innerHTML = "";
+  for (const win of windows) {
+    const icon = document.createElement("button");
+    icon.type = "button";
+    icon.className = "demo-icon";
+    icon.dataset.window = win.id;
+    icon.innerHTML = `<b>${win.icon}</b><span></span>`;
+    icon.querySelector("span").textContent = win.title;
+    icon.addEventListener("click", () => openWindow(win));
+    iconList.appendChild(icon);
+  }
+}
+
+function openWindow(win) {
+  win.closed = false;
+  win.minimized = false;
+  raiseWindow(win);
+}
+
+/** As janelas da barra de tarefas: as que ainda existem. */
+function buildTaskbar() {
+  taskbarApps.innerHTML = "";
+  for (const win of windows) {
+    if (win.closed) continue;
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "demo-task";
+    if (!win.minimized) button.classList.add("on");
+    button.innerHTML = `<b>${win.icon}</b><span></span>`;
+    button.querySelector("span").textContent = win.title;
+    button.addEventListener("click", () => {
+      if (win.minimized) {
+        win.minimized = false;
+        layoutWindows();
+      }
+      raiseWindow(win);
+    });
+    taskbarApps.appendChild(button);
+  }
+}
+
+/** Traz a janela para a frente, como no Windows. */
+function raiseWindow(win) {
+  if (win.closed) return;
+  if (win.z < topZ) {
+    topZ++;
+    win.z = topZ;
+  }
+  layoutWindows();
+  buildTaskbar();
+}
+
+/** O que acontece quando se clica nos botões da janela. */
+function windowAction(win, action) {
+  if (action === "close") {
+    win.closed = true;
+    win.minimized = false;
+    win.gone = true;
+    win.el.hidden = true;
+  } else if (action === "min") {
+    win.minimized = true;
+    win.gone = true;
+    win.el.hidden = true;
+  } else if (action === "max") {
+    win.maximized = !win.maximized;
+  }
+  layoutWindows();
+  buildTaskbar();
+}
+
+/** O tamanho de cada janela: cabe na tela ou ocupa o que der. */
+function windowSize(win) {
+  const area = world.area;
+  return {
+    w: Math.max(120, Math.min(win.w, world.width - 16)),
+    h: Math.max(80, Math.min(win.h, area.bottom - 12))
+  };
+}
+
+/** Mede o palco, coloca as janelas no lugar e prepara o canvas. */
 function measure() {
   const rect = stage.getBoundingClientRect();
   world.width = Math.max(320, Math.round(rect.width));
   world.height = Math.max(240, Math.round(rect.height));
 
-  const winRect = fakeWindow.getBoundingClientRect();
-  const win = world.windows[0];
-  win.left = Math.round(winRect.left - rect.left);
-  win.top = Math.round(winRect.top - rect.top);
-  win.right = win.left + Math.round(winRect.width);
-  win.bottom = win.top + Math.round(winRect.height);
+  for (const win of windows) {
+    if (!win.el) continue;
+    const size = windowSize(win);
+    // A posição normal só é calculada na primeira vez.
+    if (!win.placed) {
+      win.x = Math.round(win.def.x * world.width);
+      win.y = Math.round(win.def.y * world.height);
+      win.placed = true;
+    }
+    // A janela cabe inteira na tela quando dá; se não der, fica pelo menos
+    // um pedaço visível, como no Windows.
+    win.x = Math.round(Math.max(0, Math.min(world.width - size.w, win.x)));
+    win.y = Math.round(Math.max(0, Math.min(world.area.bottom - 40, win.y)));
+  }
+
+  layoutWindows();
 
   const ratio = Math.min(2, window.devicePixelRatio || 1);
   canvas.width = Math.round(world.width * ratio);
   canvas.height = Math.round(world.height * ratio);
   context.setTransform(ratio, 0, 0, ratio, 0, 0);
   context.imageSmoothingEnabled = false;
+}
+
+/** Coloca cada janela no seu lugar (e avisa o motor). */
+function layoutWindows() {
+  const area = world.area;
+  for (const win of windows) {
+    if (!win.el) continue;
+
+    if (win.closed) {
+      win.gone = true;
+      win.el.hidden = true;
+      continue;
+    }
+
+    const { w, h } = windowSize(win);
+    const full = win.maximized;
+
+    const left = full ? area.left : Math.round(win.x);
+    const top = full ? area.top : Math.round(win.y);
+
+    win.left = left;
+    win.top = top;
+    win.right = left + (full ? area.right - area.left : w);
+    win.bottom = top + (full ? area.bottom - area.top : h);
+
+    win.gone = win.minimized;
+    win.el.hidden = win.minimized;
+    win.el.classList.toggle("maximized", full);
+    win.el.style.left = left + "px";
+    win.el.style.top = top + "px";
+    win.el.style.width = (full ? area.right - area.left : w) + "px";
+    win.el.style.height = (full ? area.bottom - area.top : h) + "px";
+    win.el.style.zIndex = String(10 + win.z);
+  }
 }
 
 /* ---------------------------------------------------------------- o desenho */
@@ -238,7 +445,7 @@ function openMenu(x, y) {
   separator();
   item(soundOn ? "🔊 Som: ligado" : "🔇 Som: desligado", toggleSound);
   item("🔄 Mandar este pet embora", () => {
-    pet.arriveFromSky();
+    pet.arriveFromSky(arrivalSpot());
     say("Até logo! Volto em seguida.");
   });
 
@@ -305,17 +512,11 @@ function hitPet(point) {
          point.y >= state.y && point.y <= state.y + state.height;
 }
 
-function hitWindowBar(point) {
-  const rect = fakeWindowBar.getBoundingClientRect();
-  const stageRect = stage.getBoundingClientRect();
-  return point.x >= rect.left - stageRect.left && point.x <= rect.right - stageRect.left &&
-         point.y >= rect.top - stageRect.top && point.y <= rect.bottom - stageRect.top;
-}
-
 stage.addEventListener("pointerdown", (event) => {
   if (event.button === 2) return;
   const point = localPoint(event);
 
+  // O pet vem primeiro: ele é desenhado por cima de tudo.
   if (hitPet(point)) {
     const state = pet.renderState();
     drag = {
@@ -333,14 +534,50 @@ stage.addEventListener("pointerdown", (event) => {
     return;
   }
 
-  if (hitWindowBar(point)) {
+  // Os botões da janela (minimizar, maximizar, fechar).
+  const action = event.target.dataset ? event.target.dataset.action : null;
+  if (action) {
+    const win = windowOf(event.target);
+    if (win) {
+      windowAction(win, action);
+      event.stopPropagation();
+    }
+    return;
+  }
+
+  // Os ícones da área de trabalho.
+  const icon = event.target.closest ? event.target.closest(".demo-icon") : null;
+  if (icon) {
+    const win = windowById(icon.dataset.window);
+    if (win) openWindow(win);
+    return;
+  }
+
+  // A barra do título: arrasta a janela.
+  const bar = event.target.closest ? event.target.closest(".demo-window-bar") : null;
+  if (bar) {
+    const win = windowOf(bar);
+    if (!win) return;
+    raiseWindow(win);
     drag = {
       what: "window",
-      offsetX: point.x - world.windows[0].left,
-      offsetY: point.y - world.windows[0].top
+      win,
+      offsetX: point.x - win.left,
+      offsetY: point.y - win.top,
+      moved: false,
+      startX: event.clientX,
+      startY: event.clientY
     };
     stage.classList.add("dragging-window");
     stage.setPointerCapture(event.pointerId);
+    return;
+  }
+
+  // O resto da janela: só traz para a frente.
+  const holder = event.target.closest ? event.target.closest(".demo-window") : null;
+  if (holder) {
+    const win = windowOf(holder);
+    if (win) raiseWindow(win);
   }
 });
 
@@ -353,13 +590,19 @@ stage.addEventListener("pointermove", (event) => {
     if (Math.abs(event.clientX - drag.startX) > 4 || Math.abs(event.clientY - drag.startY) > 4) {
       drag.moved = true;
     }
-  } else {
-    const left = Math.max(0, Math.min(world.width - 80, point.x - drag.offsetX));
-    const top = Math.max(0, Math.min(world.height - world.taskbarHeight - 20, point.y - drag.offsetY));
-    fakeWindow.style.left = Math.round(left) + "px";
-    fakeWindow.style.top = Math.round(top) + "px";
-    measure();
+    return;
   }
+
+  const win = drag.win;
+  if (win.maximized) {
+    // Arrastar uma janela maximizada a restaura, como no Windows.
+    win.maximized = false;
+    drag.offsetX = Math.min(drag.offsetX, win.w / 2);
+    drag.offsetY = Math.min(drag.offsetY, 26);
+  }
+  win.x = point.x - drag.offsetX;
+  win.y = point.y - drag.offsetY;
+  layoutWindows();
 });
 
 function endPointer(event) {
@@ -417,6 +660,14 @@ function buildPetList() {
   }
 }
 
+/** Onde o pet deve cair: em cima de uma das janelas que estão abertas. */
+function arrivalSpot() {
+  const open = windows.filter((win) => !win.closed && !win.minimized);
+  if (!open.length) return null;
+  const win = open[Math.floor(Math.random() * open.length)];
+  return (win.left + win.right) / 2 - (pet ? pet.width : 40) / 2;
+}
+
 async function loadPet(folder) {
   loading.hidden = false;
   closeMenu();
@@ -442,10 +693,27 @@ async function loadPet(folder) {
 
   // Como no primeiro arranque do programa, o pet chega do céu: ele cai
   // e pousa no topo da janela — é assim que ele aparece na tela do Windows.
-  const win = world.windows[0];
-  pet.arriveFromSky((win.left + win.right) / 2 - pet.width / 2);
+  pet.arriveFromSky(arrivalSpot());
   pet.start();
   loading.hidden = true;
+
+  // Desenha o primeiro quadro na hora: o pet aparece sem esperar o
+  // próximo quadro da animação.
+  if (SHOT) {
+    advanceSimulation(4500);
+    // Na foto, o pet fica em cima da janela do bloco de notas, andando.
+    // (Uma janela colada no topo da tela é baixa demais para o pet cair
+    //  em cima dela — é o mesmo que acontece no Windows.)
+    const notas = windows.find((win) => win.id === "notas");
+    if (notas) {
+      pet.beginDrag();
+      pet.dragTo((notas.left + notas.right) / 2 - 20, notas.top - 42, performance.now());
+      pet.endDrag(performance.now());
+      advanceSimulation(6000);
+    }
+  } else {
+    render(performance.now());
+  }
 
   for (const button of petList.querySelectorAll(".demo-pet")) {
     button.setAttribute("aria-pressed", String(button.dataset.folder === folder));
@@ -458,31 +726,65 @@ function tickClock() {
   clock.textContent = String(now.getHours()).padStart(2, "0") + ":" + String(now.getMinutes()).padStart(2, "0");
 }
 
+/* -------------------------------------------------- a simulação adiantada
+   Roda a simulação por alguns segundos, sem depender da animação do
+   navegador: serve para testar e para a imagem da documentação.   */
+let simulatedNow = 0;
+function advanceSimulation(milliseconds) {
+  const step = 40;
+  let now = Math.max(performance.now(), simulatedNow);
+  const end = now + milliseconds;
+  while (now < end) {
+    now += step;
+    render(now);
+  }
+  simulatedNow = now;
+}
+
 /* ----------------------------------------------------------------- início */
 askButton.addEventListener("click", ask);
 soundButton.addEventListener("click", toggleSound);
 window.addEventListener("resize", measure);
 
 // Um gancho para quem quiser inspecionar a demo pelo console do navegador.
-let simulatedNow = 0;
 window.meuPetDemo = {
   get pet() { return pet; },
   world,
+  windows,
   ask,
   render,
+  /** Mexe nas janelas do desktop, como se fossem clicadas. */
+  windowAction(id, action) {
+    const win = windowById(id);
+    if (win) windowAction(win, action);
+  },
+  raiseWindow(id) {
+    const win = windowById(id);
+    if (win) raiseWindow(win);
+  },
+  moveWindow(id, x, y) {
+    const win = windowById(id);
+    if (!win) return;
+    win.x = x;
+    win.y = y;
+    layoutWindows();
+  },
+  /** Onde o pet está em relação às janelas (para conferir o movimento). */
+  state() {
+    return {
+      animacao: pet ? pet.current.name : null,
+      x: pet ? Math.round(pet.x) : null,
+      y: pet ? Math.round(pet.y) : null,
+      janela: pet && pet.window ? pet.window.id : null
+    };
+  },
   /** Roda a simulação por alguns segundos, para testar sem depender da animação. */
-  advance(milliseconds) {
-    const step = 40;
-    let now = Math.max(performance.now(), simulatedNow);
-    const end = now + milliseconds;
-    while (now < end) {
-      now += step;
-      render(now);
-    }
-    simulatedNow = now;
-  }
+  advance: advanceSimulation
 };
 
+buildWindows();
+buildIcons();
+buildTaskbar();
 buildPetList();
 measure();
 tickClock();

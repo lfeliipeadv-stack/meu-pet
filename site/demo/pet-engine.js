@@ -381,7 +381,9 @@ export class World {
     this.width = 800;
     this.height = 460;
     this.taskbarHeight = 36;
-    // Cada janela: { id, title, left, top, right, bottom, z } (z maior = na frente)
+    // Cada janela: { id, title, left, top, right, bottom, z, gone }
+    // (z maior = na frente; gone = janela fechada ou minimizada, o pet
+    //  não tem mais chão ali — como no Windows).
     this.windows = [];
   }
 
@@ -395,9 +397,11 @@ export class World {
     return { left: 0, top: 0, right: this.width, bottom: this.height - this.taskbarHeight };
   }
 
-  /** As janelas em ordem de frente para trás. */
+  /** As janelas em ordem de frente para trás (as que ainda existem). */
   windowsTopFirst() {
-    return this.windows.slice().sort((a, b) => b.z - a.z);
+    return this.windows
+      .filter((win) => !win.gone)
+      .sort((a, b) => b.z - a.z);
   }
 }
 
@@ -985,6 +989,10 @@ export class Pet {
    */
   checkTopWindow(bCheck, win = this.window) {
     if (!win) return false;
+
+    // A janela foi fechada ou minimizada: o pet perde o chão e cai,
+    // como no Windows quando a janela em que ele estava some.
+    if (win.gone) return true;
 
     if (bCheck && this.currentWindowSize) {
       if (this.currentWindowSize.top !== win.top ||
